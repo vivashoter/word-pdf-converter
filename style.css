@@ -228,4 +228,27 @@ footer {
   .features {
     grid-template-columns: 1fr;
   }
+
+  .convert-button {
+  display: block;
+  margin: 24px auto 0;
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.convert-button:hover {
+  background: #000000;
+}
+
+.status-message {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #4b5563;
+}
 }
