@@ -88,4 +88,16 @@ uploadArea.addEventListener("drop", (event) => {
 
   uploadTitle.textContent = file.name;
   uploadDescription.textContent = "File selected and ready to convert";
+}
+
+const convertButton = document.getElementById("convertButton");
+const statusMessage = document.getElementById("statusMessage");
+
+convertButton.addEventListener("click", () => {
+  if (fileInput.files.length === 0) {
+    statusMessage.textContent = "Please choose a file first.";
+    return;
+  }
+
+  statusMessage.textContent = "File ready. Conversion backend coming next.";
 });
