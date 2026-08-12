@@ -93,11 +93,75 @@ uploadArea.addEventListener("drop", (event) => {
 const convertButton = document.getElementById("convertButton");
 const statusMessage = document.getElementById("statusMessage");
 
-convertButton.addEventListener("click", () => {
+convertButton.addEventListener("click", async () => {
   if (fileInput.files.length === 0) {
     statusMessage.textContent = "Please choose a file first.";
     return;
   }
 
-  statusMessage.textContent = "File ready. Conversion backend coming next.";
+  const file = fileInput.files[0];
+
+  // 25 MB limit
+  const maxSize = 25 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+    statusMessage.textContent = "File is too large. Maximum size is 25 MB.";
+    return;
+  }
+
+  // PDF to Word will be added next
+  if (conversionMode === "pdf-to-word") {
+    statusMessage.textContent = "PDF to Word conversion is coming next.";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  convertButton.disabled = true;
+  convertButton.textContent = "Converting...";
+  statusMessage.textContent = "Converting your document...";
+
+  try {
+    const response = await fetch("/convert/word-to-pdf", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Conversion failed.");
+    }
+
+    const blob = await response.blob();
+
+    const downloadURL = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = downloadURL;
+
+    const originalName = file.name.replace(/\.(doc|docx)$/i, "");
+    downloadLink.download = originalName + ".pdf";
+
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+
+    downloadLink.remove();
+
+    URL.revokeObjectURL(downloadURL);
+
+    statusMessage.textContent = "Conversion complete! Your PDF has been downloaded.";
+
+  } catch (error) {
+    console.error(error);
+
+    statusMessage.textContent =
+      error.message || "Something went wrong during conversion.";
+
+  } finally {
+    convertButton.disabled = false;
+    convertButton.textContent = "Convert File";
+  }
 });
