@@ -1,1 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>WordPDF | Convert Word & PDF Files</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="navbar">
+
+    <div class="logo">
+      <span class="logo-icon">↔</span>
+      <span>WordPDF</span>
+    </div>
+
+    <nav>
+      <a href="#converter">Convert</a>
+      <a href="#features">How It Works</a>
+    </nav>
+
+  </header>
+
+
+  <!-- MAIN -->
+  <main>
+
+    <section class="hero">
+
+      <div class="hero-label">
+        SIMPLE DOCUMENT CONVERSION
+      </div>
+
+      <h1>
+        Word & PDF conversion<br>
+        made simple.
+      </h1>
+
+      <p class="hero-description">
+        Convert Word documents to PDF or turn PDFs into
+        editable Word files quickly and securely.
+      </p>
+
+
+      <!-- CONVERTER -->
+      <div class="converter" id="converter">
+
+        <div class="converter-tabs">
+
+          <button
+            class="converter-tab active"
+            id="wordToPdf"
+            type="button"
+          >
+            Word to PDF
+          </button>
+
+          <button
+            class="converter-tab"
+            id="pdfToWord"
+            type="button"
+          >
+            PDF to Word
+          </button>
+
+        </div>
+
+
+        <div class="upload-area" id="uploadArea">
+
+          <div class="upload-icon">
+            ↑
+          </div>
+
+          <h2 id="uploadTitle">
+            Upload your Word document
+          </h2>
+
+          <p id="uploadDescription">
+            Drag & drop your DOC or DOCX file here
+          </p>
+
+          <span class="or-text">or</span>
+
+          <label for="fileInput" class="choose-button">
+            Choose File
+          </label>
+
+          <input
+            type="file"
+            id="fileInput"
+            accept=".doc,.docx"
+            hidden
+          >
+
+          <p class="file-limit">
+            Maximum file size: 25 MB
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+
+      <div class="feature">
+
+        <div class="feature-icon">⚡</div>
+
+        <h3>Fast Conversion</h3>
+
+        <p>
+          Upload your document and receive your converted
+          file in seconds.
+        </p>
+
+      </div>
+
+
+      <div class="feature">
+
+        <div class="feature-icon">🔒</div>
+
+        <h3>Private & Secure</h3>
+
+        <p>
+          Your documents are securely processed and aren't
+          permanently stored.
+        </p>
+
+      </div>
+
+
+      <div class="feature">
+
+        <div class="feature-icon">✓</div>
+
+        <h3>Easy to Use</h3>
+
+        <p>
+          No complicated settings. Upload, convert,
+          and download.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer>
+
+    <div class="footer-logo">
+      WordPDF
+    </div>
+
+    <p>
+      Simple document conversion.
+    </p>
+
+    <p class="copyright">
+      © 2026 WordPDF
+    </p>
+
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
