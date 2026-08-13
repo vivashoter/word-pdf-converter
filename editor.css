@@ -29,7 +29,7 @@ button {
   position: sticky;
   top: 0;
 
-  z-index: 20;
+  z-index: 100;
 }
 
 .brand {
@@ -113,6 +113,8 @@ button {
   flex-direction: column;
 
   gap: 8px;
+
+  z-index: 50;
 }
 
 .tool-button {
@@ -152,7 +154,7 @@ button {
 }
 
 
-/* DOCUMENT AREA */
+/* WORKSPACE */
 
 .document-workspace {
   flex: 1;
@@ -178,7 +180,6 @@ button {
 
 .document-controls button {
   width: 38px;
-
   height: 38px;
 
   border: 1px solid #d1d5db;
@@ -242,10 +243,129 @@ button {
     rgba(0, 0, 0, 0.16);
 
   flex-shrink: 0;
+
+  overflow: hidden;
 }
 
-.pdf-page canvas {
+.pdf-canvas {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  z-index: 1;
+
   display: block;
+}
+
+
+/* ANNOTATION LAYER */
+
+.annotation-layer {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 100%;
+
+  z-index: 3;
+
+  pointer-events: none;
+}
+
+
+/* DRAW LAYER */
+
+.draw-layer {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  z-index: 4;
+
+  pointer-events: none;
+
+  touch-action: none;
+}
+
+
+/* ACTIVE TOOL POINTERS */
+
+.pdf-page[data-tool="text"],
+.pdf-page[data-tool="draw"],
+.pdf-page[data-tool="highlight"] {
+  touch-action: none;
+}
+
+.pdf-page[data-tool="text"] {
+  cursor: text;
+}
+
+.pdf-page[data-tool="draw"] {
+  cursor: crosshair;
+}
+
+.pdf-page[data-tool="highlight"] {
+  cursor: crosshair;
+}
+
+
+/* TEXT */
+
+.text-annotation {
+  position: absolute;
+
+  z-index: 10;
+
+  min-width: 70px;
+  min-height: 24px;
+
+  padding: 3px 5px;
+
+  background:
+    rgba(255, 255, 255, 0.85);
+
+  border:
+    1px dashed #4f46e5;
+
+  color: #111827;
+
+  font-size: 16px;
+
+  line-height: 1.25;
+
+  outline: none;
+
+  pointer-events: auto;
+
+  cursor: text;
+}
+
+.text-annotation:focus {
+  border:
+    2px solid #4f46e5;
+
+  background: white;
+}
+
+
+/* HIGHLIGHT */
+
+.highlight-annotation {
+  position: absolute;
+
+  z-index: 5;
+
+  background:
+    rgba(255, 235, 59, 0.4);
+
+  pointer-events: none;
+
+  min-width: 1px;
+  min-height: 1px;
 }
 
 
@@ -277,7 +397,6 @@ button {
 
 .document-icon {
   width: 70px;
-
   height: 85px;
 
   background: #ef4444;
@@ -308,7 +427,7 @@ button {
 }
 
 
-/* MOBILE BUTTONS */
+/* MOBILE ACTIONS */
 
 .mobile-actions {
   display: none;
@@ -395,7 +514,7 @@ button {
     border-top:
       1px solid #e5e7eb;
 
-    z-index: 30;
+    z-index: 100;
   }
 
   .mobile-actions button {
@@ -413,6 +532,7 @@ button {
 
     color: white;
   }
+
 }
 
 
@@ -438,4 +558,5 @@ button {
   .pdf-container {
     padding: 3px;
   }
+
 }
