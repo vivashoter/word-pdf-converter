@@ -1,4 +1,4 @@
-const wordToPdfButton = document.getElementById("wordToPdf");
+8const wordToPdfButton = document.getElementById("wordToPdf");
 const pdfToWordButton = document.getElementById("pdfToWord");
 
 const fileInput = document.getElementById("fileInput");
@@ -213,12 +213,27 @@ const response = await fetch(
     downloadLink.href = downloadURL;
 
 
-    const originalName =
-      file.name.replace(/\.(doc|docx)$/i, "");
+   let originalName;
+let outputName;
 
+if (conversionMode === "word-to-pdf") {
 
-    downloadLink.download =
-      originalName + ".pdf";
+  originalName =
+    file.name.replace(/\.(doc|docx)$/i, "");
+
+  outputName =
+    originalName + ".pdf";
+
+} else {
+
+  originalName =
+    file.name.replace(/\.pdf$/i, "");
+
+  outputName =
+    originalName + ".docx";
+}
+
+downloadLink.download = outputName;
 
 
     document.body.appendChild(downloadLink);
