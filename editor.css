@@ -28,6 +28,7 @@ button {
 
   position: sticky;
   top: 0;
+
   z-index: 20;
 }
 
@@ -37,6 +38,7 @@ button {
 
   display: flex;
   align-items: center;
+
   gap: 8px;
 }
 
@@ -47,6 +49,7 @@ button {
 .document-name {
   font-size: 14px;
   font-weight: 600;
+
   color: #4b5563;
 
   max-width: 40%;
@@ -63,7 +66,9 @@ button {
 
 .header-actions button {
   border: 1px solid #d1d5db;
+
   background: white;
+
   color: #374151;
 
   padding: 10px 16px;
@@ -71,11 +76,8 @@ button {
   border-radius: 8px;
 
   font-weight: 600;
-  cursor: pointer;
-}
 
-.header-actions button:hover {
-  background: #f3f4f6;
+  cursor: pointer;
 }
 
 .header-actions .primary-button {
@@ -84,39 +86,41 @@ button {
   border-color: #4f46e5;
 }
 
-.header-actions .primary-button:hover {
-  background: #4338ca;
-}
-
 .editor-layout {
   display: flex;
-  min-height: calc(100vh - 70px);
+
+  min-height:
+    calc(100vh - 70px);
 }
 
+
+/* TOOLBAR */
+
 .toolbar {
-  width: 95px;
+  width: 90px;
+
+  flex-shrink: 0;
 
   background: white;
 
-  border-right: 1px solid #e5e7eb;
+  border-right:
+    1px solid #e5e7eb;
 
-  padding: 18px 10px;
+  padding: 18px 8px;
 
   display: flex;
+
   flex-direction: column;
-  gap: 10px;
 
-  position: sticky;
-  top: 70px;
-
-  height: calc(100vh - 70px);
+  gap: 8px;
 }
 
 .tool-button {
   border: none;
+
   background: transparent;
 
-  padding: 12px 6px;
+  padding: 12px 5px;
 
   border-radius: 10px;
 
@@ -125,8 +129,11 @@ button {
   cursor: pointer;
 
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   gap: 5px;
 
   font-size: 12px;
@@ -137,31 +144,41 @@ button {
   font-weight: 700;
 }
 
-.tool-button:hover {
+.tool-button:hover,
+.tool-button.active-tool {
   background: #eef2ff;
+
   color: #4f46e5;
 }
+
+
+/* DOCUMENT AREA */
 
 .document-workspace {
   flex: 1;
 
   min-width: 0;
 
-  padding: 20px;
+  overflow: hidden;
+
+  padding: 15px;
 }
 
 .document-controls {
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   gap: 12px;
 
-  margin-bottom: 18px;
+  margin-bottom: 15px;
 }
 
 .document-controls button {
   width: 38px;
+
   height: 38px;
 
   border: 1px solid #d1d5db;
@@ -175,105 +192,140 @@ button {
   cursor: pointer;
 }
 
-.document-controls button:hover {
-  background: #f3f4f6;
-}
-
 #zoomLevel {
   min-width: 55px;
+
   text-align: center;
 
   font-size: 14px;
+
   font-weight: 600;
 }
 
+
+/* PDF */
+
 .pdf-container {
+  width: 100%;
+
   overflow: auto;
 
-  min-height: calc(100vh - 150px);
+  padding: 15px;
 
-  padding: 20px;
-
-  display: flex;
-  justify-content: center;
+  min-height:
+    calc(100vh - 150px);
 }
 
 .pdf-viewer {
-  width: 100%;
-  max-width: 900px;
+  width: max-content;
 
-  min-height: 1050px;
+  min-width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 20px;
+
+  background: transparent;
+}
+
+.pdf-page {
+  position: relative;
 
   background: white;
 
-  border-radius: 4px;
-
   box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.12);
+    0 4px 18px
+    rgba(0, 0, 0, 0.16);
 
-  position: relative;
-
-  transform-origin: top center;
+  flex-shrink: 0;
 }
 
+.pdf-page canvas {
+  display: block;
+}
+
+
+/* EMPTY */
+
 .empty-preview {
-  min-height: 1050px;
+  width: min(700px, 100%);
+
+  min-height: 650px;
+
+  background: white;
 
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
 
   text-align: center;
 
-  padding: 40px;
+  padding: 30px;
+
+  box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.12);
 }
 
 .document-icon {
-  width: 80px;
-  height: 95px;
+  width: 70px;
+
+  height: 85px;
 
   background: #ef4444;
 
   color: white;
 
-  font-size: 18px;
   font-weight: 700;
 
   border-radius: 8px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .empty-preview h2 {
-  font-size: 24px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .empty-preview p {
-  max-width: 460px;
-
   color: #6b7280;
 
-  line-height: 1.6;
+  line-height: 1.5;
 }
+
+
+/* MOBILE BUTTONS */
 
 .mobile-actions {
   display: none;
 }
 
+
+/* MOBILE */
+
 @media (max-width: 800px) {
 
   body {
-    padding-bottom: 72px;
+    padding-bottom: 64px;
   }
 
   .editor-header {
     height: 60px;
+
     padding: 0 16px;
   }
 
@@ -281,30 +333,27 @@ button {
     font-size: 20px;
   }
 
-  .document-name {
-    display: none;
-  }
-
+  .document-name,
   .header-actions {
     display: none;
   }
 
   .editor-layout {
-    min-height: calc(100vh - 60px);
+    min-height:
+      calc(100vh - 60px);
   }
 
   .toolbar {
-    width: 68px;
+    width: 72px;
 
-    top: 60px;
-
-    height: calc(100vh - 60px);
-
-    padding: 12px 6px;
+    padding:
+      10px 5px;
   }
 
   .tool-button {
-    padding: 10px 4px;
+    padding:
+      10px 3px;
+
     font-size: 10px;
   }
 
@@ -313,34 +362,18 @@ button {
   }
 
   .document-workspace {
-    padding: 12px 8px;
+    padding: 8px;
   }
 
   .document-controls {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .pdf-container {
-    padding: 8px;
+    padding: 5px;
 
-    min-height: calc(100vh - 125px);
-  }
-
-  .pdf-viewer {
-    min-height: 650px;
-  }
-
-  .empty-preview {
-    min-height: 650px;
-    padding: 25px 15px;
-  }
-
-  .empty-preview h2 {
-    font-size: 20px;
-  }
-
-  .empty-preview p {
-    font-size: 14px;
+    min-height:
+      calc(100vh - 120px);
   }
 
   .mobile-actions {
@@ -359,7 +392,8 @@ button {
 
     background: white;
 
-    border-top: 1px solid #e5e7eb;
+    border-top:
+      1px solid #e5e7eb;
 
     z-index: 30;
   }
@@ -369,23 +403,23 @@ button {
 
     background: white;
 
-    font-weight: 700;
-
     color: #374151;
 
-    cursor: pointer;
+    font-weight: 700;
   }
 
   .mobile-actions button:last-child {
     background: #4f46e5;
+
     color: white;
   }
 }
 
+
 @media (max-width: 500px) {
 
   .toolbar {
-    width: 58px;
+    width: 62px;
   }
 
   .tool-button {
@@ -397,18 +431,11 @@ button {
   }
 
   .document-workspace {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding:
+      5px 3px;
   }
 
   .pdf-container {
-    padding-left: 3px;
-    padding-right: 3px;
+    padding: 3px;
   }
-
-  .tool-button.active-tool {
-  background: #eef2ff;
-  color: #4f46e5;
-  }
-  
 }
