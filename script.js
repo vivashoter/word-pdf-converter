@@ -161,15 +161,6 @@ convertButton.addEventListener("click", async () => {
   }
 
 
-  if (conversionMode === "pdf-to-word") {
-
-    statusMessage.textContent =
-      "PDF to Word conversion will be added next.";
-
-    return;
-  }
-
-
   const formData = new FormData();
 
   formData.append("file", file);
@@ -185,8 +176,14 @@ convertButton.addEventListener("click", async () => {
 
   try {
 
-    const response = await fetch(
-      "/convert/word-to-pdf",
+  const endpoint =
+  conversionMode === "word-to-pdf"
+    ? "/convert/word-to-pdf"
+    : "/convert/pdf-to-word";
+
+const response = await fetch(
+  endpoint,
+
       {
         method: "POST",
         body: formData
