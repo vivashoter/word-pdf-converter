@@ -1,8 +1,16 @@
+import * as pdfjsLib from
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+
 let zoomLevel = 100;
 
 let pdfBlob = null;
 let pdfURL = null;
 let pdfName = "Converted Document.pdf";
+let pdfDocument = null;
 
 
 const pdfViewer =
@@ -51,118 +59,97 @@ function openDatabase() {
       indexedDB.open("WordPDFEditor", 1);
 
 
-    request.onupgradeneeded =
-      function () {
+    request.onupgradeneeded = () => {
 
-        const db =
-          request.result;
+      const db = request.result;
 
-        if (
-          !db.objectStoreNames.contains(
-            "documents"
-          )
-        ) {
+      if (
+        !db.objectStoreNames.contains("documents")
+      ) {
 
-          db.createObjectStore(
-            "documents"
-          );
-        }
+        db.createObjectStore("documents");
+      }
 
-      };
+    };
 
 
-    request.onsuccess =
-      function () {
+    request.onsuccess = () => {
 
-        resolve(request.result);
+      resolve(request.result);
 
-      };
+    };
 
 
-    request.onerror =
-      function () {
+    request.onerror = () => {
 
-        reject(request.error);
+      reject(request.error);
 
-      };
+    };
 
   });
 
 }
 
 
+// --------------------------------
+// GET SAVED PDF
+// --------------------------------
+
+async function getSavedPdf() {
+
+  const db = await openDatabase();
+
+
+  return new Promise((resolve, reject) => {
+
+    const transaction =
+      db.transaction(
+        "documents",
+        "readonly"
+      );
+
+
+    const store =
+      transaction.objectStore(
+        "documents"
+      );
+
+
+    const request =
+      store.get("currentPdf");
+
+
+    request.onsuccess = () => {
+
+      resolve(request.result);
+
+    };
+
+
+    request.onerror = () => {
+
+      reject(request.error);
+
+    };
+
+  });
+
+}
+
+
+// --------------------------------
+// LOAD PDF
+// --------------------------------
+
 async function loadPdf() {
 
-  const db =
-    await openDatabase();
-
-
   const savedDocument =
-    await new Promise(
-      (resolve, reject) => {
-
-        const transaction =
-          db.transaction(
-            "documents",
-            "readonly"
-          );
-
-
-        const store =
-          transaction.objectStore(
-            "documents"
-          );
-
-
-        const request =
-          store.get(
-            "currentPdf"
-          );
-
-
-        request.onsuccess =
-          function () {
-
-            resolve(
-              request.result
-            );
-
-          };
-
-
-        request.onerror =
-          function () {
-
-            reject(
-              request.error
-            );
-
-          };
-
-      }
-    );
+    await getSavedPdf();
 
 
   if (!savedDocument) {
 
-    pdfViewer.innerHTML = `
-
-      <div class="empty-preview">
-
-        <div class="document-icon">
-          PDF
-        </div>
-
-        <h2>No PDF loaded</h2>
-
-        <p>
-          Convert a Word document first
-          to open it in the editor.
-        </p>
-
-      </div>
-
-    `;
+    showNoPdf();
 
     return;
   }
@@ -171,9 +158,9 @@ async function loadPdf() {
   pdfBlob =
     savedDocument.blob;
 
-
   pdfName =
-    savedDocument.name;
+    savedDocument.name ||
+    "Converted Document.pdf";
 
 
   documentName.textContent =
@@ -181,54 +168,163 @@ async function loadPdf() {
 
 
   pdfURL =
-    URL.createObjectURL(
-      pdfBlob
-    );
+    URL.createObjectURL(pdfBlob);
 
 
-  displayPdf();
+  const pdfBytes =
+    await pdfBlob.arrayBuffer();
+
+
+  pdfDocument =
+    await pdfjsLib.getDocument({
+      data: pdfBytes
+    }).promise;
+
+
+  await renderPdf();
 
 }
 
 
 // --------------------------------
-// DISPLAY PDF
+// RENDER ALL PDF PAGES
 // --------------------------------
 
-function displayPdf() {
+async function renderPdf() {
+
+  if (!pdfDocument) {
+    return;
+  }
+
 
   pdfViewer.innerHTML = "";
 
 
-  const iframe =
-    document.createElement(
-      "iframe"
+  const scale =
+    zoomLevel / 100;
+
+
+  for (
+    let pageNumber = 1;
+    pageNumber <= pdfDocument.numPages;
+    pageNumber++
+  ) {
+
+    const page =
+      await pdfDocument.getPage(pageNumber);
+
+
+    const viewport =
+      page.getViewport({
+        scale: scale
+      });
+
+
+    const pageWrapper =
+      document.createElement("div");
+
+
+    pageWrapper.className =
+      "pdf-page";
+
+
+    const canvas =
+      document.createElement("canvas");
+
+
+    const context =
+      canvas.getContext("2d");
+
+
+    const pixelRatio =
+      window.devicePixelRatio || 1;
+
+
+    canvas.width =
+      Math.floor(
+        viewport.width * pixelRatio
+      );
+
+
+    canvas.height =
+      Math.floor(
+        viewport.height * pixelRatio
+      );
+
+
+    canvas.style.width =
+      `${viewport.width}px`;
+
+
+    canvas.style.height =
+      `${viewport.height}px`;
+
+
+    pageWrapper.style.width =
+      `${viewport.width}px`;
+
+
+    pageWrapper.style.height =
+      `${viewport.height}px`;
+
+
+    pageWrapper.appendChild(canvas);
+
+
+    pdfViewer.appendChild(
+      pageWrapper
     );
 
 
-  iframe.src =
-    pdfURL + "#toolbar=0";
+    await page.render({
+
+      canvasContext: context,
+
+      viewport: viewport,
+
+      transform:
+        pixelRatio !== 1
+          ? [
+              pixelRatio,
+              0,
+              0,
+              pixelRatio,
+              0,
+              0
+            ]
+          : null
+
+    }).promise;
+
+  }
+
+}
 
 
-  iframe.style.width =
-    "100%";
+// --------------------------------
+// NO PDF
+// --------------------------------
 
+function showNoPdf() {
 
-  iframe.style.height =
-    "1050px";
+  pdfViewer.innerHTML = `
 
+    <div class="empty-preview">
 
-  iframe.style.border =
-    "none";
+      <div class="document-icon">
+        PDF
+      </div>
 
+      <h2>No PDF loaded</h2>
 
-  iframe.title =
-    pdfName;
+      <p>
+        Return to WordPDF and convert
+        a Word document first.
+      </p>
 
+    </div>
 
-  pdfViewer.appendChild(
-    iframe
-  );
+  `;
 
 }
 
@@ -237,31 +333,30 @@ function displayPdf() {
 // ZOOM
 // --------------------------------
 
-function updateZoom() {
-
-  pdfViewer.style.transform =
-    `scale(${zoomLevel / 100})`;
-
-
-  pdfViewer.style.transformOrigin =
-    "top center";
-
+async function updateZoom() {
 
   zoomLevelText.textContent =
     `${zoomLevel}%`;
+
+
+  if (pdfDocument) {
+
+    await renderPdf();
+
+  }
 
 }
 
 
 zoomInButton.addEventListener(
   "click",
-  () => {
+  async () => {
 
     if (zoomLevel < 200) {
 
       zoomLevel += 10;
 
-      updateZoom();
+      await updateZoom();
 
     }
 
@@ -271,13 +366,13 @@ zoomInButton.addEventListener(
 
 zoomOutButton.addEventListener(
   "click",
-  () => {
+  async () => {
 
     if (zoomLevel > 50) {
 
       zoomLevel -= 10;
 
-      updateZoom();
+      await updateZoom();
 
     }
 
@@ -291,7 +386,7 @@ zoomOutButton.addEventListener(
 
 function downloadDocument() {
 
-  if (!pdfBlob) {
+  if (!pdfBlob || !pdfURL) {
 
     alert(
       "No PDF is currently loaded."
@@ -305,18 +400,12 @@ function downloadDocument() {
     document.createElement("a");
 
 
-  link.href =
-    pdfURL;
+  link.href = pdfURL;
+
+  link.download = pdfName;
 
 
-  link.download =
-    pdfName;
-
-
-  document.body.appendChild(
-    link
-  );
-
+  document.body.appendChild(link);
 
   link.click();
 
@@ -343,7 +432,7 @@ mobileDownload.addEventListener(
 
 function printDocument() {
 
-  if (!pdfBlob) {
+  if (!pdfURL) {
 
     alert(
       "No PDF is currently loaded."
@@ -353,29 +442,62 @@ function printDocument() {
   }
 
 
-  const printWindow =
-    window.open(
-      pdfURL,
-      "_blank"
-    );
+  const printFrame =
+    document.createElement("iframe");
 
 
-  if (!printWindow) {
+  printFrame.style.position =
+    "fixed";
 
-    alert(
-      "Please allow popups to print this PDF."
-    );
+  printFrame.style.right =
+    "0";
 
-    return;
-  }
+  printFrame.style.bottom =
+    "0";
+
+  printFrame.style.width =
+    "0";
+
+  printFrame.style.height =
+    "0";
+
+  printFrame.style.border =
+    "0";
 
 
-  printWindow.onload =
-    function () {
+  printFrame.src =
+    pdfURL;
 
-      printWindow.print();
 
-    };
+  document.body.appendChild(
+    printFrame
+  );
+
+
+  printFrame.onload = () => {
+
+    setTimeout(() => {
+
+      try {
+
+        printFrame.contentWindow.focus();
+
+        printFrame.contentWindow.print();
+
+      } catch (error) {
+
+        console.error(error);
+
+        window.open(
+          pdfURL,
+          "_blank"
+        );
+
+      }
+
+    }, 500);
+
+  };
 
 }
 
@@ -418,52 +540,50 @@ async function emailDocument() {
     );
 
 
-  if (
-    navigator.share &&
-    navigator.canShare &&
-    navigator.canShare({
-      files: [file]
-    })
-  ) {
+  try {
 
-    try {
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [file]
+      })
+    ) {
 
       await navigator.share({
 
-        title:
-          "WordPDF Document",
+        title: pdfName,
 
         text:
-          "Here is the converted PDF.",
+          "Converted with WordPDF",
 
-        files:
-          [file]
+        files: [file]
 
       });
 
-      return;
-
-    }
-
-    catch (error) {
-
-      if (
-        error.name !== "AbortError"
-      ) {
-
-        console.error(error);
-
-      }
 
       return;
 
     }
+
+  } catch (error) {
+
+    if (
+      error.name === "AbortError"
+    ) {
+
+      return;
+
+    }
+
+
+    console.error(error);
 
   }
 
 
   alert(
-    "Direct file sharing is not supported by this browser yet. Download the PDF and attach it to your email."
+    "Your browser cannot share the PDF directly. Download the file and attach it to your email."
   );
 
 }
@@ -482,7 +602,7 @@ mobileEmail.addEventListener(
 
 
 // --------------------------------
-// TOOLBAR
+// EDITING TOOL SELECTION
 // --------------------------------
 
 const toolButtons =
@@ -491,64 +611,63 @@ const toolButtons =
   );
 
 
-toolButtons.forEach(
-  (button) => {
+toolButtons.forEach((button) => {
 
-    button.addEventListener(
-      "click",
-      () => {
+  button.addEventListener(
+    "click",
+    () => {
 
-        toolButtons.forEach(
-          (item) => {
+      toolButtons.forEach(
+        (item) => {
 
-            item.classList.remove(
-              "active-tool"
-            );
+          item.classList.remove(
+            "active-tool"
+          );
 
-          }
-        );
+        }
+      );
 
 
-        button.classList.add(
-          "active-tool"
-        );
+      button.classList.add(
+        "active-tool"
+      );
 
-      }
-    );
+    }
+  );
 
-  }
-);
+});
 
 
 // --------------------------------
 // START
 // --------------------------------
 
-updateZoom();
+zoomLevelText.textContent =
+  `${zoomLevel}%`;
 
-loadPdf().catch(
-  (error) => {
 
-    console.error(error);
+loadPdf().catch((error) => {
 
-    pdfViewer.innerHTML = `
+  console.error(error);
 
-      <div class="empty-preview">
 
-        <div class="document-icon">
-          PDF
-        </div>
+  pdfViewer.innerHTML = `
 
-        <h2>Unable to load PDF</h2>
+    <div class="empty-preview">
 
-        <p>
-          Please return to WordPDF
-          and convert the document again.
-        </p>
-
+      <div class="document-icon">
+        PDF
       </div>
 
-    `;
+      <h2>Unable to display PDF</h2>
 
-  }
-);
+      <p>
+        Return to WordPDF and convert
+        the document again.
+      </p>
+
+    </div>
+
+  `;
+
+});
