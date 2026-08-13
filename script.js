@@ -34,13 +34,19 @@ pdfToWordButton.addEventListener("click", () => {
   fileInput.value = "";
 });
 
-fileInput.addEventListener("change", () => {
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
+fileInput.addEventListener("change", function () {
 
-    uploadTitle.textContent = file.name;
-    uploadDescription.textContent = "File selected and ready to convert";
+  if (!this.files || this.files.length === 0) {
+    uploadTitle.textContent = "No file selected";
+    return;
   }
+
+  const file = this.files[0];
+
+  uploadTitle.textContent = file.name;
+  uploadDescription.textContent = "Ready to convert";
+
+  console.log("Selected file:", file.name);
 });
 
 uploadArea.addEventListener("dragover", (event) => {
