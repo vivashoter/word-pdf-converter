@@ -12,6 +12,23 @@ let pdfURL = null;
 let pdfName = "Converted Document.pdf";
 let pdfDocument = null;
 
+let activeTool = "select";
+
+let isDrawing = false;
+let isHighlighting = false;
+
+let startX = 0;
+let startY = 0;
+
+let currentDrawCanvas = null;
+let currentDrawContext = null;
+
+let currentHighlight = null;
+
+
+// --------------------------------
+// ELEMENTS
+// --------------------------------
 
 const pdfViewer =
   document.getElementById("pdfViewer");
@@ -91,13 +108,10 @@ function openDatabase() {
 }
 
 
-// --------------------------------
-// GET SAVED PDF
-// --------------------------------
-
 async function getSavedPdf() {
 
-  const db = await openDatabase();
+  const db =
+    await openDatabase();
 
 
   return new Promise((resolve, reject) => {
@@ -187,7 +201,7 @@ async function loadPdf() {
 
 
 // --------------------------------
-// RENDER ALL PDF PAGES
+// RENDER PDF
 // --------------------------------
 
 async function renderPdf() {
@@ -211,7 +225,9 @@ async function renderPdf() {
   ) {
 
     const page =
-      await pdfDocument.getPage(pageNumber);
+      await pdfDocument.getPage(
+        pageNumber
+      );
 
 
     const viewport =
@@ -227,6 +243,20 @@ async function renderPdf() {
     pageWrapper.className =
       "pdf-page";
 
+
+    pageWrapper.dataset.page =
+      pageNumber;
+
+
+    pageWrapper.style.width =
+      `${viewport.width}px`;
+
+
+    pageWrapper.style.height =
+      `${viewport.height}px`;
+
+
+    // PDF CANVAS
 
     const canvas =
       document.createElement("canvas");
@@ -260,15 +290,67 @@ async function renderPdf() {
       `${viewport.height}px`;
 
 
-    pageWrapper.style.width =
+    canvas.className =
+      "pdf-canvas";
+
+
+    pageWrapper.appendChild(
+      canvas
+    );
+
+
+    // ANNOTATION LAYER
+
+    const annotationLayer =
+      document.createElement("div");
+
+
+    annotationLayer.className =
+      "annotation-layer";
+
+
+    pageWrapper.appendChild(
+      annotationLayer
+    );
+
+
+    // DRAWING CANVAS
+
+    const drawCanvas =
+      document.createElement("canvas");
+
+
+    drawCanvas.className =
+      "draw-layer";
+
+
+    drawCanvas.width =
+      Math.floor(
+        viewport.width * pixelRatio
+      );
+
+
+    drawCanvas.height =
+      Math.floor(
+        viewport.height * pixelRatio
+      );
+
+
+    drawCanvas.style.width =
       `${viewport.width}px`;
 
 
-    pageWrapper.style.height =
+    drawCanvas.style.height =
       `${viewport.height}px`;
 
 
-    pageWrapper.appendChild(canvas);
+    drawCanvas.dataset.ratio =
+      pixelRatio;
+
+
+    pageWrapper.appendChild(
+      drawCanvas
+    );
 
 
     pdfViewer.appendChild(
@@ -296,37 +378,542 @@ async function renderPdf() {
 
     }).promise;
 
+
+    setupPageEditing(
+      pageWrapper
+    );
+
+  }
+
+
+  updateToolMode();
+
+}
+
+
+// --------------------------------
+// PAGE EDITING
+// --------------------------------
+
+function setupPageEditing(page) {
+
+  page.addEventListener(
+    "pointerdown",
+    handlePointerDown
+  );
+
+
+  page.addEventListener(
+    "pointermove",
+    handlePointerMove
+  );
+
+
+  page.addEventListener(
+    "pointerup",
+    handlePointerUp
+  );
+
+
+  page.addEventListener(
+    "pointercancel",
+    handlePointerUp
+  );
+
+}
+
+
+// --------------------------------
+// POINTER POSITION
+// --------------------------------
+
+function getPosition(event, page) {
+
+  const rect =
+    page.getBoundingClientRect();
+
+
+  return {
+
+    x:
+      event.clientX -
+      rect.left,
+
+    y:
+      event.clientY -
+      rect.top
+
+  };
+
+}
+
+
+// --------------------------------
+// POINTER DOWN
+// --------------------------------
+
+function handlePointerDown(event) {
+
+  const page =
+    event.currentTarget;
+
+
+  const position =
+    getPosition(
+      event,
+      page
+    );
+
+
+  // TEXT
+
+  if (activeTool === "text") {
+
+    createText(
+      page,
+      position.x,
+      position.y
+    );
+
+    return;
+  }
+
+
+  // DRAW
+
+  if (activeTool === "draw") {
+
+    event.preventDefault();
+
+    isDrawing = true;
+
+
+    currentDrawCanvas =
+      page.querySelector(
+        ".draw-layer"
+      );
+
+
+    currentDrawContext =
+      currentDrawCanvas.getContext(
+        "2d"
+      );
+
+
+    const ratio =
+      Number(
+        currentDrawCanvas.dataset.ratio
+      ) || 1;
+
+
+    currentDrawContext.lineWidth =
+      3 * ratio;
+
+
+    currentDrawContext.lineCap =
+      "round";
+
+
+    currentDrawContext.lineJoin =
+      "round";
+
+
+    currentDrawContext.strokeStyle =
+      "#111827";
+
+
+    currentDrawContext.beginPath();
+
+
+    currentDrawContext.moveTo(
+      position.x * ratio,
+      position.y * ratio
+    );
+
+
+    page.setPointerCapture(
+      event.pointerId
+    );
+
+
+    return;
+  }
+
+
+  // HIGHLIGHT
+
+  if (
+    activeTool === "highlight"
+  ) {
+
+    event.preventDefault();
+
+    isHighlighting = true;
+
+
+    startX =
+      position.x;
+
+    startY =
+      position.y;
+
+
+    const annotationLayer =
+      page.querySelector(
+        ".annotation-layer"
+      );
+
+
+    currentHighlight =
+      document.createElement(
+        "div"
+      );
+
+
+    currentHighlight.className =
+      "highlight-annotation";
+
+
+    currentHighlight.style.left =
+      `${startX}px`;
+
+
+    currentHighlight.style.top =
+      `${startY}px`;
+
+
+    annotationLayer.appendChild(
+      currentHighlight
+    );
+
+
+    page.setPointerCapture(
+      event.pointerId
+    );
+
   }
 
 }
 
 
 // --------------------------------
-// NO PDF
+// POINTER MOVE
 // --------------------------------
 
-function showNoPdf() {
+function handlePointerMove(event) {
 
-  pdfViewer.innerHTML = `
+  const page =
+    event.currentTarget;
 
-    <div class="empty-preview">
 
-      <div class="document-icon">
-        PDF
-      </div>
+  const position =
+    getPosition(
+      event,
+      page
+    );
 
-      <h2>No PDF loaded</h2>
 
-      <p>
-        Return to WordPDF and convert
-        a Word document first.
-      </p>
+  // DRAW
 
-    </div>
+  if (
+    activeTool === "draw" &&
+    isDrawing &&
+    currentDrawContext
+  ) {
 
-  `;
+    event.preventDefault();
+
+
+    const ratio =
+      Number(
+        currentDrawCanvas.dataset.ratio
+      ) || 1;
+
+
+    currentDrawContext.lineTo(
+      position.x * ratio,
+      position.y * ratio
+    );
+
+
+    currentDrawContext.stroke();
+
+
+    return;
+  }
+
+
+  // HIGHLIGHT
+
+  if (
+    activeTool === "highlight" &&
+    isHighlighting &&
+    currentHighlight
+  ) {
+
+    event.preventDefault();
+
+
+    const left =
+      Math.min(
+        startX,
+        position.x
+      );
+
+
+    const top =
+      Math.min(
+        startY,
+        position.y
+      );
+
+
+    const width =
+      Math.abs(
+        position.x -
+        startX
+      );
+
+
+    const height =
+      Math.abs(
+        position.y -
+        startY
+      );
+
+
+    currentHighlight.style.left =
+      `${left}px`;
+
+
+    currentHighlight.style.top =
+      `${top}px`;
+
+
+    currentHighlight.style.width =
+      `${width}px`;
+
+
+    currentHighlight.style.height =
+      `${height}px`;
+
+  }
 
 }
+
+
+// --------------------------------
+// POINTER UP
+// --------------------------------
+
+function handlePointerUp(event) {
+
+  if (isDrawing) {
+
+    isDrawing = false;
+
+
+    if (currentDrawContext) {
+
+      currentDrawContext.closePath();
+
+    }
+
+
+    currentDrawCanvas = null;
+    currentDrawContext = null;
+
+  }
+
+
+  if (isHighlighting) {
+
+    isHighlighting = false;
+
+
+    if (currentHighlight) {
+
+      const width =
+        parseFloat(
+          currentHighlight.style.width
+        );
+
+
+      const height =
+        parseFloat(
+          currentHighlight.style.height
+        );
+
+
+      if (
+        width < 5 ||
+        height < 5
+      ) {
+
+        currentHighlight.remove();
+
+      }
+
+    }
+
+
+    currentHighlight = null;
+
+  }
+
+}
+
+
+// --------------------------------
+// CREATE TEXT
+// --------------------------------
+
+function createText(
+  page,
+  x,
+  y
+) {
+
+  const annotationLayer =
+    page.querySelector(
+      ".annotation-layer"
+    );
+
+
+  const text =
+    document.createElement("div");
+
+
+  text.className =
+    "text-annotation";
+
+
+  text.contentEditable =
+    "true";
+
+
+  text.textContent =
+    "Type here";
+
+
+  text.style.left =
+    `${x}px`;
+
+
+  text.style.top =
+    `${y}px`;
+
+
+  annotationLayer.appendChild(
+    text
+  );
+
+
+  text.focus();
+
+
+  const range =
+    document.createRange();
+
+
+  range.selectNodeContents(
+    text
+  );
+
+
+  const selection =
+    window.getSelection();
+
+
+  selection.removeAllRanges();
+
+  selection.addRange(range);
+
+}
+
+
+// --------------------------------
+// TOOL MODE
+// --------------------------------
+
+function updateToolMode() {
+
+  const pages =
+    document.querySelectorAll(
+      ".pdf-page"
+    );
+
+
+  pages.forEach((page) => {
+
+    page.dataset.tool =
+      activeTool;
+
+  });
+
+}
+
+
+// --------------------------------
+// TOOLBAR
+// --------------------------------
+
+const toolButtons =
+  document.querySelectorAll(
+    ".tool-button"
+  );
+
+
+toolButtons.forEach((button) => {
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      const tool =
+        button.dataset.tool;
+
+
+      // Image and Sign come next
+
+      if (
+        tool === "image" ||
+        tool === "sign"
+      ) {
+
+        alert(
+          `${tool === "image" ? "Image" : "Sign"} will be added next.`
+        );
+
+        return;
+      }
+
+
+      activeTool =
+        tool || "select";
+
+
+      toolButtons.forEach(
+        (item) => {
+
+          item.classList.remove(
+            "active-tool"
+          );
+
+        }
+      );
+
+
+      button.classList.add(
+        "active-tool"
+      );
+
+
+      updateToolMode();
+
+  });
+
+});
 
 
 // --------------------------------
@@ -382,6 +969,7 @@ zoomOutButton.addEventListener(
 
 // --------------------------------
 // DOWNLOAD
+// CURRENTLY ORIGINAL PDF
 // --------------------------------
 
 function downloadDocument() {
@@ -400,12 +988,18 @@ function downloadDocument() {
     document.createElement("a");
 
 
-  link.href = pdfURL;
+  link.href =
+    pdfURL;
 
-  link.download = pdfName;
+
+  link.download =
+    pdfName;
 
 
-  document.body.appendChild(link);
+  document.body.appendChild(
+    link
+  );
+
 
   link.click();
 
@@ -442,62 +1036,10 @@ function printDocument() {
   }
 
 
-  const printFrame =
-    document.createElement("iframe");
-
-
-  printFrame.style.position =
-    "fixed";
-
-  printFrame.style.right =
-    "0";
-
-  printFrame.style.bottom =
-    "0";
-
-  printFrame.style.width =
-    "0";
-
-  printFrame.style.height =
-    "0";
-
-  printFrame.style.border =
-    "0";
-
-
-  printFrame.src =
-    pdfURL;
-
-
-  document.body.appendChild(
-    printFrame
+  window.open(
+    pdfURL,
+    "_blank"
   );
-
-
-  printFrame.onload = () => {
-
-    setTimeout(() => {
-
-      try {
-
-        printFrame.contentWindow.focus();
-
-        printFrame.contentWindow.print();
-
-      } catch (error) {
-
-        console.error(error);
-
-        window.open(
-          pdfURL,
-          "_blank"
-        );
-
-      }
-
-    }, 500);
-
-  };
 
 }
 
@@ -535,20 +1077,21 @@ async function emailDocument() {
       [pdfBlob],
       pdfName,
       {
-        type: "application/pdf"
+        type:
+          "application/pdf"
       }
     );
 
 
-  try {
+  if (
+    navigator.share &&
+    navigator.canShare &&
+    navigator.canShare({
+      files: [file]
+    })
+  ) {
 
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({
-        files: [file]
-      })
-    ) {
+    try {
 
       await navigator.share({
 
@@ -557,7 +1100,8 @@ async function emailDocument() {
         text:
           "Converted with WordPDF",
 
-        files: [file]
+        files:
+          [file]
 
       });
 
@@ -566,28 +1110,35 @@ async function emailDocument() {
 
     }
 
-  } catch (error) {
+    catch (error) {
 
-    if (
-      error.name === "AbortError"
-    ) {
+      if (
+        error.name !==
+        "AbortError"
+      ) {
+
+        console.error(error);
+
+      }
+
 
       return;
 
     }
 
-
-    console.error(error);
-
   }
 
 
   alert(
-    "Your browser cannot share the PDF directly. Download the file and attach it to your email."
+    "Your browser cannot share the PDF directly. Download it and attach it to your email."
   );
 
 }
 
+
+// --------------------------------
+// EMAIL BUTTONS
+// --------------------------------
 
 emailButton.addEventListener(
   "click",
@@ -602,40 +1153,31 @@ mobileEmail.addEventListener(
 
 
 // --------------------------------
-// EDITING TOOL SELECTION
+// EMPTY STATE
 // --------------------------------
 
-const toolButtons =
-  document.querySelectorAll(
-    ".tool-button"
-  );
+function showNoPdf() {
 
+  pdfViewer.innerHTML = `
 
-toolButtons.forEach((button) => {
+    <div class="empty-preview">
 
-  button.addEventListener(
-    "click",
-    () => {
+      <div class="document-icon">
+        PDF
+      </div>
 
-      toolButtons.forEach(
-        (item) => {
+      <h2>No PDF loaded</h2>
 
-          item.classList.remove(
-            "active-tool"
-          );
+      <p>
+        Return to WordPDF and convert
+        a Word document first.
+      </p>
 
-        }
-      );
+    </div>
 
+  `;
 
-      button.classList.add(
-        "active-tool"
-      );
-
-    }
-  );
-
-});
+}
 
 
 // --------------------------------
@@ -662,8 +1204,8 @@ loadPdf().catch((error) => {
       <h2>Unable to display PDF</h2>
 
       <p>
-        Return to WordPDF and convert
-        the document again.
+        Return to WordPDF and
+        convert the document again.
       </p>
 
     </div>
