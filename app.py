@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file, send_from_directory, jsonify
+8from flask import Flask, request, send_file, send_from_directory, jsonify
 from pdf2docx import Converter
 import os
 import subprocess
@@ -92,6 +92,73 @@ def word_to_pdf():
             mimetype="application/pdf"
         )
 
+@app.route("/convert/pdf-to-word", methods=["POST"])
+def pdf_to_word():
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    uploaded_file = request.files["file"]
+
+    if uploaded_file.filename == "":
+        return jsonify({"error": "No file selected"}), 400
+
+    if not uploaded_file.filename.lower().endswith(".pdf"):
+        return jsonify({"error": "Please upload a PDF file"}), 400
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+
+        input_path = os.path.join(
+            temp_dir,
+            uploaded_file.filename
+        )
+
+        uploaded_file.save(input_path)
+
+        output_name = (
+            os.path.splitext(uploaded_file.filename)[0]
+            + ".docx"
+        )
+
+        output_path = os.path.join(
+            temp_dir,
+            output_name
+        )
+
+        try:
+
+            converter = Converter(input_path)
+
+            converter.convert(
+                output_path,
+                start=0,
+                end=None
+            )
+
+            converter.close()
+
+        except Exception as error:
+
+            print(error)
+
+            return jsonify({
+                "error": "The PDF could not be converted."
+            }), 500
+
+        if not os.path.exists(output_path):
+
+            return jsonify({
+                "error": "The Word document was not created."
+            }), 500
+
+        return send_file(
+            output_path,
+            as_attachment=True,
+            download_name=output_name,
+            mimetype=
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        )
 
 if __name__ == "__main__":
 
