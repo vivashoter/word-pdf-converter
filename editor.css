@@ -405,4 +405,10 @@ button {
     padding-left: 3px;
     padding-right: 3px;
   }
+
+  .tool-button.active-tool {
+  background: #eef2ff;
+  color: #4f46e5;
+  }
+  
 }
