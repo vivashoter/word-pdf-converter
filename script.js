@@ -91,4 +91,122 @@ uploadArea.addEventListener("drop", function (event) {
   if (
     conversionMode === "word-to-pdf" &&
     !fileName.endsWith(".doc") &&
-    !file
+    !fileName.endsWith(".docx")
+  ) {
+    statusMessage.textContent =
+      "Please upload a DOC or DOCX file.";
+    return;
+  }
+
+  if (
+    conversionMode === "pdf-to-word" &&
+    !fileName.endsWith(".pdf")
+  ) {
+    statusMessage.textContent =
+      "Please upload a PDF file.";
+    return;
+  }
+
+  const dataTransfer = new DataTransfer();
+
+  dataTransfer.items.add(file);
+
+  fileInput.files = dataTransfer.files;
+
+  uploadTitle.textContent = file.name;
+  uploadDescription.textContent =
+    "File selected and ready to convert";
+});
+
+
+convertButton.addEventListener("click", async function () {
+  if (!fileInput.files || fileInput.files.length === 0) {
+    statusMessage.textContent =
+      "Please choose a file first.";
+    return;
+  }
+
+  const file = fileInput.files[0];
+
+  const maxSize = 25 * 1024 * 1024;
+
+  if (file.size > maxSize) {
+    statusMessage.textContent =
+      "File is too large. Maximum size is 25 MB.";
+    return;
+  }
+
+  if (conversionMode === "pdf-to-word") {
+    statusMessage.textContent =
+      "PDF to Word conversion is not connected yet.";
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append("file", file);
+
+  convertButton.disabled = true;
+  convertButton.textContent = "Converting...";
+
+  statusMessage.textContent =
+    "Converting your document...";
+
+  try {
+    const response = await fetch("/convert/word-to-pdf", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      let message = "Conversion failed.";
+
+      try {
+        const errorData = await response.json();
+
+        if (errorData.error) {
+          message = errorData.error;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+
+      throw new Error(message);
+    }
+
+    const blob = await response.blob();
+
+    const downloadURL = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = downloadURL;
+
+    const originalName =
+      file.name.replace(/\.(doc|docx)$/i, "");
+
+    downloadLink.download =
+      originalName + ".pdf";
+
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
+
+    downloadLink.remove();
+
+    URL.revokeObjectURL(downloadURL);
+
+    statusMessage.textContent =
+      "Conversion complete!";
+
+  } catch (error) {
+    console.error(error);
+
+    statusMessage.textContent =
+      error.message || "Something went wrong.";
+
+  } finally {
+    convertButton.disabled = false;
+    convertButton.textContent = "Convert File";
+  }
+});
