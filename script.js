@@ -1,180 +1,346 @@
-const wordToPdfButton = document.getElementById("wordToPdf");
-const pdfToWordButton = document.getElementById("pdfToWord");
+const wordToPdfButton =
+  document.getElementById("wordToPdf");
 
-const fileInput = document.getElementById("fileInput");
-const uploadTitle = document.getElementById("uploadTitle");
-const uploadDescription = document.getElementById("uploadDescription");
-const uploadArea = document.getElementById("uploadArea");
+const pdfToWordButton =
+  document.getElementById("pdfToWord");
 
-const convertButton = document.getElementById("convertButton");
-const statusMessage = document.getElementById("statusMessage");
+const fileInput =
+  document.getElementById("fileInput");
 
-let conversionMode = "word-to-pdf";
+const uploadTitle =
+  document.getElementById("uploadTitle");
 
+const uploadDescription =
+  document.getElementById("uploadDescription");
 
-// ---------------------------------
-// SAVE PDF FOR EDITOR
-// ---------------------------------
+const uploadArea =
+  document.getElementById("uploadArea");
 
-function openDatabase() {
+const convertButton =
+  document.getElementById("convertButton");
 
-  return new Promise((resolve, reject) => {
-
-    const request =
-      indexedDB.open("WordPDFEditor", 1);
-
-    request.onupgradeneeded = function () {
-
-      const db = request.result;
-
-      if (!db.objectStoreNames.contains("documents")) {
-
-        db.createObjectStore("documents");
-      }
-    };
-
-    request.onsuccess = function () {
-
-      resolve(request.result);
-    };
-
-    request.onerror = function () {
-
-      reject(request.error);
-    };
-
-  });
-}
+const statusMessage =
+  document.getElementById("statusMessage");
 
 
-async function savePdfForEditor(blob, fileName) {
+let conversionMode =
+  "word-to-pdf";
 
-  const db = await openDatabase();
 
-  return new Promise((resolve, reject) => {
+// --------------------------------
+// STATUS
+// --------------------------------
 
-    const transaction =
-      db.transaction(
-        "documents",
-        "readwrite"
-      );
+function setStatus(
+  message,
+  type = ""
+) {
 
-    const store =
-      transaction.objectStore(
-        "documents"
-      );
+  statusMessage.textContent =
+    message;
 
-    store.put(
-      {
-        blob: blob,
-        name: fileName
-      },
-      "currentPdf"
+
+  statusMessage.classList.remove(
+    "success",
+    "error"
+  );
+
+
+  if (type) {
+
+    statusMessage.classList.add(
+      type
     );
 
-    transaction.oncomplete = function () {
+  }
 
-      resolve();
-    };
-
-    transaction.onerror = function () {
-
-      reject(transaction.error);
-    };
-
-  });
 }
 
 
-// ---------------------------------
-// WORD TO PDF TAB
-// ---------------------------------
+// --------------------------------
+// RESET FILE
+// --------------------------------
 
-wordToPdfButton.addEventListener("click", () => {
-
-  conversionMode = "word-to-pdf";
-
-  wordToPdfButton.classList.add("active");
-  pdfToWordButton.classList.remove("active");
-
-  uploadTitle.textContent =
-    "Upload your Word document";
-
-  uploadDescription.textContent =
-    "Drag & drop your DOC or DOCX file here";
-
-  fileInput.accept =
-    ".doc,.docx";
+function resetFileSelection() {
 
   fileInput.value = "";
 
-  statusMessage.textContent = "";
+  setStatus("");
 
-});
-
-
-// ---------------------------------
-// PDF TO WORD TAB
-// ---------------------------------
-
-pdfToWordButton.addEventListener("click", () => {
-
-  conversionMode = "pdf-to-word";
-
-  pdfToWordButton.classList.add("active");
-  wordToPdfButton.classList.remove("active");
-
-  uploadTitle.textContent =
-    "Upload your PDF document";
-
-  uploadDescription.textContent =
-    "Drag & drop your PDF file here";
-
-  fileInput.accept = ".pdf";
-
-  fileInput.value = "";
-
-  statusMessage.textContent = "";
-
-});
+}
 
 
-// ---------------------------------
-// FILE SELECTED
-// ---------------------------------
+// --------------------------------
+// WORD TO PDF
+// --------------------------------
 
-fileInput.addEventListener("change", () => {
+wordToPdfButton.addEventListener(
+  "click",
+  () => {
 
-  if (
-    !fileInput.files ||
-    fileInput.files.length === 0
-  ) {
-    return;
+    conversionMode =
+      "word-to-pdf";
+
+
+    wordToPdfButton.classList.add(
+      "active"
+    );
+
+
+    pdfToWordButton.classList.remove(
+      "active"
+    );
+
+
+    uploadTitle.textContent =
+      "Upload your Word document";
+
+
+    uploadDescription.textContent =
+      "Drag & drop your DOC or DOCX file here";
+
+
+    fileInput.accept =
+      ".doc,.docx";
+
+
+    resetFileSelection();
+
+  }
+);
+
+
+// --------------------------------
+// PDF TO WORD
+// --------------------------------
+
+pdfToWordButton.addEventListener(
+  "click",
+  () => {
+
+    conversionMode =
+      "pdf-to-word";
+
+
+    pdfToWordButton.classList.add(
+      "active"
+    );
+
+
+    wordToPdfButton.classList.remove(
+      "active"
+    );
+
+
+    uploadTitle.textContent =
+      "Upload your PDF document";
+
+
+    uploadDescription.textContent =
+      "Drag & drop your PDF file here";
+
+
+    fileInput.accept =
+      ".pdf";
+
+
+    resetFileSelection();
+
+  }
+);
+
+
+// --------------------------------
+// VALIDATE FILE
+// --------------------------------
+
+function validateFile(file) {
+
+  if (!file) {
+
+    return {
+      valid: false,
+      message:
+        "Please choose a file first."
+    };
+
   }
 
-  const file =
-    fileInput.files[0];
+
+  const fileName =
+    file.name.toLowerCase();
+
+
+  if (
+    conversionMode ===
+    "word-to-pdf"
+  ) {
+
+    if (
+      !fileName.endsWith(".doc") &&
+      !fileName.endsWith(".docx")
+    ) {
+
+      return {
+        valid: false,
+        message:
+          "Please choose a DOC or DOCX file."
+      };
+
+    }
+
+  }
+
+
+  if (
+    conversionMode ===
+    "pdf-to-word"
+  ) {
+
+    if (
+      !fileName.endsWith(".pdf")
+    ) {
+
+      return {
+        valid: false,
+        message:
+          "Please choose a PDF file."
+      };
+
+    }
+
+  }
+
+
+  const maxSize =
+    25 * 1024 * 1024;
+
+
+  if (
+    file.size > maxSize
+  ) {
+
+    return {
+      valid: false,
+      message:
+        "File is too large. Maximum size is 25 MB."
+    };
+
+  }
+
+
+  return {
+    valid: true
+  };
+
+}
+
+
+// --------------------------------
+// SHOW SELECTED FILE
+// --------------------------------
+
+function showSelectedFile(file) {
+
+  const validation =
+    validateFile(file);
+
+
+  if (!validation.valid) {
+
+    setStatus(
+      validation.message,
+      "error"
+    );
+
+    return false;
+  }
+
 
   uploadTitle.textContent =
     file.name;
 
+
   uploadDescription.textContent =
     "File selected and ready to convert";
 
-  statusMessage.textContent = "";
 
-});
+  setStatus("");
 
 
-// ---------------------------------
-// DRAG AND DROP
-// ---------------------------------
+  return true;
+
+}
+
+
+// --------------------------------
+// FILE PICKER
+// --------------------------------
+
+fileInput.addEventListener(
+  "change",
+  () => {
+
+    if (
+      !fileInput.files ||
+      fileInput.files.length === 0
+    ) {
+
+      return;
+    }
+
+
+    showSelectedFile(
+      fileInput.files[0]
+    );
+
+  }
+);
+
+
+// --------------------------------
+// KEYBOARD ACCESS
+// --------------------------------
+
+uploadArea.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
+
+      const target =
+        event.target;
+
+
+      if (
+        target === uploadArea
+      ) {
+
+        event.preventDefault();
+
+        fileInput.click();
+
+      }
+
+    }
+
+  }
+);
+
+
+// --------------------------------
+// DRAG OVER
+// --------------------------------
 
 uploadArea.addEventListener(
   "dragover",
   (event) => {
 
     event.preventDefault();
+
 
     uploadArea.classList.add(
       "dragging"
@@ -183,6 +349,10 @@ uploadArea.addEventListener(
   }
 );
 
+
+// --------------------------------
+// DRAG LEAVE
+// --------------------------------
 
 uploadArea.addEventListener(
   "dragleave",
@@ -196,112 +366,154 @@ uploadArea.addEventListener(
 );
 
 
+// --------------------------------
+// DROP
+// --------------------------------
+
 uploadArea.addEventListener(
   "drop",
   (event) => {
 
     event.preventDefault();
 
+
     uploadArea.classList.remove(
       "dragging"
     );
 
+
     const file =
       event.dataTransfer.files[0];
 
+
     if (!file) {
-      return;
-    }
-
-    const fileName =
-      file.name.toLowerCase();
-
-
-    if (
-      conversionMode === "word-to-pdf" &&
-      !fileName.endsWith(".doc") &&
-      !fileName.endsWith(".docx")
-    ) {
-
-      statusMessage.textContent =
-        "Please upload a DOC or DOCX file.";
 
       return;
+
     }
 
 
     if (
-      conversionMode === "pdf-to-word" &&
-      !fileName.endsWith(".pdf")
+      !showSelectedFile(file)
     ) {
 
-      statusMessage.textContent =
-        "Please upload a PDF file.";
-
       return;
+
     }
 
 
-    const dataTransfer =
-      new DataTransfer();
+    try {
 
-    dataTransfer.items.add(file);
-
-    fileInput.files =
-      dataTransfer.files;
+      const transfer =
+        new DataTransfer();
 
 
-    uploadTitle.textContent =
-      file.name;
+      transfer.items.add(file);
 
-    uploadDescription.textContent =
-      "File selected and ready to convert";
 
-    statusMessage.textContent = "";
+      fileInput.files =
+        transfer.files;
+
+    }
+
+    catch (error) {
+
+      console.warn(
+        "Drag-and-drop file assignment is not supported in this browser.",
+        error
+      );
+
+    }
 
   }
 );
 
 
-// ---------------------------------
+// --------------------------------
+// DOWNLOAD RESPONSE
+// --------------------------------
+
+function downloadConvertedFile(
+  blob,
+  outputName
+) {
+
+  const downloadURL =
+    URL.createObjectURL(blob);
+
+
+  const downloadLink =
+    document.createElement("a");
+
+
+  downloadLink.href =
+    downloadURL;
+
+
+  downloadLink.download =
+    outputName;
+
+
+  downloadLink.style.display =
+    "none";
+
+
+  document.body.appendChild(
+    downloadLink
+  );
+
+
+  downloadLink.click();
+
+
+  downloadLink.remove();
+
+
+  setTimeout(
+    () => {
+
+      URL.revokeObjectURL(
+        downloadURL
+      );
+
+    },
+    3000
+  );
+
+}
+
+
+// --------------------------------
 // CONVERT
-// ---------------------------------
+// --------------------------------
 
 convertButton.addEventListener(
   "click",
   async () => {
 
-    if (
-      !fileInput.files ||
-      fileInput.files.length === 0
-    ) {
-
-      statusMessage.textContent =
-        "Please choose a file first.";
-
-      return;
-    }
-
-
     const file =
-      fileInput.files[0];
+      fileInput.files?.[0];
 
 
-    const maxSize =
-      25 * 1024 * 1024;
+    const validation =
+      validateFile(file);
 
 
-    if (file.size > maxSize) {
+    if (!validation.valid) {
 
-      statusMessage.textContent =
-        "File is too large. Maximum size is 25 MB.";
+      setStatus(
+        validation.message,
+        "error"
+      );
 
       return;
+
     }
 
 
     const formData =
       new FormData();
+
 
     formData.append(
       "file",
@@ -310,18 +522,23 @@ convertButton.addEventListener(
 
 
     const endpoint =
-      conversionMode === "word-to-pdf"
+      conversionMode ===
+      "word-to-pdf"
         ? "/convert/word-to-pdf"
         : "/convert/pdf-to-word";
 
 
-    convertButton.disabled = true;
+    convertButton.disabled =
+      true;
+
 
     convertButton.textContent =
       "Converting...";
 
-    statusMessage.textContent =
-      "Converting your document...";
+
+    setStatus(
+      "Converting your document..."
+    );
 
 
     try {
@@ -341,21 +558,35 @@ convertButton.addEventListener(
         let message =
           "Conversion failed.";
 
+
         try {
 
           const errorData =
             await response.json();
 
-          message =
-            errorData.error || message;
 
-        } catch (error) {
+          if (
+            errorData.error
+          ) {
+
+            message =
+              errorData.error;
+
+          }
+
+        }
+
+        catch (error) {
 
           console.error(error);
+
         }
 
 
-        throw new Error(message);
+        throw new Error(
+          message
+        );
+
       }
 
 
@@ -363,13 +594,12 @@ convertButton.addEventListener(
         await response.blob();
 
 
-      // ---------------------------
-      // WORD TO PDF
-      // OPEN EDITOR
-      // ---------------------------
+      let outputName;
+
 
       if (
-        conversionMode === "word-to-pdf"
+        conversionMode ===
+        "word-to-pdf"
       ) {
 
         const originalName =
@@ -378,76 +608,39 @@ convertButton.addEventListener(
             ""
           );
 
-        const pdfName =
-          originalName + ".pdf";
+
+        outputName =
+          originalName +
+          ".pdf";
+
+      }
+
+      else {
+
+        const originalName =
+          file.name.replace(
+            /\.pdf$/i,
+            ""
+          );
 
 
-        statusMessage.textContent =
-          "Opening PDF editor...";
+        outputName =
+          originalName +
+          ".docx";
 
-
-        await savePdfForEditor(
-          blob,
-          pdfName
-        );
-
-
-        window.location.href =
-          "/editor";
-
-        return;
       }
 
 
-      // ---------------------------
-      // PDF TO WORD
-      // KEEP NORMAL DOWNLOAD
-      // ---------------------------
-
-      const downloadURL =
-        URL.createObjectURL(blob);
-
-
-      const downloadLink =
-        document.createElement("a");
-
-
-      const originalName =
-        file.name.replace(
-          /\.pdf$/i,
-          ""
-        );
-
-
-      downloadLink.href =
-        downloadURL;
-
-
-      downloadLink.download =
-        originalName + ".docx";
-
-
-      document.body.appendChild(
-        downloadLink
+      downloadConvertedFile(
+        blob,
+        outputName
       );
 
 
-      downloadLink.click();
-
-      downloadLink.remove();
-
-
-      setTimeout(() => {
-
-        URL.revokeObjectURL(
-          downloadURL
-        );
-
-      }, 1000);
-
-
-      statusMessage.textContent =
-        "Conversion complete!";
+      setStatus(
+        "Conversion complete! Your file has been downloaded.",
+        "success"
+      );
 
     }
 
@@ -455,15 +648,20 @@ convertButton.addEventListener(
 
       console.error(error);
 
-      statusMessage.textContent =
+
+      setStatus(
         error.message ||
-        "Something went wrong during conversion.";
+        "Something went wrong during conversion.",
+        "error"
+      );
 
     }
 
     finally {
 
-      convertButton.disabled = false;
+      convertButton.disabled =
+        false;
+
 
       convertButton.textContent =
         "Convert File";
