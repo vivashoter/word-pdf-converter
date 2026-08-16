@@ -1,17 +1,198 @@
-<div
-  id="progressContainer"
-  class="progress-container"
-  hidden
->
-  <div class="progress-header">
-    <span>Converting your document…</span>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
-  <div class="progress-track">
-    <div class="progress-bar"></div>
-  </div>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <p class="progress-note">
-    This usually takes a few seconds.
-  </p>
-</div>
+    <meta
+        name="description"
+        content="Convert Word documents to PDF or PDFs to Word quickly and easily."
+    >
+
+    <title>WordPDF | Word & PDF Converter</title>
+
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="site-header">
+
+        <div class="header-container">
+
+            <a href="/" class="logo">
+                <span class="logo-icon">↔</span>
+                <span>WordPDF</span>
+            </a>
+
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <section class="hero">
+
+            <div class="hero-container">
+
+                <p class="eyebrow">
+                    SIMPLE DOCUMENT CONVERSION
+                </p>
+
+                <h1>
+                    Word & PDF conversion
+                    <br>
+                    made simple.
+                </h1>
+
+                <p class="hero-description">
+                    Convert Word documents to PDF or turn PDFs
+                    into editable Word files quickly and securely.
+                </p>
+
+
+                <!-- CONVERSION TABS -->
+                <div class="converter-tabs">
+
+                    <button
+                        id="wordToPdf"
+                        class="converter-tab active"
+                        type="button"
+                    >
+                        Word to PDF
+                    </button>
+
+                    <button
+                        id="pdfToWord"
+                        class="converter-tab"
+                        type="button"
+                    >
+                        PDF to Word
+                    </button>
+
+                </div>
+
+
+                <!-- UPLOAD AREA -->
+                <div
+                    id="uploadArea"
+                    class="upload-area"
+                    tabindex="0"
+                >
+
+                    <div class="upload-icon">
+                        ↑
+                    </div>
+
+
+                    <h2 id="uploadTitle">
+                        Upload your Word document
+                    </h2>
+
+
+                    <p
+                        id="uploadDescription"
+                        class="upload-description"
+                    >
+                        Drag & drop your DOC or DOCX file here
+                    </p>
+
+
+                    <p class="or-text">
+                        or
+                    </p>
+
+
+                    <label
+                        for="fileInput"
+                        class="choose-file-button"
+                    >
+                        Choose File
+                    </label>
+
+
+                    <input
+                        id="fileInput"
+                        type="file"
+                        accept=".doc,.docx"
+                        hidden
+                    >
+
+
+                    <p class="file-limit">
+                        Maximum file size: 25 MB
+                    </p>
+
+
+                    <button
+                        id="convertButton"
+                        class="convert-button"
+                        type="button"
+                    >
+                        Convert File
+                    </button>
+
+
+                    <!-- PROGRESS BAR -->
+                    <div
+                        id="progressContainer"
+                        class="progress-container"
+                        hidden
+                    >
+
+                        <div class="progress-header">
+                            Converting your document…
+                        </div>
+
+                        <div class="progress-track">
+
+                            <div
+                                class="progress-bar"
+                            ></div>
+
+                        </div>
+
+                        <p class="progress-note">
+                            This usually takes a few seconds.
+                        </p>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+                    <div
+                        id="statusMessage"
+                        class="status-message"
+                        aria-live="polite"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+
+        <p>
+            © 2026 WordPDF
+        </p>
+
+    </footer>
+
+
+    <script src="/script.js"></script>
+
+</body>
+</html>
