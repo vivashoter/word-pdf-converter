@@ -22,13 +22,16 @@ const convertButton =
 const statusMessage =
   document.getElementById("statusMessage");
 
+const progressContainer =
+  document.getElementById("progressContainer");
+
 
 let conversionMode =
   "word-to-pdf";
 
 
 // --------------------------------
-// STATUS
+// STATUS MESSAGE
 // --------------------------------
 
 function setStatus(
@@ -58,7 +61,7 @@ function setStatus(
 
 
 // --------------------------------
-// RESET FILE
+// RESET FILE SELECTION
 // --------------------------------
 
 function resetFileSelection() {
@@ -67,11 +70,14 @@ function resetFileSelection() {
 
   setStatus("");
 
+  progressContainer.hidden =
+    true;
+
 }
 
 
 // --------------------------------
-// WORD TO PDF
+// WORD TO PDF TAB
 // --------------------------------
 
 wordToPdfButton.addEventListener(
@@ -111,7 +117,7 @@ wordToPdfButton.addEventListener(
 
 
 // --------------------------------
-// PDF TO WORD
+// PDF TO WORD TAB
 // --------------------------------
 
 pdfToWordButton.addEventListener(
@@ -237,7 +243,7 @@ function validateFile(file) {
 
 
 // --------------------------------
-// SHOW SELECTED FILE
+// DISPLAY SELECTED FILE
 // --------------------------------
 
 function showSelectedFile(file) {
@@ -267,6 +273,9 @@ function showSelectedFile(file) {
 
   setStatus("");
 
+  progressContainer.hidden =
+    true;
+
 
   return true;
 
@@ -287,6 +296,7 @@ fileInput.addEventListener(
     ) {
 
       return;
+
     }
 
 
@@ -367,7 +377,7 @@ uploadArea.addEventListener(
 
 
 // --------------------------------
-// DROP
+// DROP FILE
 // --------------------------------
 
 uploadArea.addEventListener(
@@ -430,7 +440,7 @@ uploadArea.addEventListener(
 
 
 // --------------------------------
-// DOWNLOAD RESPONSE
+// DOWNLOAD CONVERTED FILE
 // --------------------------------
 
 function downloadConvertedFile(
@@ -484,7 +494,7 @@ function downloadConvertedFile(
 
 
 // --------------------------------
-// CONVERT
+// CONVERT FILE
 // --------------------------------
 
 convertButton.addEventListener(
@@ -532,12 +542,28 @@ convertButton.addEventListener(
       true;
 
 
+    wordToPdfButton.disabled =
+      true;
+
+
+    pdfToWordButton.disabled =
+      true;
+
+
+    fileInput.disabled =
+      true;
+
+
     convertButton.textContent =
       "Converting...";
 
 
+    progressContainer.hidden =
+      false;
+
+
     setStatus(
-      "Converting your document..."
+      "Your document is being converted."
     );
 
 
@@ -659,7 +685,23 @@ convertButton.addEventListener(
 
     finally {
 
+      progressContainer.hidden =
+        true;
+
+
       convertButton.disabled =
+        false;
+
+
+      wordToPdfButton.disabled =
+        false;
+
+
+      pdfToWordButton.disabled =
+        false;
+
+
+      fileInput.disabled =
         false;
 
 
