@@ -480,12 +480,11 @@ body {
     position: absolute;
 
     top: 0;
-
     bottom: 0;
 
-    left: -35%;
+    left: -24%;
 
-    width: 35%;
+    width: 24%;
 
     background: #5146e5;
 
@@ -493,9 +492,13 @@ body {
 
     animation:
         conversion-progress
-        1.35s
-        ease-in-out
+        1.25s
+        cubic-bezier(0.4, 0, 0.2, 1)
         infinite;
+
+    box-shadow:
+        0 0 8px
+        rgba(81, 70, 229, 0.22);
 }
 
 
@@ -513,11 +516,7 @@ body {
 @keyframes conversion-progress {
 
     0% {
-        left: -35%;
-    }
-
-    50% {
-        left: 45%;
+        left: -24%;
     }
 
     100% {
@@ -801,7 +800,7 @@ body {
     .progress-bar {
         left: 0;
 
-        width: 100%;
+        width: 24%;
 
         animation: none;
     }
