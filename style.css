@@ -180,6 +180,11 @@ body {
 }
 
 
+.converter-tabs[hidden] {
+    display: none;
+}
+
+
 .converter-tab {
     flex: 1;
 
@@ -250,6 +255,11 @@ body {
     transition:
         border-color 0.2s ease,
         background 0.2s ease;
+}
+
+
+.upload-area[hidden] {
+    display: none;
 }
 
 
@@ -428,7 +438,7 @@ body {
 
 
 /* ------------------------------
-   PROGRESS BAR
+   PROGRESS
 ------------------------------ */
 
 .progress-container {
@@ -527,7 +537,7 @@ body {
 
 
 /* ------------------------------
-   STATUS MESSAGE
+   STATUS
 ------------------------------ */
 
 .status-message {
@@ -554,6 +564,251 @@ body {
 
 
 /* ------------------------------
+   SUCCESS SCREEN
+------------------------------ */
+
+.success-area {
+    width: 100%;
+
+    max-width: 720px;
+
+    min-height: 500px;
+
+    margin: 0 auto;
+
+    padding:
+        65px
+        45px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 32px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(31, 41, 55, 0.07);
+
+    text-align: center;
+}
+
+
+.success-area[hidden] {
+    display: none;
+}
+
+
+.success-check {
+    display: flex;
+
+    width: 72px;
+    height: 72px;
+
+    margin:
+        0
+        auto
+        25px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ecfdf3;
+
+    color: #15803d;
+
+    font-size: 38px;
+
+    font-weight: 700;
+}
+
+
+.success-area h2 {
+    margin-bottom: 12px;
+
+    color: #111827;
+
+    font-size: 32px;
+
+    font-weight: 750;
+}
+
+
+.success-description {
+    margin-bottom: 30px;
+
+    color: #6b7280;
+
+    font-size: 17px;
+}
+
+
+.converted-file {
+    display: flex;
+
+    width: 100%;
+
+    max-width: 480px;
+
+    margin:
+        0
+        auto
+        32px;
+
+    padding: 18px;
+
+    align-items: center;
+
+    gap: 15px;
+
+    background: #f9fafb;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 14px;
+
+    text-align: left;
+}
+
+
+.converted-file-icon {
+    display: flex;
+
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #eef2ff;
+
+    color: #5146e5;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+
+.converted-file-info {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.converted-label {
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+.converted-file-info strong {
+    overflow: hidden;
+
+    color: #1f2937;
+
+    font-size: 15px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.download-again-button {
+    display: block;
+
+    width: 100%;
+
+    max-width: 330px;
+
+    min-height: 64px;
+
+    margin:
+        0
+        auto
+        14px;
+
+    padding:
+        14px
+        25px;
+
+    border: 0;
+
+    border-radius: 15px;
+
+    background: #5146e5;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.download-again-button:hover {
+    background: #4338ca;
+}
+
+
+.convert-another-button {
+    display: block;
+
+    width: 100%;
+
+    max-width: 330px;
+
+    min-height: 58px;
+
+    margin: 0 auto;
+
+    padding:
+        12px
+        25px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+
+.convert-another-button:hover {
+    background: #f9fafb;
+}
+
+
+/* ------------------------------
    FOOTER
 ------------------------------ */
 
@@ -571,7 +826,7 @@ body {
 
 
 /* ------------------------------
-   TABLETS
+   TABLET
 ------------------------------ */
 
 @media (max-width: 768px) {
@@ -640,7 +895,7 @@ body {
 
 
 /* ------------------------------
-   PHONES
+   PHONE
 ------------------------------ */
 
 @media (max-width: 520px) {
@@ -786,6 +1041,33 @@ body {
 
     .progress-container {
         max-width: 300px;
+    }
+
+
+    .success-area {
+        min-height: 460px;
+
+        padding:
+            50px
+            22px;
+
+        border-radius: 25px;
+    }
+
+
+    .success-area h2 {
+        font-size: 28px;
+    }
+
+
+    .converted-file {
+        padding: 15px;
+    }
+
+
+    .download-again-button,
+    .convert-another-button {
+        max-width: 100%;
     }
 
 }
