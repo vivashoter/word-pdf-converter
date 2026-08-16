@@ -4,6 +4,9 @@ const wordToPdfButton =
 const pdfToWordButton =
     document.getElementById("pdfToWord");
 
+const converterTabs =
+    document.getElementById("converterTabs");
+
 const fileInput =
     document.getElementById("fileInput");
 
@@ -25,9 +28,26 @@ const statusMessage =
 const progressContainer =
     document.getElementById("progressContainer");
 
+const successArea =
+    document.getElementById("successArea");
+
+const convertedFileName =
+    document.getElementById("convertedFileName");
+
+const downloadAgainButton =
+    document.getElementById("downloadAgainButton");
+
+const convertAnotherButton =
+    document.getElementById("convertAnotherButton");
+
 
 let conversionMode =
     "word-to-pdf";
+
+
+let convertedBlob = null;
+
+let convertedOutputName = "";
 
 
 // --------------------------------
@@ -39,10 +59,12 @@ function setStatus(message, type = "") {
     statusMessage.textContent =
         message;
 
+
     statusMessage.classList.remove(
         "success",
         "error"
     );
+
 
     if (type) {
 
@@ -69,6 +91,7 @@ function resetUploadText() {
         uploadTitle.textContent =
             "Upload your Word document";
 
+
         uploadDescription.textContent =
             "Drag & drop your DOC or DOCX file here";
 
@@ -76,6 +99,7 @@ function resetUploadText() {
 
         uploadTitle.textContent =
             "Upload your PDF document";
+
 
         uploadDescription.textContent =
             "Drag & drop your PDF file here";
@@ -93,10 +117,13 @@ function resetFileSelection() {
 
     fileInput.value = "";
 
+
     progressContainer.hidden =
         true;
 
+
     setStatus("");
+
 
     resetUploadText();
 
@@ -114,16 +141,20 @@ wordToPdfButton.addEventListener(
         conversionMode =
             "word-to-pdf";
 
+
         wordToPdfButton.classList.add(
             "active"
         );
+
 
         pdfToWordButton.classList.remove(
             "active"
         );
 
+
         fileInput.accept =
             ".doc,.docx";
+
 
         resetFileSelection();
 
@@ -142,16 +173,20 @@ pdfToWordButton.addEventListener(
         conversionMode =
             "pdf-to-word";
 
+
         pdfToWordButton.classList.add(
             "active"
         );
+
 
         wordToPdfButton.classList.remove(
             "active"
         );
 
+
         fileInput.accept =
             ".pdf";
+
 
         resetFileSelection();
 
@@ -160,7 +195,7 @@ pdfToWordButton.addEventListener(
 
 
 // --------------------------------
-// VALIDATE FILE
+// VALIDATE
 // --------------------------------
 
 function validateFile(file) {
@@ -247,7 +282,7 @@ function validateFile(file) {
 
 
 // --------------------------------
-// SHOW SELECTED FILE
+// SELECTED FILE
 // --------------------------------
 
 function showSelectedFile(file) {
@@ -262,6 +297,7 @@ function showSelectedFile(file) {
             validation.message,
             "error"
         );
+
 
         return false;
 
@@ -289,7 +325,7 @@ function showSelectedFile(file) {
 
 
 // --------------------------------
-// FILE PICKER
+// FILE INPUT
 // --------------------------------
 
 fileInput.addEventListener(
@@ -315,7 +351,7 @@ fileInput.addEventListener(
 
 
 // --------------------------------
-// KEYBOARD SUPPORT
+// KEYBOARD
 // --------------------------------
 
 uploadArea.addEventListener(
@@ -332,6 +368,7 @@ uploadArea.addEventListener(
 
             event.preventDefault();
 
+
             fileInput.click();
 
         }
@@ -341,7 +378,7 @@ uploadArea.addEventListener(
 
 
 // --------------------------------
-// DRAG OVER
+// DRAG
 // --------------------------------
 
 uploadArea.addEventListener(
@@ -350,6 +387,7 @@ uploadArea.addEventListener(
 
         event.preventDefault();
 
+
         uploadArea.classList.add(
             "dragging"
         );
@@ -357,10 +395,6 @@ uploadArea.addEventListener(
     }
 );
 
-
-// --------------------------------
-// DRAG LEAVE
-// --------------------------------
 
 uploadArea.addEventListener(
     "dragleave",
@@ -383,6 +417,7 @@ uploadArea.addEventListener(
     (event) => {
 
         event.preventDefault();
+
 
         uploadArea.classList.remove(
             "dragging"
@@ -426,7 +461,7 @@ uploadArea.addEventListener(
         } catch (error) {
 
             console.warn(
-                "This browser does not support assigning the dropped file to the file input.",
+                "Drag-and-drop file assignment is not supported in this browser.",
                 error
             );
 
@@ -484,10 +519,106 @@ function downloadConvertedFile(
             );
 
         },
-        3000
+        5000
     );
 
 }
+
+
+// --------------------------------
+// SHOW SUCCESS
+// --------------------------------
+
+function showSuccessScreen(
+    blob,
+    outputName
+) {
+
+    convertedBlob =
+        blob;
+
+
+    convertedOutputName =
+        outputName;
+
+
+    convertedFileName.textContent =
+        outputName;
+
+
+    converterTabs.hidden =
+        true;
+
+
+    uploadArea.hidden =
+        true;
+
+
+    successArea.hidden =
+        false;
+
+}
+
+
+// --------------------------------
+// DOWNLOAD AGAIN
+// --------------------------------
+
+downloadAgainButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !convertedBlob ||
+            !convertedOutputName
+        ) {
+
+            return;
+
+        }
+
+
+        downloadConvertedFile(
+            convertedBlob,
+            convertedOutputName
+        );
+
+    }
+);
+
+
+// --------------------------------
+// CONVERT ANOTHER
+// --------------------------------
+
+convertAnotherButton.addEventListener(
+    "click",
+    () => {
+
+        convertedBlob =
+            null;
+
+
+        convertedOutputName =
+            "";
+
+
+        successArea.hidden =
+            true;
+
+
+        converterTabs.hidden =
+            false;
+
+
+        uploadArea.hidden =
+            false;
+
+
+        resetFileSelection();
+
+    }
+);
 
 
 // --------------------------------
@@ -512,6 +643,7 @@ convertButton.addEventListener(
                 validation.message,
                 "error"
             );
+
 
             return;
 
@@ -652,15 +784,19 @@ convertButton.addEventListener(
             }
 
 
+            progressContainer.hidden =
+                true;
+
+
             downloadConvertedFile(
                 blob,
                 outputName
             );
 
 
-            setStatus(
-                "Conversion complete! Your file has been downloaded.",
-                "success"
+            showSuccessScreen(
+                blob,
+                outputName
             );
 
         } catch (error) {
