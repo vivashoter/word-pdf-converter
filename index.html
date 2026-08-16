@@ -15,12 +15,11 @@
 
     <title>WordPDF | Word & PDF Converter</title>
 
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css?v=9">
 </head>
 
 <body>
 
-    <!-- HEADER -->
     <header class="site-header">
 
         <div class="header-container">
@@ -35,7 +34,6 @@
     </header>
 
 
-    <!-- MAIN -->
     <main class="main-content">
 
         <section class="hero">
@@ -59,7 +57,11 @@
 
 
                 <!-- CONVERSION TABS -->
-                <div class="converter-tabs">
+
+                <div
+                    id="converterTabs"
+                    class="converter-tabs"
+                >
 
                     <button
                         id="wordToPdf"
@@ -81,6 +83,7 @@
 
 
                 <!-- UPLOAD AREA -->
+
                 <div
                     id="uploadArea"
                     class="upload-area"
@@ -140,7 +143,8 @@
                     </button>
 
 
-                    <!-- PROGRESS BAR -->
+                    <!-- PROGRESS -->
+
                     <div
                         id="progressContainer"
                         class="progress-container"
@@ -166,12 +170,75 @@
                     </div>
 
 
-                    <!-- STATUS -->
                     <div
                         id="statusMessage"
                         class="status-message"
                         aria-live="polite"
                     ></div>
+
+                </div>
+
+
+                <!-- SUCCESS SCREEN -->
+
+                <div
+                    id="successArea"
+                    class="success-area"
+                    hidden
+                >
+
+                    <div class="success-check">
+                        ✓
+                    </div>
+
+
+                    <h2>
+                        Conversion Complete
+                    </h2>
+
+
+                    <p class="success-description">
+                        Your converted document is ready.
+                    </p>
+
+
+                    <div class="converted-file">
+
+                        <div class="converted-file-icon">
+                            ✓
+                        </div>
+
+                        <div class="converted-file-info">
+
+                            <span class="converted-label">
+                                Converted file
+                            </span>
+
+                            <strong id="convertedFileName">
+                                document.pdf
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        id="downloadAgainButton"
+                        class="download-again-button"
+                        type="button"
+                    >
+                        ↓&nbsp;&nbsp;Download Again
+                    </button>
+
+
+                    <button
+                        id="convertAnotherButton"
+                        class="convert-another-button"
+                        type="button"
+                    >
+                        Convert Another File
+                    </button>
 
                 </div>
 
@@ -182,7 +249,6 @@
     </main>
 
 
-    <!-- FOOTER -->
     <footer class="site-footer">
 
         <p>
@@ -192,7 +258,7 @@
     </footer>
 
 
-    <script src="/script.js"></script>
+    <script src="/script.js?v=9"></script>
 
 </body>
 </html>
