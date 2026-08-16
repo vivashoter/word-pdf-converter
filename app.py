@@ -11,23 +11,18 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(__name__)
 
 
-# -----------------------------
-# WEBSITE PAGES
-# -----------------------------
+# ---------------------------------
+# HOME PAGE
+# ---------------------------------
 
 @app.route("/")
 def home():
     return send_from_directory(BASE_DIR, "index.html")
 
 
-@app.route("/editor")
-def editor():
-    return send_from_directory(BASE_DIR, "editor.html")
-
-
-# -----------------------------
-# MAIN WEBSITE FILES
-# -----------------------------
+# ---------------------------------
+# WEBSITE FILES
+# ---------------------------------
 
 @app.route("/style.css")
 def styles():
@@ -39,45 +34,30 @@ def scripts():
     return send_from_directory(BASE_DIR, "script.js")
 
 
-# -----------------------------
-# EDITOR FILES
-# -----------------------------
-
-@app.route("/editor.css")
-def editor_styles():
-    return send_from_directory(BASE_DIR, "editor.css")
-
-
-@app.route("/editor.js")
-def editor_scripts():
-    return send_from_directory(BASE_DIR, "editor.js")
-
-
-# -----------------------------
+# ---------------------------------
 # WORD TO PDF
-# -----------------------------
+# ---------------------------------
 
 @app.route("/convert/word-to-pdf", methods=["POST"])
 def word_to_pdf():
 
     if "file" not in request.files:
         return jsonify({
-            "error": "No file uploaded"
+            "error": "No file uploaded."
         }), 400
 
     uploaded_file = request.files["file"]
 
     if uploaded_file.filename == "":
         return jsonify({
-            "error": "No file selected"
+            "error": "No file selected."
         }), 400
 
-    if not uploaded_file.filename.lower().endswith(
-        (".doc", ".docx")
-    ):
+    if not uploaded_file.filename.lower().endswith((".doc", ".docx")):
         return jsonify({
-            "error": "Please upload a Word document"
+            "error": "Please upload a DOC or DOCX file."
         }), 400
+
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -87,6 +67,7 @@ def word_to_pdf():
         )
 
         uploaded_file.save(input_path)
+
 
         try:
 
@@ -101,17 +82,27 @@ def word_to_pdf():
                     input_path
                 ],
                 check=True,
-                timeout=120
+                timeout=120,
+                capture_output=True,
+                text=True
             )
 
-        except Exception as error:
-
-            print(error)
+        except subprocess.TimeoutExpired:
 
             return jsonify({
                 "error":
-                "The Word document could not be converted."
+                    "The conversion took too long. Please try again."
+            }), 504
+
+        except Exception as error:
+
+            print("Word to PDF error:", error)
+
+            return jsonify({
+                "error":
+                    "The Word document could not be converted."
             }), 500
+
 
         output_name = (
             os.path.splitext(
@@ -125,12 +116,14 @@ def word_to_pdf():
             output_name
         )
 
+
         if not os.path.exists(output_path):
 
             return jsonify({
                 "error":
-                "The PDF was not created."
+                    "The PDF could not be created."
             }), 500
+
 
         return send_file(
             output_path,
@@ -140,31 +133,35 @@ def word_to_pdf():
         )
 
 
-# -----------------------------
+# ---------------------------------
 # PDF TO WORD
-# -----------------------------
+# ---------------------------------
 
 @app.route("/convert/pdf-to-word", methods=["POST"])
 def pdf_to_word():
 
     if "file" not in request.files:
         return jsonify({
-            "error": "No file uploaded"
+            "error": "No file uploaded."
         }), 400
+
 
     uploaded_file = request.files["file"]
 
+
     if uploaded_file.filename == "":
         return jsonify({
-            "error": "No file selected"
+            "error": "No file selected."
         }), 400
+
 
     if not uploaded_file.filename.lower().endswith(".pdf"):
 
         return jsonify({
             "error":
-            "Please upload a PDF file"
+                "Please upload a PDF file."
         }), 400
+
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -175,6 +172,7 @@ def pdf_to_word():
 
         uploaded_file.save(input_path)
 
+
         output_name = (
             os.path.splitext(
                 uploaded_file.filename
@@ -182,12 +180,15 @@ def pdf_to_word():
             + ".docx"
         )
 
+
         output_path = os.path.join(
             temp_dir,
             output_name
         )
 
+
         converter = None
+
 
         try:
 
@@ -195,32 +196,37 @@ def pdf_to_word():
                 input_path
             )
 
+
             converter.convert(
                 output_path,
                 start=0,
                 end=None
             )
 
+
         except Exception as error:
 
-            print(error)
+            print("PDF to Word error:", error)
 
             return jsonify({
                 "error":
-                "The PDF could not be converted."
+                    "The PDF could not be converted to Word."
             }), 500
+
 
         finally:
 
             if converter is not None:
                 converter.close()
 
+
         if not os.path.exists(output_path):
 
             return jsonify({
                 "error":
-                "The Word document was not created."
+                    "The Word document could not be created."
             }), 500
+
 
         return send_file(
             output_path,
@@ -234,9 +240,9 @@ def pdf_to_word():
         )
 
 
-# -----------------------------
-# START SERVER
-# -----------------------------
+# ---------------------------------
+# SERVER
+# ---------------------------------
 
 if __name__ == "__main__":
 
@@ -247,7 +253,8 @@ if __name__ == "__main__":
         )
     )
 
+
     app.run(
         host="0.0.0.0",
         port=port
-        )
+    )
