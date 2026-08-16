@@ -1,84 +1,809 @@
-.progress-container {
-  width: 100%;
-  max-width: 420px;
-  margin-top: 22px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    background: #f7f8fc;
+    color: #1f2937;
+}
+
+
+/* ------------------------------
+   HEADER
+------------------------------ */
+
+.site-header {
+    width: 100%;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.header-container {
+    width: 100%;
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 25px 32px;
+}
+
+
+.logo {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    color: #1f2937;
+
+    text-decoration: none;
+
+    font-size: 30px;
+
+    font-weight: 750;
+}
+
+
+.logo-icon {
+    color: #5146e5;
+
+    font-size: 25px;
+
+    font-weight: 700;
+}
+
+
+/* ------------------------------
+   MAIN
+------------------------------ */
+
+.main-content {
+    width: 100%;
+}
+
+
+.hero {
+    padding:
+        90px
+        24px
+        100px;
+}
+
+
+.hero-container {
+    width: 100%;
+
+    max-width: 850px;
+
+    margin: 0 auto;
+
+    text-align: center;
+}
+
+
+/* ------------------------------
+   HERO TEXT
+------------------------------ */
+
+.eyebrow {
+    margin-bottom: 28px;
+
+    color: #5146e5;
+
+    font-size: 16px;
+
+    font-weight: 750;
+
+    letter-spacing: 4px;
+}
+
+
+.hero h1 {
+    margin-bottom: 30px;
+
+    color: #1f2937;
+
+    font-size: clamp(
+        44px,
+        6vw,
+        68px
+    );
+
+    line-height: 1.05;
+
+    font-weight: 800;
+
+    letter-spacing: -2px;
+}
+
+
+.hero-description {
+    max-width: 760px;
+
+    margin:
+        0
+        auto
+        55px;
+
+    color: #6b7280;
+
+    font-size: 21px;
+
+    line-height: 1.7;
+}
+
+
+/* ------------------------------
+   CONVERTER TABS
+------------------------------ */
+
+.converter-tabs {
+    display: flex;
+
+    width: 100%;
+
+    max-width: 520px;
+
+    margin:
+        0
+        auto
+        32px;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background: #e5e7eb;
+}
+
+
+.converter-tab {
+    flex: 1;
+
+    min-height: 76px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 19px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.converter-tab.active {
+    background: #5146e5;
+
+    color: #ffffff;
+}
+
+
+.converter-tab:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.7;
+}
+
+
+/* ------------------------------
+   UPLOAD AREA
+------------------------------ */
+
+.upload-area {
+    width: 100%;
+
+    max-width: 720px;
+
+    min-height: 610px;
+
+    margin: 0 auto;
+
+    padding:
+        70px
+        40px
+        50px;
+
+    background: #ffffff;
+
+    border: 3px dashed #5952c9;
+
+    border-radius: 32px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(31, 41, 55, 0.06);
+
+    text-align: center;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.upload-area.dragging {
+    border-color: #4338ca;
+
+    background: #f5f3ff;
+}
+
+
+.upload-icon {
+    margin-bottom: 40px;
+
+    color: #5146e5;
+
+    font-size: 60px;
+
+    line-height: 1;
+}
+
+
+.upload-area h2 {
+    max-width: 600px;
+
+    margin:
+        0
+        auto
+        14px;
+
+    overflow-wrap: anywhere;
+
+    color: #1f2937;
+
+    font-size: 32px;
+
+    line-height: 1.25;
+
+    font-weight: 750;
+}
+
+
+.upload-description {
+    margin-bottom: 26px;
+
+    color: #737983;
+
+    font-size: 20px;
+
+    line-height: 1.5;
+}
+
+
+.or-text {
+    margin-bottom: 27px;
+
+    color: #9ca3af;
+
+    font-size: 20px;
+}
+
+
+/* ------------------------------
+   CHOOSE FILE
+------------------------------ */
+
+.choose-file-button {
+    display: inline-flex;
+
+    min-width: 240px;
+
+    min-height: 72px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        15px
+        30px;
+
+    border-radius: 17px;
+
+    background: #5146e5;
+
+    color: #ffffff;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+
+.choose-file-button:hover {
+    background: #4338ca;
+}
+
+
+.choose-file-button:active {
+    transform: scale(0.98);
+}
+
+
+.file-limit {
+    margin-top: 30px;
+
+    color: #737983;
+
+    font-size: 17px;
+}
+
+
+/* ------------------------------
+   CONVERT BUTTON
+------------------------------ */
+
+.convert-button {
+    display: block;
+
+    min-width: 250px;
+
+    min-height: 72px;
+
+    margin:
+        35px
+        auto
+        0;
+
+    padding:
+        15px
+        32px;
+
+    border: 0;
+
+    border-radius: 17px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        opacity 0.15s ease;
+}
+
+
+.convert-button:hover {
+    background: #030712;
+}
+
+
+.convert-button:active {
+    transform: scale(0.98);
+}
+
+
+.convert-button:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.75;
+}
+
+
+/* ------------------------------
+   PROGRESS BAR
+------------------------------ */
+
+.progress-container {
+    width: 100%;
+
+    max-width: 440px;
+
+    margin:
+        28px
+        auto
+        0;
+}
+
+
+.progress-container[hidden] {
+    display: none;
+}
+
 
 .progress-header {
-  margin-bottom: 9px;
+    margin-bottom: 11px;
 
-  text-align: left;
+    text-align: left;
 
-  color: #374151;
+    color: #374151;
 
-  font-size: 14px;
-  font-weight: 600;
+    font-size: 14px;
+
+    font-weight: 650;
 }
+
 
 .progress-track {
-  width: 100%;
-  height: 8px;
+    position: relative;
 
-  overflow: hidden;
+    width: 100%;
 
-  background: #e5e7eb;
+    height: 8px;
 
-  border-radius: 999px;
+    overflow: hidden;
 
-  position: relative;
+    background: #e5e7eb;
+
+    border-radius: 999px;
 }
+
 
 .progress-bar {
-  position: absolute;
+    position: absolute;
 
-  top: 0;
-  bottom: 0;
+    top: 0;
 
-  width: 35%;
+    bottom: 0;
 
-  border-radius: 999px;
+    left: -35%;
 
-  background: #4f46e5;
+    width: 35%;
 
-  animation:
-    conversion-progress
-    1.4s
-    ease-in-out
-    infinite;
+    background: #5146e5;
+
+    border-radius: 999px;
+
+    animation:
+        conversion-progress
+        1.35s
+        ease-in-out
+        infinite;
 }
+
 
 .progress-note {
-  margin-top: 9px;
+    margin-top: 10px;
 
-  text-align: left;
+    text-align: left;
 
-  color: #9ca3af !important;
+    color: #9ca3af;
 
-  font-size: 12px;
+    font-size: 13px;
 }
+
 
 @keyframes conversion-progress {
 
-  0% {
-    left: -35%;
-  }
+    0% {
+        left: -35%;
+    }
 
-  50% {
-    left: 45%;
-  }
+    50% {
+        left: 45%;
+    }
 
-  100% {
-    left: 100%;
-  }
+    100% {
+        left: 100%;
+    }
 
 }
 
+
+/* ------------------------------
+   STATUS MESSAGE
+------------------------------ */
+
+.status-message {
+    min-height: 28px;
+
+    margin-top: 25px;
+
+    color: #6b7280;
+
+    font-size: 16px;
+
+    line-height: 1.5;
+}
+
+
+.status-message.success {
+    color: #166534;
+}
+
+
+.status-message.error {
+    color: #b91c1c;
+}
+
+
+/* ------------------------------
+   FOOTER
+------------------------------ */
+
+.site-footer {
+    padding:
+        35px
+        20px;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+
+/* ------------------------------
+   TABLETS
+------------------------------ */
+
+@media (max-width: 768px) {
+
+    .header-container {
+        padding:
+            22px
+            28px;
+    }
+
+
+    .logo {
+        font-size: 27px;
+    }
+
+
+    .hero {
+        padding:
+            70px
+            24px
+            80px;
+    }
+
+
+    .eyebrow {
+        font-size: 14px;
+
+        letter-spacing: 3px;
+    }
+
+
+    .hero h1 {
+        font-size: 50px;
+    }
+
+
+    .hero-description {
+        font-size: 19px;
+    }
+
+
+    .converter-tab {
+        min-height: 68px;
+
+        font-size: 18px;
+    }
+
+
+    .upload-area {
+        min-height: 580px;
+
+        padding:
+            60px
+            32px
+            45px;
+
+        border-radius: 28px;
+    }
+
+
+    .upload-area h2 {
+        font-size: 29px;
+    }
+
+}
+
+
+/* ------------------------------
+   PHONES
+------------------------------ */
+
+@media (max-width: 520px) {
+
+    .header-container {
+        padding:
+            20px
+            22px;
+    }
+
+
+    .logo {
+        gap: 10px;
+
+        font-size: 24px;
+    }
+
+
+    .logo-icon {
+        font-size: 21px;
+    }
+
+
+    .hero {
+        padding:
+            58px
+            18px
+            65px;
+    }
+
+
+    .eyebrow {
+        margin-bottom: 22px;
+
+        font-size: 12px;
+
+        letter-spacing: 2.5px;
+    }
+
+
+    .hero h1 {
+        margin-bottom: 24px;
+
+        font-size: 42px;
+
+        letter-spacing: -1px;
+    }
+
+
+    .hero-description {
+        margin-bottom: 42px;
+
+        font-size: 17px;
+
+        line-height: 1.65;
+    }
+
+
+    .converter-tabs {
+        margin-bottom: 25px;
+
+        border-radius: 15px;
+    }
+
+
+    .converter-tab {
+        min-height: 62px;
+
+        padding:
+            10px
+            8px;
+
+        font-size: 16px;
+    }
+
+
+    .upload-area {
+        min-height: 540px;
+
+        padding:
+            52px
+            22px
+            38px;
+
+        border-width: 2px;
+
+        border-radius: 25px;
+    }
+
+
+    .upload-icon {
+        margin-bottom: 32px;
+
+        font-size: 52px;
+    }
+
+
+    .upload-area h2 {
+        font-size: 26px;
+    }
+
+
+    .upload-description {
+        font-size: 17px;
+    }
+
+
+    .or-text {
+        font-size: 18px;
+    }
+
+
+    .choose-file-button {
+        width: 100%;
+
+        max-width: 250px;
+
+        min-width: 0;
+
+        min-height: 64px;
+
+        font-size: 18px;
+    }
+
+
+    .file-limit {
+        font-size: 15px;
+    }
+
+
+    .convert-button {
+        width: 100%;
+
+        max-width: 250px;
+
+        min-width: 0;
+
+        min-height: 64px;
+
+        font-size: 18px;
+    }
+
+
+    .progress-container {
+        max-width: 300px;
+    }
+
+}
+
+
+/* ------------------------------
+   REDUCED MOTION
+------------------------------ */
+
 @media (prefers-reduced-motion: reduce) {
 
-  .progress-bar {
-    width: 100%;
-    left: 0;
-    animation: none;
-  }
+    .progress-bar {
+        left: 0;
+
+        width: 100%;
+
+        animation: none;
+    }
 
 }
