@@ -23,13 +23,14 @@ body {
         sans-serif;
 
     background: #f7f8fc;
+
     color: #1f2937;
 }
 
 
-/* ------------------------------
+/* ========================================
    HEADER
------------------------------- */
+======================================== */
 
 .site-header {
     width: 100%;
@@ -42,11 +43,12 @@ body {
 
 .header-container {
     width: 100%;
+
     max-width: 1200px;
 
     margin: 0 auto;
 
-    padding: 25px 32px;
+    padding: 22px 32px;
 }
 
 
@@ -55,30 +57,53 @@ body {
 
     align-items: center;
 
-    gap: 14px;
+    gap: 13px;
 
     color: #1f2937;
 
     text-decoration: none;
-
-    font-size: 30px;
-
-    font-weight: 750;
 }
 
 
-.logo-icon {
-    color: #5146e5;
+.logo-mark {
+    display: flex;
 
-    font-size: 25px;
+    width: 46px;
+    height: 46px;
 
-    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #5146e5;
+
+    color: #ffffff;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    box-shadow:
+        0 5px 14px
+        rgba(81, 70, 229, 0.20);
 }
 
 
-/* ------------------------------
+.logo-text {
+    font-size: 27px;
+
+    font-weight: 780;
+
+    letter-spacing: -0.6px;
+}
+
+
+/* ========================================
    MAIN
------------------------------- */
+======================================== */
 
 .main-content {
     width: 100%;
@@ -104,9 +129,9 @@ body {
 }
 
 
-/* ------------------------------
-   HERO TEXT
------------------------------- */
+/* ========================================
+   HERO
+======================================== */
 
 .eyebrow {
     margin-bottom: 28px;
@@ -156,9 +181,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    CONVERTER TABS
------------------------------- */
+======================================== */
 
 .converter-tabs {
     display: flex;
@@ -222,9 +247,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    UPLOAD AREA
------------------------------- */
+======================================== */
 
 .upload-area {
     width: 100%;
@@ -321,9 +346,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    CHOOSE FILE
------------------------------- */
+======================================== */
 
 .choose-file-button {
     display: inline-flex;
@@ -377,9 +402,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    CONVERT BUTTON
------------------------------- */
+======================================== */
 
 .convert-button {
     display: block;
@@ -437,9 +462,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    PROGRESS
------------------------------- */
+======================================== */
 
 .progress-container {
     width: 100%;
@@ -536,9 +561,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    STATUS
------------------------------- */
+======================================== */
 
 .status-message {
     min-height: 28px;
@@ -563,9 +588,9 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    SUCCESS SCREEN
------------------------------- */
+======================================== */
 
 .success-area {
     width: 100%;
@@ -808,38 +833,114 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    FOOTER
------------------------------- */
+======================================== */
 
 .site-footer {
+    width: 100%;
+
     padding:
-        35px
+        45px
         20px;
 
-    text-align: center;
+    background: #ffffff;
 
-    color: #9ca3af;
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.footer-container {
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    text-align: center;
+}
+
+
+.footer-brand {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    margin-bottom: 10px;
+
+    color: #374151;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+
+.footer-logo-mark {
+    display: flex;
+
+    width: 28px;
+    height: 28px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: #5146e5;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+
+.footer-tagline {
+    margin-bottom: 15px;
+
+    color: #6b7280;
 
     font-size: 14px;
 }
 
 
-/* ------------------------------
+.footer-copyright {
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
    TABLET
------------------------------- */
+======================================== */
 
 @media (max-width: 768px) {
 
     .header-container {
         padding:
-            22px
+            20px
             28px;
     }
 
 
-    .logo {
-        font-size: 27px;
+    .logo-mark {
+        width: 42px;
+        height: 42px;
+
+        border-radius: 12px;
+
+        font-size: 22px;
+    }
+
+
+    .logo-text {
+        font-size: 24px;
     }
 
 
@@ -894,28 +995,38 @@ body {
 }
 
 
-/* ------------------------------
+/* ========================================
    PHONE
------------------------------- */
+======================================== */
 
 @media (max-width: 520px) {
 
     .header-container {
         padding:
-            20px
-            22px;
+            17px
+            18px;
     }
 
 
     .logo {
-        gap: 10px;
-
-        font-size: 24px;
+        gap: 9px;
     }
 
 
-    .logo-icon {
-        font-size: 21px;
+    .logo-mark {
+        width: 38px;
+        height: 38px;
+
+        border-radius: 11px;
+
+        font-size: 19px;
+    }
+
+
+    .logo-text {
+        font-size: 20px;
+
+        letter-spacing: -0.4px;
     }
 
 
@@ -1070,12 +1181,37 @@ body {
         max-width: 100%;
     }
 
+
+    .site-footer {
+        padding:
+            38px
+            18px;
+    }
+
 }
 
 
-/* ------------------------------
+/* ========================================
+   VERY SMALL PHONES
+======================================== */
+
+@media (max-width: 360px) {
+
+    .logo-text {
+        font-size: 18px;
+    }
+
+
+    .hero h1 {
+        font-size: 37px;
+    }
+
+}
+
+
+/* ========================================
    REDUCED MOTION
------------------------------- */
+======================================== */
 
 @media (prefers-reduced-motion: reduce) {
 
