@@ -3,10 +3,10 @@
 ======================================== */
 
 const GOOGLE_CLIENT_ID =
-    "PASTE_YOUR_CLIENT_ID_HERE";
+    "239816509439-uhrb687i85r1susl9jmbn5it4afcdebe.apps.googleusercontent.com";
 
 const GOOGLE_API_KEY =
-    "PASTE_YOUR_API_KEY_HERE";
+    "AIzaSyCAv-JotC9-W5JPMrbQ4T-25GYZ03d-kB4";
 
 const GOOGLE_APP_ID =
     "239816509439";
