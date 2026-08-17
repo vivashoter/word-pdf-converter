@@ -1008,4 +1008,199 @@ body {
             auto;
     }
 
+   /* ========================================
+   LEGAL / INFORMATION PAGES
+======================================== */
+
+.legal-page {
+    padding:
+        70px
+        20px
+        100px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f5f7ff 0%,
+            #eeeeff 50%,
+            #f8f9ff 100%
+        );
+}
+
+
+.legal-container {
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding:
+        60px
+        65px;
+
+    background: #ffffff;
+
+    border-radius: 32px;
+
+    box-shadow:
+        0 18px 45px
+        rgba(17, 24, 39, 0.07);
+}
+
+
+.legal-container > h1 {
+    margin:
+        0
+        0
+        10px;
+
+    color: #111827;
+
+    font-size:
+        clamp(
+            40px,
+            6vw,
+            58px
+        );
+
+    line-height: 1.1;
+}
+
+
+.legal-updated {
+    margin-bottom: 45px;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+
+.legal-container section {
+    margin-top: 40px;
+}
+
+
+.legal-container section h2 {
+    margin-bottom: 14px;
+
+    color: #111827;
+
+    font-size: 24px;
+}
+
+
+.legal-container section p {
+    color: #4b5563;
+
+    font-size: 17px;
+
+    line-height: 1.8;
+}
+
+
+.legal-button {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-top: 10px;
+
+    padding:
+        15px
+        25px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #22a447,
+            #5b4cf0
+        );
+
+    color: #ffffff;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.legal-home {
+    margin-top: 55px;
+
+    padding-top: 30px;
+
+    border-top:
+        1px solid
+        #e5e7eb;
+}
+
+
+.legal-home a {
+    color: #5b4cf0;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+/* FOOTER LINKS */
+
+.footer-links {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap:
+        12px
+        28px;
+
+    margin:
+        25px
+        auto;
+}
+
+
+.footer-links a {
+    color: #4b5563;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+
+.footer-links a:hover {
+    color: #5b4cf0;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .legal-container {
+        padding:
+            40px
+            25px;
+
+        border-radius: 24px;
+    }
+
+
+    .legal-container section p {
+        font-size: 16px;
+    }
+
+
 }
