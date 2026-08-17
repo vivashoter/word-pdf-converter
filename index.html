@@ -20,11 +20,11 @@
         content="#ffffff"
     >
 
-    <title>ConvertDocGoose | Word & PDF Converter</title>
+    <title>ConvertDocGoose | Document Converter</title>
 
     <link
         rel="stylesheet"
-        href="/style.css?v=13"
+        href="/style.css?v=14"
     >
 
 </head>
@@ -92,18 +92,20 @@
 
                     <button
                         id="wordToPdf"
-                        class="converter-tab active"
+                        class="converter-tab word-tab active"
                         type="button"
                     >
+                        <span class="tab-dot word-dot"></span>
                         Word to PDF
                     </button>
 
 
                     <button
                         id="pdfToWord"
-                        class="converter-tab"
+                        class="converter-tab pdf-tab"
                         type="button"
                     >
+                        <span class="tab-dot pdf-dot"></span>
                         PDF to Word
                     </button>
 
@@ -114,7 +116,7 @@
 
                 <div
                     id="uploadArea"
-                    class="upload-area"
+                    class="upload-area word-mode"
                     tabindex="0"
                 >
 
@@ -182,22 +184,47 @@
                         hidden
                     >
 
-                        <div class="progress-header">
-                            Converting your document…
+                        <div class="progress-top">
+
+                            <span
+                                id="progressLabel"
+                                class="progress-label"
+                            >
+                                Converting your document…
+                            </span>
+
+                            <span
+                                id="progressStatus"
+                                class="progress-status"
+                            >
+                                Processing
+                            </span>
+
                         </div>
 
 
-                        <div class="progress-track">
+                        <div
+                            class="progress-track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-label="Conversion progress"
+                            id="progressTrack"
+                        >
 
                             <div
+                                id="progressBar"
                                 class="progress-bar"
                             ></div>
 
                         </div>
 
 
-                        <p class="progress-note">
-                            This usually takes a few seconds.
+                        <p
+                            id="progressNote"
+                            class="progress-note"
+                        >
+                            Please keep this page open while your document is converted.
                         </p>
 
                     </div>
@@ -212,7 +239,7 @@
                 </div>
 
 
-                <!-- SUCCESS SCREEN -->
+                <!-- SUCCESS -->
 
                 <div
                     id="successArea"
@@ -253,7 +280,6 @@
                             <span class="converted-label">
                                 Converted file
                             </span>
-
 
                             <strong id="convertedFileName">
                                 document.pdf
@@ -303,11 +329,9 @@
                 aria-hidden="true"
             >
 
-
             <p class="footer-tagline">
                 Simple document conversion.
             </p>
-
 
             <p class="footer-copyright">
                 © 2026 ConvertDocGoose. All rights reserved.
@@ -318,7 +342,7 @@
     </footer>
 
 
-    <script src="/script.js?v=10"></script>
+    <script src="/script.js?v=14"></script>
 
 </body>
 
