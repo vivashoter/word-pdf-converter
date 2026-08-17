@@ -20,11 +20,13 @@
         content="#ffffff"
     >
 
-    <title>ConvertDocGoose | Document Converter</title>
+    <title>
+        ConvertDocGoose | Document Converter
+    </title>
 
     <link
         rel="stylesheet"
-        href="/style.css?v=16"
+        href="/style.css?v=18"
     >
 
 </head>
@@ -32,7 +34,9 @@
 
 <body>
 
-    <!-- HEADER -->
+    <!-- ========================================
+         HEADER
+    ======================================== -->
 
     <header class="site-header">
 
@@ -57,7 +61,9 @@
     </header>
 
 
-    <!-- MAIN -->
+    <!-- ========================================
+         MAIN
+    ======================================== -->
 
     <main class="main-content">
 
@@ -78,12 +84,14 @@
 
 
                 <p class="hero-description">
-                    Convert Word documents, PDFs, and Google Docs
-                    quickly and easily.
+                    Convert Word documents, PDFs,
+                    and Google Docs quickly and easily.
                 </p>
 
 
-                <!-- CONVERSION TABS -->
+                <!-- ========================================
+                     CONVERTER TABS
+                ======================================== -->
 
                 <div
                     id="converterTabs"
@@ -96,6 +104,7 @@
                         type="button"
                     >
                         <span class="tab-dot word-dot"></span>
+
                         Word to PDF
                     </button>
 
@@ -106,6 +115,7 @@
                         type="button"
                     >
                         <span class="tab-dot pdf-dot"></span>
+
                         PDF to Word
                     </button>
 
@@ -116,6 +126,7 @@
                         type="button"
                     >
                         <span class="tab-dot google-dot"></span>
+
                         Google Doc to PDF
                     </button>
 
@@ -126,13 +137,16 @@
                         type="button"
                     >
                         <span class="tab-dot google-dot"></span>
+
                         Google Doc to Word
                     </button>
 
                 </div>
 
 
-                <!-- NORMAL FILE UPLOAD AREA -->
+                <!-- ========================================
+                     LOCAL UPLOAD AREA
+                ======================================== -->
 
                 <div
                     id="uploadArea"
@@ -196,7 +210,7 @@
                     </button>
 
 
-                    <!-- PROGRESS -->
+                    <!-- LOCAL PROGRESS -->
 
                     <div
                         id="progressContainer"
@@ -213,6 +227,7 @@
                                 Converting your document…
                             </span>
 
+
                             <span
                                 id="progressStatus"
                                 class="progress-status"
@@ -224,12 +239,12 @@
 
 
                         <div
+                            id="progressTrack"
                             class="progress-track"
                             role="progressbar"
                             aria-valuemin="0"
                             aria-valuemax="100"
-                            aria-label="Conversion progress"
-                            id="progressTrack"
+                            aria-valuenow="0"
                         >
 
                             <div
@@ -244,7 +259,8 @@
                             id="progressNote"
                             class="progress-note"
                         >
-                            Please keep this page open while your document is converted.
+                            Please keep this page open while
+                            your document is converted.
                         </p>
 
                     </div>
@@ -259,7 +275,9 @@
                 </div>
 
 
-                <!-- GOOGLE DOC AREA -->
+                <!-- ========================================
+                     GOOGLE DOC AREA
+                ======================================== -->
 
                 <div
                     id="googleArea"
@@ -276,17 +294,24 @@
                         id="googleDescription"
                         class="upload-description"
                     >
-                        Choose a Google Doc from Drive and export it as a PDF.
+                        Choose a Google Doc from Drive
+                        or upload a document from your computer.
                     </p>
 
 
                     <button
-                        id="googleDriveButton"
+                        id="chooseGoogleDocButton"
                         class="google-drive-button"
                         type="button"
                     >
                         Choose from Google Drive
                     </button>
+
+
+                    <p class="file-limit">
+                        The Google window includes an
+                        Upload option for files on your computer.
+                    </p>
 
 
                     <div
@@ -296,7 +321,7 @@
                     >
 
                         <span>
-                            Selected Google Doc
+                            Selected document
                         </span>
 
                         <strong id="selectedGoogleFileName">
@@ -310,10 +335,13 @@
                         id="convertGoogleButton"
                         class="convert-button google-convert-button"
                         type="button"
+                        hidden
                     >
                         Convert Google Doc
                     </button>
 
+
+                    <!-- GOOGLE PROGRESS -->
 
                     <div
                         id="googleProgressContainer"
@@ -323,18 +351,32 @@
 
                         <div class="progress-top">
 
-                            <span class="progress-label">
+                            <span
+                                id="googleProgressLabel"
+                                class="progress-label"
+                            >
                                 Converting your Google Doc…
                             </span>
 
-                            <span class="progress-status">
+
+                            <span
+                                id="googleProgressStatus"
+                                class="progress-status"
+                            >
                                 Processing
                             </span>
 
                         </div>
 
 
-                        <div class="progress-track">
+                        <div
+                            id="googleProgressTrack"
+                            class="progress-track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-valuenow="0"
+                        >
 
                             <div
                                 id="googleProgressBar"
@@ -345,7 +387,8 @@
 
 
                         <p class="progress-note">
-                            Please keep this page open while your document is converted.
+                            Please keep this page open while
+                            your document is converted.
                         </p>
 
                     </div>
@@ -360,7 +403,9 @@
                 </div>
 
 
-                <!-- SUCCESS -->
+                <!-- ========================================
+                     SUCCESS SCREEN
+                ======================================== -->
 
                 <div
                     id="successArea"
@@ -402,6 +447,7 @@
                                 Converted file
                             </span>
 
+
                             <strong id="convertedFileName">
                                 document.pdf
                             </strong>
@@ -416,7 +462,7 @@
                         class="download-again-button"
                         type="button"
                     >
-                        ↓&nbsp;&nbsp;Download Again
+                        ↓ Download Again
                     </button>
 
 
@@ -437,7 +483,9 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <!-- ========================================
+         FOOTER
+    ======================================== -->
 
     <footer class="site-footer">
 
@@ -450,12 +498,15 @@
                 aria-hidden="true"
             >
 
+
             <p class="footer-tagline">
                 Simple document conversion.
             </p>
 
+
             <p class="footer-copyright">
-                © 2026 ConvertDocGoose. All rights reserved.
+                © 2026 ConvertDocGoose.
+                All rights reserved.
             </p>
 
         </div>
@@ -463,7 +514,27 @@
     </footer>
 
 
-    <script src="/script.js?v=16"></script>
+    <!-- ========================================
+         GOOGLE LIBRARIES
+    ======================================== -->
+
+    <script
+        src="https://apis.google.com/js/api.js"
+        async
+        defer
+        onload="onGoogleApiLoad()"
+    ></script>
+
+
+    <script
+        src="https://accounts.google.com/gsi/client"
+        async
+        defer
+        onload="gisLoaded()"
+    ></script>
+
+
+    <script src="/script.js?v=18"></script>
 
 </body>
 
