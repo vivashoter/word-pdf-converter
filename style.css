@@ -1,3 +1,36 @@
+/* ========================================
+   CONVERTDOCGOOSE BRAND COLORS
+======================================== */
+
+:root {
+    --purple: #5b4cf0;
+    --purple-dark: #4938dd;
+    --purple-light: #f1efff;
+
+    --word-blue: #2563eb;
+    --word-blue-dark: #1d4ed8;
+    --word-blue-light: #eff6ff;
+
+    --pdf-red: #ef4444;
+    --pdf-red-dark: #dc2626;
+    --pdf-red-light: #fff1f2;
+
+    --google-green: #22a447;
+    --google-green-dark: #15803d;
+    --google-green-light: #ecfdf3;
+
+    --navy: #111827;
+    --gray: #6b7280;
+    --light-gray: #e5e7eb;
+    --background: #f7f8fc;
+    --white: #ffffff;
+}
+
+
+/* ========================================
+   GLOBAL
+======================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -22,14 +55,15 @@ body {
         Arial,
         sans-serif;
 
-    background: #f7f8fc;
+    background: var(--background);
 
-    color: #1f2937;
+    color: var(--navy);
 }
 
 
 /* ========================================
    HEADER
+   KEEP WHITE
 ======================================== */
 
 .site-header {
@@ -38,13 +72,17 @@ body {
     background: #ffffff;
 
     border-bottom: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 4px 18px
+        rgba(17, 24, 39, 0.05);
 }
 
 
 .header-banner {
     width: 100%;
 
-    min-height: 175px;
+    min-height: 190px;
 
     padding:
         18px
@@ -54,16 +92,22 @@ body {
 
     align-items: center;
 
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 
 .logo {
-    display: block;
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
 
     width: 100%;
 
-    max-width: 920px;
+    max-width: 1200px;
+
+    margin: 0 auto;
 
     text-decoration: none;
 }
@@ -73,11 +117,14 @@ body {
     display: block;
 
     width: 100%;
-    height: 140px;
+
+    height: auto;
+
+    max-height: 155px;
 
     object-fit: contain;
 
-    object-position: left center;
+    object-position: center;
 }
 
 
@@ -90,11 +137,33 @@ body {
 }
 
 
+/* ========================================
+   HERO
+======================================== */
+
 .hero {
     padding:
         90px
         24px
         100px;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(91, 76, 240, 0.10),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 88% 30%,
+            rgba(37, 99, 235, 0.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            #f6f4ff 0%,
+            #f8f8fd 45%,
+            #f7f8fc 100%
+        );
 }
 
 
@@ -109,14 +178,10 @@ body {
 }
 
 
-/* ========================================
-   HERO
-======================================== */
-
 .eyebrow {
     margin-bottom: 28px;
 
-    color: #5146e5;
+    color: var(--purple);
 
     font-size: 16px;
 
@@ -129,7 +194,7 @@ body {
 .hero h1 {
     margin-bottom: 30px;
 
-    color: #1f2937;
+    color: var(--navy);
 
     font-size: clamp(
         44px,
@@ -153,7 +218,7 @@ body {
         auto
         55px;
 
-    color: #6b7280;
+    color: var(--gray);
 
     font-size: 21px;
 
@@ -170,18 +235,26 @@ body {
 
     width: 100%;
 
-    max-width: 520px;
+    max-width: 540px;
 
     margin:
         0
         auto
         32px;
 
+    padding: 5px;
+
     overflow: hidden;
+
+    border: 1px solid #dfe3ea;
 
     border-radius: 18px;
 
-    background: #e5e7eb;
+    background: #ffffff;
+
+    box-shadow:
+        0 8px 26px
+        rgba(17, 24, 39, 0.07);
 }
 
 
@@ -193,30 +266,75 @@ body {
 .converter-tab {
     flex: 1;
 
-    min-height: 76px;
+    min-height: 68px;
 
     border: 0;
 
+    border-radius: 14px;
+
     background: transparent;
 
-    color: #374151;
+    color: #4b5563;
 
     font-family: inherit;
 
-    font-size: 19px;
+    font-size: 18px;
+
+    font-weight: 650;
 
     cursor: pointer;
 
     transition:
         background 0.2s ease,
-        color 0.2s ease;
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
 }
 
 
-.converter-tab.active {
-    background: #5146e5;
+.converter-tab:hover:not(.active) {
+    background: #f4f4f8;
+}
+
+
+/* WORD TO PDF */
+
+#wordToPdf.active {
+    background:
+        linear-gradient(
+            135deg,
+            var(--word-blue),
+            var(--purple)
+        );
 
     color: #ffffff;
+
+    box-shadow:
+        0 8px 20px
+        rgba(37, 99, 235, 0.23);
+}
+
+
+/* PDF TO WORD */
+
+#pdfToWord.active {
+    background:
+        linear-gradient(
+            135deg,
+            var(--pdf-red),
+            var(--purple)
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 8px 20px
+        rgba(239, 68, 68, 0.20);
+}
+
+
+.converter-tab:active {
+    transform: scale(0.985);
 }
 
 
@@ -245,21 +363,27 @@ body {
         40px
         50px;
 
-    background: #ffffff;
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #fdfdff 100%
+        );
 
-    border: 3px dashed #5952c9;
+    border: 3px dashed var(--word-blue);
 
     border-radius: 32px;
 
     box-shadow:
-        0 15px 40px
-        rgba(31, 41, 55, 0.06);
+        0 18px 46px
+        rgba(31, 41, 55, 0.08);
 
     text-align: center;
 
     transition:
-        border-color 0.2s ease,
-        background 0.2s ease;
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 
@@ -268,23 +392,120 @@ body {
 }
 
 
-.upload-area.dragging {
-    border-color: #4338ca;
+/* WORD MODE */
 
-    background: #f5f3ff;
+.converter-tabs:has(#wordToPdf.active)
+~ .upload-area {
+    border-color: var(--word-blue);
 }
 
+
+/* PDF MODE */
+
+.converter-tabs:has(#pdfToWord.active)
+~ .upload-area {
+    border-color: var(--pdf-red);
+}
+
+
+/* WORD DRAGGING */
+
+.converter-tabs:has(#wordToPdf.active)
+~ .upload-area.dragging {
+    border-color: var(--word-blue-dark);
+
+    background: var(--word-blue-light);
+
+    box-shadow:
+        0 18px 50px
+        rgba(37, 99, 235, 0.13);
+}
+
+
+/* PDF DRAGGING */
+
+.converter-tabs:has(#pdfToWord.active)
+~ .upload-area.dragging {
+    border-color: var(--pdf-red-dark);
+
+    background: var(--pdf-red-light);
+
+    box-shadow:
+        0 18px 50px
+        rgba(239, 68, 68, 0.13);
+}
+
+
+/* ========================================
+   UPLOAD ICON
+======================================== */
 
 .upload-icon {
-    margin-bottom: 40px;
+    display: flex;
 
-    color: #5146e5;
+    width: 76px;
+    height: 76px;
 
-    font-size: 60px;
+    margin:
+        0
+        auto
+        36px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--purple-light);
+
+    color: var(--purple);
+
+    font-size: 48px;
 
     line-height: 1;
+
+    box-shadow:
+        0 8px 22px
+        rgba(91, 76, 240, 0.11);
 }
 
+
+/* WORD */
+
+.converter-tabs:has(#wordToPdf.active)
+~ .upload-area
+.upload-icon {
+    background:
+        linear-gradient(
+            135deg,
+            var(--word-blue-light),
+            var(--purple-light)
+        );
+
+    color: var(--word-blue);
+}
+
+
+/* PDF */
+
+.converter-tabs:has(#pdfToWord.active)
+~ .upload-area
+.upload-icon {
+    background:
+        linear-gradient(
+            135deg,
+            var(--pdf-red-light),
+            var(--purple-light)
+        );
+
+    color: var(--pdf-red);
+}
+
+
+/* ========================================
+   UPLOAD TEXT
+======================================== */
 
 .upload-area h2 {
     max-width: 600px;
@@ -296,7 +517,7 @@ body {
 
     overflow-wrap: anywhere;
 
-    color: #1f2937;
+    color: var(--navy);
 
     font-size: 32px;
 
@@ -327,7 +548,7 @@ body {
 
 
 /* ========================================
-   CHOOSE FILE
+   CHOOSE FILE BUTTON
 ======================================== */
 
 .choose-file-button {
@@ -347,7 +568,12 @@ body {
 
     border-radius: 17px;
 
-    background: #5146e5;
+    background:
+        linear-gradient(
+            135deg,
+            var(--word-blue),
+            var(--purple)
+        );
 
     color: #ffffff;
 
@@ -357,14 +583,50 @@ body {
 
     cursor: pointer;
 
+    box-shadow:
+        0 9px 22px
+        rgba(91, 76, 240, 0.22);
+
     transition:
         transform 0.15s ease,
-        background 0.15s ease;
+        box-shadow 0.15s ease;
+}
+
+
+/* WORD MODE */
+
+.converter-tabs:has(#wordToPdf.active)
+~ .upload-area
+.choose-file-button {
+    background:
+        linear-gradient(
+            135deg,
+            var(--word-blue),
+            var(--purple)
+        );
+}
+
+
+/* PDF MODE */
+
+.converter-tabs:has(#pdfToWord.active)
+~ .upload-area
+.choose-file-button {
+    background:
+        linear-gradient(
+            135deg,
+            var(--pdf-red),
+            var(--purple)
+        );
 }
 
 
 .choose-file-button:hover {
-    background: #4338ca;
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 12px 28px
+        rgba(91, 76, 240, 0.28);
 }
 
 
@@ -406,7 +668,12 @@ body {
 
     border-radius: 17px;
 
-    background: #111827;
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #252d45
+        );
 
     color: #ffffff;
 
@@ -418,15 +685,23 @@ body {
 
     cursor: pointer;
 
+    box-shadow:
+        0 8px 20px
+        rgba(17, 24, 39, 0.15);
+
     transition:
         transform 0.15s ease,
-        background 0.15s ease,
+        box-shadow 0.15s ease,
         opacity 0.15s ease;
 }
 
 
 .convert-button:hover {
-    background: #030712;
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 11px 26px
+        rgba(17, 24, 39, 0.20);
 }
 
 
@@ -438,7 +713,9 @@ body {
 .convert-button:disabled {
     cursor: not-allowed;
 
-    opacity: 0.75;
+    opacity: 0.68;
+
+    transform: none;
 }
 
 
@@ -452,9 +729,17 @@ body {
     max-width: 440px;
 
     margin:
-        28px
+        30px
         auto
         0;
+
+    padding: 16px 18px;
+
+    background: #fafafe;
+
+    border: 1px solid #e7e7ef;
+
+    border-radius: 14px;
 }
 
 
@@ -481,7 +766,7 @@ body {
 
     width: 100%;
 
-    height: 8px;
+    height: 9px;
 
     overflow: hidden;
 
@@ -501,7 +786,12 @@ body {
 
     width: 24%;
 
-    background: #5146e5;
+    background:
+        linear-gradient(
+            90deg,
+            var(--word-blue),
+            var(--purple)
+        );
 
     border-radius: 999px;
 
@@ -512,8 +802,22 @@ body {
         infinite;
 
     box-shadow:
-        0 0 8px
-        rgba(81, 70, 229, 0.22);
+        0 0 10px
+        rgba(91, 76, 240, 0.25);
+}
+
+
+/* PDF PROGRESS */
+
+.converter-tabs:has(#pdfToWord.active)
+~ .upload-area
+.progress-bar {
+    background:
+        linear-gradient(
+            90deg,
+            var(--pdf-red),
+            var(--purple)
+        );
 }
 
 
@@ -550,7 +854,7 @@ body {
 
     margin-top: 25px;
 
-    color: #6b7280;
+    color: var(--gray);
 
     font-size: 16px;
 
@@ -559,12 +863,12 @@ body {
 
 
 .status-message.success {
-    color: #166534;
+    color: var(--google-green-dark);
 }
 
 
 .status-message.error {
-    color: #b91c1c;
+    color: var(--pdf-red-dark);
 }
 
 
@@ -585,14 +889,19 @@ body {
         65px
         45px;
 
-    background: #ffffff;
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fbfffc
+        );
 
-    border: 1px solid #e5e7eb;
+    border: 1px solid #dfe8e2;
 
     border-radius: 32px;
 
     box-shadow:
-        0 15px 40px
+        0 18px 45px
         rgba(31, 41, 55, 0.07);
 
     text-align: center;
@@ -607,8 +916,8 @@ body {
 .success-check {
     display: flex;
 
-    width: 72px;
-    height: 72px;
+    width: 76px;
+    height: 76px;
 
     margin:
         0
@@ -621,20 +930,24 @@ body {
 
     border-radius: 50%;
 
-    background: #ecfdf3;
+    background: var(--google-green-light);
 
-    color: #15803d;
+    color: var(--google-green);
 
-    font-size: 38px;
+    font-size: 40px;
 
-    font-weight: 700;
+    font-weight: 800;
+
+    box-shadow:
+        0 7px 20px
+        rgba(34, 164, 71, 0.12);
 }
 
 
 .success-area h2 {
     margin-bottom: 12px;
 
-    color: #111827;
+    color: var(--navy);
 
     font-size: 32px;
 
@@ -645,7 +958,7 @@ body {
 .success-description {
     margin-bottom: 30px;
 
-    color: #6b7280;
+    color: var(--gray);
 
     font-size: 17px;
 }
@@ -693,9 +1006,9 @@ body {
 
     border-radius: 10px;
 
-    background: #eef2ff;
+    background: var(--google-green-light);
 
-    color: #5146e5;
+    color: var(--google-green);
 
     font-size: 20px;
 
@@ -724,7 +1037,7 @@ body {
 .converted-file-info strong {
     overflow: hidden;
 
-    color: #1f2937;
+    color: var(--navy);
 
     font-size: 15px;
 
@@ -733,6 +1046,10 @@ body {
     white-space: nowrap;
 }
 
+
+/* ========================================
+   DOWNLOAD AGAIN
+======================================== */
 
 .download-again-button {
     display: block;
@@ -756,7 +1073,12 @@ body {
 
     border-radius: 15px;
 
-    background: #5146e5;
+    background:
+        linear-gradient(
+            135deg,
+            var(--purple),
+            #6b5cff
+        );
 
     color: #ffffff;
 
@@ -767,13 +1089,26 @@ body {
     font-weight: 700;
 
     cursor: pointer;
+
+    box-shadow:
+        0 8px 20px
+        rgba(91, 76, 240, 0.20);
 }
 
 
 .download-again-button:hover {
-    background: #4338ca;
+    background:
+        linear-gradient(
+            135deg,
+            var(--purple-dark),
+            var(--purple)
+        );
 }
 
+
+/* ========================================
+   CONVERT ANOTHER
+======================================== */
 
 .convert-another-button {
     display: block;
@@ -805,11 +1140,17 @@ body {
     font-weight: 650;
 
     cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
 }
 
 
 .convert-another-button:hover {
-    background: #f9fafb;
+    background: var(--purple-light);
+
+    border-color: #c9c4ff;
 }
 
 
@@ -841,6 +1182,7 @@ body {
 
 .footer-logo-image {
     width: 220px;
+
     height: 58px;
 
     object-fit: contain;
@@ -852,7 +1194,7 @@ body {
 .footer-tagline {
     margin-bottom: 15px;
 
-    color: #6b7280;
+    color: var(--gray);
 
     font-size: 14px;
 }
@@ -872,7 +1214,7 @@ body {
 @media (max-width: 768px) {
 
     .header-banner {
-        min-height: 150px;
+        min-height: 155px;
 
         padding:
             16px
@@ -881,12 +1223,12 @@ body {
 
 
     .logo {
-        max-width: 720px;
+        max-width: 900px;
     }
 
 
     .site-logo-image {
-        height: 115px;
+        max-height: 125px;
     }
 
 
@@ -916,9 +1258,9 @@ body {
 
 
     .converter-tab {
-        min-height: 68px;
+        min-height: 64px;
 
-        font-size: 18px;
+        font-size: 17px;
     }
 
 
@@ -948,11 +1290,11 @@ body {
 @media (max-width: 520px) {
 
     .header-banner {
-        min-height: 125px;
+        min-height: 110px;
 
         padding:
-            12px
-            16px;
+            10px
+            14px;
     }
 
 
@@ -963,9 +1305,12 @@ body {
 
     .site-logo-image {
         width: 100%;
-        height: 95px;
 
-        object-position: left center;
+        height: auto;
+
+        max-height: 88px;
+
+        object-position: center;
     }
 
 
@@ -1007,18 +1352,20 @@ body {
     .converter-tabs {
         margin-bottom: 25px;
 
+        padding: 4px;
+
         border-radius: 15px;
     }
 
 
     .converter-tab {
-        min-height: 62px;
+        min-height: 60px;
 
         padding:
             10px
             8px;
 
-        font-size: 16px;
+        font-size: 15px;
     }
 
 
@@ -1037,9 +1384,13 @@ body {
 
 
     .upload-icon {
-        margin-bottom: 32px;
+        width: 66px;
 
-        font-size: 52px;
+        height: 66px;
+
+        margin-bottom: 30px;
+
+        font-size: 42px;
     }
 
 
@@ -1123,6 +1474,7 @@ body {
 
     .footer-logo-image {
         width: 190px;
+
         height: 50px;
     }
 
@@ -1136,12 +1488,14 @@ body {
 @media (max-width: 360px) {
 
     .header-banner {
-        min-height: 110px;
+        min-height: 96px;
+
+        padding: 8px;
     }
 
 
     .site-logo-image {
-        height: 82px;
+        max-height: 78px;
     }
 
 
@@ -1159,11 +1513,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
 
     .progress-bar {
+        animation: none;
+
         left: 0;
 
         width: 24%;
-
-        animation: none;
     }
 
 }
