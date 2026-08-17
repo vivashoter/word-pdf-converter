@@ -14,7 +14,6 @@ const GOOGLE_APP_ID =
 const GOOGLE_SCOPE =
     "https://www.googleapis.com/auth/drive.file";
 
-
 /* ========================================
    MIME TYPES
 ======================================== */
@@ -119,6 +118,9 @@ const chooseGoogleDocButton =
 const uploadGoogleDocButton =
     document.getElementById("uploadGoogleDocButton");
 
+const googleComputerFileInput =
+    document.getElementById("googleComputerFileInput");
+
 const selectedGoogleFile =
     document.getElementById("selectedGoogleFile");
 
@@ -183,9 +185,6 @@ let googlePickerReady =
 let googleIdentityReady =
     false;
 
-let requestedPickerType =
-    "drive";
-
 let selectedGoogleDocId =
     null;
 
@@ -193,6 +192,9 @@ let selectedGoogleDocName =
     null;
 
 let selectedGoogleDocMimeType =
+    null;
+
+let selectedGoogleSource =
     null;
 
 let googleProgressTimer =
@@ -219,6 +221,7 @@ function setStatus(
         "error"
     );
 
+
     if (type) {
 
         statusMessage.classList.add(
@@ -243,6 +246,7 @@ function setGoogleStatus(
         "error"
     );
 
+
     if (type) {
 
         googleStatusMessage.classList.add(
@@ -260,21 +264,13 @@ function setGoogleStatus(
 
 function clearActiveTabs() {
 
-    wordToPdfButton.classList.remove(
-        "active"
-    );
+    wordToPdfButton.classList.remove("active");
 
-    pdfToWordButton.classList.remove(
-        "active"
-    );
+    pdfToWordButton.classList.remove("active");
 
-    googleToPdfButton.classList.remove(
-        "active"
-    );
+    googleToPdfButton.classList.remove("active");
 
-    googleToWordButton.classList.remove(
-        "active"
-    );
+    googleToWordButton.classList.remove("active");
 
 }
 
@@ -421,7 +417,7 @@ function setMode(
 
 
 /* ========================================
-   TABS
+   TAB EVENTS
 ======================================== */
 
 wordToPdfButton.addEventListener(
@@ -473,7 +469,7 @@ googleToWordButton.addEventListener(
 
 
 /* ========================================
-   LOCAL FILE RESET
+   RESET LOCAL FILE
 ======================================== */
 
 function resetFileSelection() {
@@ -490,8 +486,7 @@ function resetFileSelection() {
 
 
     if (
-        conversionMode ===
-        "word-to-pdf"
+        conversionMode === "word-to-pdf"
     ) {
 
         uploadTitle.textContent =
@@ -532,9 +527,13 @@ function validateFile(
     if (!file) {
 
         return {
-            valid: false,
+
+            valid:
+                false,
+
             message:
                 "Please choose a file first."
+
         };
 
     }
@@ -545,8 +544,7 @@ function validateFile(
 
 
     if (
-        conversionMode ===
-        "word-to-pdf"
+        conversionMode === "word-to-pdf"
     ) {
 
         if (
@@ -555,9 +553,13 @@ function validateFile(
         ) {
 
             return {
-                valid: false,
+
+                valid:
+                    false,
+
                 message:
                     "Please choose a DOC or DOCX file."
+
             };
 
         }
@@ -566,8 +568,7 @@ function validateFile(
 
 
     if (
-        conversionMode ===
-        "pdf-to-word"
+        conversionMode === "pdf-to-word"
     ) {
 
         if (
@@ -575,9 +576,13 @@ function validateFile(
         ) {
 
             return {
-                valid: false,
+
+                valid:
+                    false,
+
                 message:
                     "Please choose a PDF file."
+
             };
 
         }
@@ -591,23 +596,30 @@ function validateFile(
     ) {
 
         return {
-            valid: false,
+
+            valid:
+                false,
+
             message:
                 "Maximum file size is 25 MB."
+
         };
 
     }
 
 
     return {
-        valid: true
+
+        valid:
+            true
+
     };
 
 }
 
 
 /* ========================================
-   LOCAL SELECT
+   LOCAL FILE SELECTION
 ======================================== */
 
 function showSelectedFile(
@@ -654,6 +666,7 @@ fileInput.addEventListener(
         const file =
             fileInput.files?.[0];
 
+
         if (file) {
 
             showSelectedFile(
@@ -667,7 +680,7 @@ fileInput.addEventListener(
 
 
 /* ========================================
-   DRAG DROP
+   DRAG AND DROP
 ======================================== */
 
 uploadArea.addEventListener(
@@ -719,7 +732,9 @@ uploadArea.addEventListener(
 
 
         if (
-            !showSelectedFile(file)
+            !showSelectedFile(
+                file
+            )
         ) {
 
             return;
@@ -786,6 +801,9 @@ function resetProgress() {
 
     progressStatus.textContent =
         "Processing";
+
+    progressNote.textContent =
+        "Please keep this page open while your document is converted.";
 
 }
 
@@ -1110,11 +1128,13 @@ convertButton.addEventListener(
                 await fetch(
                     endpoint,
                     {
+
                         method:
                             "POST",
 
                         body:
                             formData
+
                     }
                 );
 
@@ -1131,6 +1151,7 @@ convertButton.addEventListener(
 
                     const error =
                         await response.json();
+
 
                     if (
                         error?.error
@@ -1254,10 +1275,6 @@ function onGoogleApiLoad() {
             googlePickerReady =
                 true;
 
-            console.log(
-                "Google Picker ready"
-            );
-
         }
     );
 
@@ -1284,11 +1301,6 @@ function gisLoaded() {
     googleIdentityReady =
         true;
 
-
-    console.log(
-        "Google Identity ready"
-    );
-
 }
 
 
@@ -1300,76 +1312,215 @@ window.gisLoaded =
 
 
 /* ========================================
-   GOOGLE BUTTONS
+   CHOOSE FROM GOOGLE DRIVE
 ======================================== */
 
 chooseGoogleDocButton.addEventListener(
     "click",
     () => {
 
-        requestedPickerType =
+        selectedGoogleSource =
             "drive";
 
-        startGooglePicker();
+        googleComputerFileInput.value =
+            "";
 
-    }
-);
+        setGoogleStatus("");
 
 
-uploadGoogleDocButton.addEventListener(
-    "click",
-    () => {
+        if (
+            !googlePickerReady
+        ) {
 
-        requestedPickerType =
-            "upload";
+            setGoogleStatus(
+                "Google Picker is still loading. Please wait a moment.",
+                "error"
+            );
 
-        startGooglePicker();
+            return;
+
+        }
+
+
+        if (
+            !googleIdentityReady ||
+            !googleTokenClient
+        ) {
+
+            setGoogleStatus(
+                "Google sign-in is still loading. Please wait a moment.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        requestGoogleAccess();
 
     }
 );
 
 
 /* ========================================
-   START GOOGLE PICKER
+   UPLOAD FROM COMPUTER
 ======================================== */
 
-function startGooglePicker() {
+uploadGoogleDocButton.addEventListener(
+    "click",
+    () => {
 
-    setGoogleStatus("");
+        selectedGoogleSource =
+            "computer";
+
+        selectedGoogleDocId =
+            null;
 
 
-    if (
-        !googlePickerReady
-    ) {
+        if (
+            conversionMode ===
+            "google-to-pdf"
+        ) {
 
-        setGoogleStatus(
-            "Google Picker is still loading. Please wait a moment.",
-            "error"
-        );
+            googleComputerFileInput.accept =
+                ".doc,.docx";
 
-        return;
+        }
+
+        else {
+
+            googleComputerFileInput.accept =
+                ".pdf";
+
+        }
+
+
+        googleComputerFileInput.click();
 
     }
+);
 
 
-    if (
-        !googleIdentityReady ||
-        !googleTokenClient
-    ) {
+/* ========================================
+   COMPUTER FILE SELECTED
+======================================== */
+
+googleComputerFileInput.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            googleComputerFileInput.files?.[0];
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        if (
+            file.size >
+            25 * 1024 * 1024
+        ) {
+
+            setGoogleStatus(
+                "Maximum file size is 25 MB.",
+                "error"
+            );
+
+            googleComputerFileInput.value =
+                "";
+
+            return;
+
+        }
+
+
+        const name =
+            file.name.toLowerCase();
+
+
+        if (
+            conversionMode ===
+            "google-to-pdf"
+        ) {
+
+            if (
+                !name.endsWith(".doc") &&
+                !name.endsWith(".docx")
+            ) {
+
+                setGoogleStatus(
+                    "Please choose a DOC or DOCX file.",
+                    "error"
+                );
+
+                googleComputerFileInput.value =
+                    "";
+
+                return;
+
+            }
+
+        }
+
+
+        else {
+
+            if (
+                !name.endsWith(".pdf")
+            ) {
+
+                setGoogleStatus(
+                    "Please choose a PDF file.",
+                    "error"
+                );
+
+                googleComputerFileInput.value =
+                    "";
+
+                return;
+
+            }
+
+        }
+
+
+        selectedGoogleSource =
+            "computer";
+
+        selectedGoogleDocId =
+            null;
+
+        selectedGoogleDocName =
+            file.name;
+
+        selectedGoogleDocMimeType =
+            file.type;
+
+
+        selectedGoogleFileName.textContent =
+            file.name;
+
+
+        selectedGoogleFile.hidden =
+            false;
+
+
+        convertGoogleButton.hidden =
+            false;
+
 
         setGoogleStatus(
-            "Google sign-in is still loading. Please wait a moment.",
-            "error"
+            "File selected from your computer and ready to convert.",
+            "success"
         );
 
-        return;
-
     }
-
-
-    requestGoogleAccess();
-
-}
+);
 
 
 /* ========================================
@@ -1415,8 +1566,10 @@ function requestGoogleAccess() {
     else {
 
         googleTokenClient.requestAccessToken({
+
             prompt:
                 "consent"
+
         });
 
     }
@@ -1430,78 +1583,45 @@ function requestGoogleAccess() {
 
 function showGooglePicker() {
 
-    const builder =
-        new google.picker.PickerBuilder();
+    const driveView =
+        new google.picker.DocsView(
+            google.picker.ViewId.DOCUMENTS
+        );
 
-
-    /*
-        CHOOSE FROM DRIVE
-    */
 
     if (
-        requestedPickerType ===
-        "drive"
+        conversionMode ===
+        "google-to-pdf"
     ) {
 
-        const driveView =
-            new google.picker.DocsView(
-                google.picker.ViewId.DOCUMENTS
-            );
-
-
-        if (
-            conversionMode ===
-            "google-to-pdf"
-        ) {
-
-            driveView.setMimeTypes(
-                [
-                    GOOGLE_DOC_MIME,
-                    DOCX_MIME,
-                    DOC_MIME
-                ].join(",")
-            );
-
-        }
-
-        else {
-
-            driveView.setMimeTypes(
-                [
-                    GOOGLE_DOC_MIME,
-                    PDF_MIME
-                ].join(",")
-            );
-
-        }
-
-
-        builder.addView(
-            driveView
+        driveView.setMimeTypes(
+            [
+                GOOGLE_DOC_MIME,
+                DOCX_MIME,
+                DOC_MIME
+            ].join(",")
         );
 
     }
 
-
-    /*
-        UPLOAD FROM COMPUTER
-    */
-
     else {
 
-        const uploadView =
-            new google.picker.DocsUploadView();
-
-
-        builder.addView(
-            uploadView
+        driveView.setMimeTypes(
+            [
+                GOOGLE_DOC_MIME,
+                PDF_MIME
+            ].join(",")
         );
 
     }
 
 
     const picker =
-        builder
+        new google.picker.PickerBuilder()
+
+            .addView(
+                driveView
+            )
 
             .setOAuthToken(
                 googleAccessToken
@@ -1520,12 +1640,7 @@ function showGooglePicker() {
             )
 
             .setTitle(
-                requestedPickerType ===
-                "upload"
-                    ?
-                    "Upload from Computer"
-                    :
-                    "Choose from Google Drive"
+                "Choose from Google Drive"
             )
 
             .setCallback(
@@ -1539,817 +1654,5 @@ function showGooglePicker() {
         true
     );
 
-   /* ========================================
-   PICKER CALLBACK
-======================================== */
-
-function googlePickerCallback(
-    data
-) {
-
-    const action =
-        data[
-            google.picker.Response.ACTION
-        ];
-
-
-    if (
-        action !==
-        google.picker.Action.PICKED
-    ) {
-
-        return;
-
-    }
-
-
-    const document =
-        data[
-            google.picker.Response.DOCUMENTS
-        ][0];
-
-
-    selectedGoogleDocId =
-        document[
-            google.picker.Document.ID
-        ];
-
-
-    selectedGoogleDocName =
-        document[
-            google.picker.Document.NAME
-        ] ||
-        "Document";
-
-
-    selectedGoogleDocMimeType =
-        document[
-            google.picker.Document.MIME_TYPE
-        ] ||
-        null;
-
-
-    /*
-        Validate file according
-        to selected conversion mode.
-    */
-
-    if (
-        conversionMode ===
-        "google-to-pdf"
-    ) {
-
-        const allowed =
-            [
-                GOOGLE_DOC_MIME,
-                DOCX_MIME,
-                DOC_MIME
-            ];
-
-
-        if (
-            !allowed.includes(
-                selectedGoogleDocMimeType
-            )
-        ) {
-
-            resetGoogleSelection();
-
-
-            setGoogleStatus(
-                "For PDF conversion, choose a Google Doc, DOC, or DOCX file.",
-                "error"
-            );
-
-            return;
-
-        }
-
-    }
-
-
-    if (
-        conversionMode ===
-        "google-to-word"
-    ) {
-
-        const allowed =
-            [
-                GOOGLE_DOC_MIME,
-                PDF_MIME
-            ];
-
-
-        if (
-            !allowed.includes(
-                selectedGoogleDocMimeType
-            )
-        ) {
-
-            resetGoogleSelection();
-
-
-            setGoogleStatus(
-                "For Word conversion, choose a Google Doc or PDF file.",
-                "error"
-            );
-
-            return;
-
-        }
-
-    }
-
-
-    selectedGoogleFileName.textContent =
-        selectedGoogleDocName;
-
-
-    selectedGoogleFile.hidden =
-        false;
-
-
-    convertGoogleButton.hidden =
-        false;
-
-
-    setGoogleStatus(
-        "Document selected and ready to convert.",
-        "success"
-    );
-
 }
-
-
-/* ========================================
-   GOOGLE PROGRESS
-======================================== */
-
-function resetGoogleProgress() {
-
-    if (
-        googleProgressTimer
-    ) {
-
-        clearInterval(
-            googleProgressTimer
-        );
-
-    }
-
-
-    googleProgressTimer =
-        null;
-
-    googleProgressValue =
-        0;
-
-    googleProgressBar.style.width =
-        "0%";
-
-    googleProgressTrack.setAttribute(
-        "aria-valuenow",
-        "0"
-    );
-
-    googleProgressStatus.textContent =
-        "Processing";
-
-}
-
-
-function startGoogleProgress() {
-
-    resetGoogleProgress();
-
-
-    googleProgressContainer.hidden =
-        false;
-
-
-    googleProgressValue =
-        8;
-
-
-    googleProgressBar.style.width =
-        "8%";
-
-
-    googleProgressStatus.textContent =
-        "Preparing";
-
-
-    googleProgressTimer =
-        setInterval(
-            () => {
-
-                if (
-                    googleProgressValue <
-                    90
-                ) {
-
-                    googleProgressValue +=
-                        Math.max(
-                            1,
-                            (
-                                90 -
-                                googleProgressValue
-                            ) *
-                            0.08
-                        );
-
-
-                    googleProgressBar.style.width =
-                        googleProgressValue +
-                        "%";
-
-
-                    googleProgressTrack.setAttribute(
-                        "aria-valuenow",
-                        Math.round(
-                            googleProgressValue
-                        )
-                    );
-
-                }
-
-
-                if (
-                    googleProgressValue >
-                    35
-                ) {
-
-                    googleProgressStatus.textContent =
-                        "Converting";
-
-                }
-
-
-                if (
-                    googleProgressValue >
-                    75
-                ) {
-
-                    googleProgressStatus.textContent =
-                        "Finishing";
-
-                }
-
-            },
-            400
-        );
-
-}
-
-
-function completeGoogleProgress() {
-
-    if (
-        googleProgressTimer
-    ) {
-
-        clearInterval(
-            googleProgressTimer
-        );
-
-    }
-
-
-    googleProgressTimer =
-        null;
-
-    googleProgressValue =
-        100;
-
-    googleProgressBar.style.width =
-        "100%";
-
-    googleProgressTrack.setAttribute(
-        "aria-valuenow",
-        "100"
-    );
-
-    googleProgressStatus.textContent =
-        "Complete";
-
-}
-
-
-/* ========================================
-   RESET GOOGLE SELECTION
-======================================== */
-
-function resetGoogleSelection() {
-
-    selectedGoogleDocId =
-        null;
-
-    selectedGoogleDocName =
-        null;
-
-    selectedGoogleDocMimeType =
-        null;
-
-    selectedGoogleFile.hidden =
-        true;
-
-    convertGoogleButton.hidden =
-        true;
-
-    googleProgressContainer.hidden =
-        true;
-
-    resetGoogleProgress();
-
-    setGoogleStatus("");
-
-}
-
-
-/* ========================================
-   EXPORT GOOGLE DOC
-======================================== */
-
-async function exportNativeGoogleDoc() {
-
-    let outputMime;
-
-    let extension;
-
-
-    if (
-        conversionMode ===
-        "google-to-pdf"
-    ) {
-
-        outputMime =
-            PDF_MIME;
-
-        extension =
-            ".pdf";
-
-        googleProgressLabel.textContent =
-            "Exporting Google Doc to PDF…";
-
-    }
-
-    else {
-
-        outputMime =
-            DOCX_MIME;
-
-        extension =
-            ".docx";
-
-        googleProgressLabel.textContent =
-            "Exporting Google Doc to Word…";
-
-    }
-
-
-    const url =
-        "https://www.googleapis.com/drive/v3/files/" +
-        encodeURIComponent(
-            selectedGoogleDocId
-        ) +
-        "/export?mimeType=" +
-        encodeURIComponent(
-            outputMime
-        );
-
-
-    const response =
-        await fetch(
-            url,
-            {
-
-                headers: {
-
-                    Authorization:
-                        "Bearer " +
-                        googleAccessToken
-
-                }
-
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        throw new Error(
-            "Google could not export this document."
-        );
-
-    }
-
-
-    return {
-
-        blob:
-            await response.blob(),
-
-        outputName:
-            removeExtension(
-                selectedGoogleDocName
-            ) +
-            extension
-
-    };
-
-}
-
-
-/* ========================================
-   DOWNLOAD DRIVE FILE
-======================================== */
-
-async function downloadDriveFile() {
-
-    const url =
-        "https://www.googleapis.com/drive/v3/files/" +
-        encodeURIComponent(
-            selectedGoogleDocId
-        ) +
-        "?alt=media";
-
-
-    const response =
-        await fetch(
-            url,
-            {
-
-                headers: {
-
-                    Authorization:
-                        "Bearer " +
-                        googleAccessToken
-
-                }
-
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        throw new Error(
-            "Could not download the selected file."
-        );
-
-    }
-
-
-    return await response.blob();
-
-}
-
-
-/* ========================================
-   NON-GOOGLE FILE CONVERSION
-======================================== */
-
-async function convertDriveFileWithBackend() {
-
-    const blob =
-        await downloadDriveFile();
-
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "file",
-        blob,
-        selectedGoogleDocName
-    );
-
-
-    let endpoint;
-
-    let extension;
-
-
-    if (
-        conversionMode ===
-        "google-to-pdf"
-    ) {
-
-        endpoint =
-            "/convert/word-to-pdf";
-
-        extension =
-            ".pdf";
-
-        googleProgressLabel.textContent =
-            "Converting Word document to PDF…";
-
-    }
-
-    else {
-
-        endpoint =
-            "/convert/pdf-to-word";
-
-        extension =
-            ".docx";
-
-        googleProgressLabel.textContent =
-            "Converting PDF to Word…";
-
-    }
-
-
-    const response =
-        await fetch(
-            endpoint,
-            {
-                method:
-                    "POST",
-
-                body:
-                    formData
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        let message =
-            "Document conversion failed.";
-
-
-        try {
-
-            const error =
-                await response.json();
-
-
-            if (
-                error?.error
-            ) {
-
-                message =
-                    error.error;
-
-            }
-
-        }
-
-        catch {}
-
-
-        throw new Error(
-            message
-        );
-
-    }
-
-
-    return {
-
-        blob:
-            await response.blob(),
-
-        outputName:
-            removeExtension(
-                selectedGoogleDocName
-            ) +
-            extension
-
-    };
-
-}
-
-
-/* ========================================
-   GOOGLE CONVERT
-======================================== */
-
-convertGoogleButton.addEventListener(
-    "click",
-    async () => {
-
-        if (
-            !selectedGoogleDocId
-        ) {
-
-            setGoogleStatus(
-                "Choose or upload a document first.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        disableAllTabs(
-            true
-        );
-
-
-        chooseGoogleDocButton.disabled =
-            true;
-
-        uploadGoogleDocButton.disabled =
-            true;
-
-        convertGoogleButton.disabled =
-            true;
-
-        convertGoogleButton.textContent =
-            "Converting...";
-
-
-        setGoogleStatus("");
-
-
-        startGoogleProgress();
-
-
-        try {
-
-            let result;
-
-
-            if (
-                selectedGoogleDocMimeType ===
-                GOOGLE_DOC_MIME
-            ) {
-
-                result =
-                    await exportNativeGoogleDoc();
-
-            }
-
-            else {
-
-                result =
-                    await convertDriveFileWithBackend();
-
-            }
-
-
-            completeGoogleProgress();
-
-
-            await delay(
-                500
-            );
-
-
-            downloadConvertedFile(
-                result.blob,
-                result.outputName
-            );
-
-
-            showSuccessScreen(
-                result.blob,
-                result.outputName
-            );
-
-        }
-
-        catch (error) {
-
-            googleProgressContainer.hidden =
-                true;
-
-
-            setGoogleStatus(
-                error.message ||
-                "Document conversion failed.",
-                "error"
-            );
-
-        }
-
-        finally {
-
-            disableAllTabs(
-                false
-            );
-
-
-            chooseGoogleDocButton.disabled =
-                false;
-
-            uploadGoogleDocButton.disabled =
-                false;
-
-            convertGoogleButton.disabled =
-                false;
-
-            convertGoogleButton.textContent =
-                "Convert Document";
-
-        }
-
-    }
-);
-
-
-/* ========================================
-   DOWNLOAD AGAIN
-======================================== */
-
-downloadAgainButton.addEventListener(
-    "click",
-    () => {
-
-        if (
-            !convertedBlob ||
-            !convertedOutputName
-        ) {
-
-            return;
-
-        }
-
-
-        downloadConvertedFile(
-            convertedBlob,
-            convertedOutputName
-        );
-
-    }
-);
-
-
-/* ========================================
-   CONVERT ANOTHER
-======================================== */
-
-convertAnotherButton.addEventListener(
-    "click",
-    () => {
-
-        convertedBlob =
-            null;
-
-        convertedOutputName =
-            "";
-
-        successArea.hidden =
-            true;
-
-        converterTabs.hidden =
-            false;
-
-        setMode(
-            conversionMode
-        );
-
-    }
-);
-
-
-/* ========================================
-   UTILITIES
-======================================== */
-
-function removeExtension(
-    filename
-) {
-
-    return filename.replace(
-        /\.[^/.]+$/,
-        ""
-    );
-
-}
-
-
-function delay(
-    milliseconds
-) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
-    );
-
-}
-
-
-/* ========================================
-   INITIAL STATE
-======================================== */
-
-setMode(
-    "word-to-pdf"
-);
-
 }
