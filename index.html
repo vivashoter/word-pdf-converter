@@ -12,7 +12,7 @@
 
     <meta
         name="description"
-        content="Convert Word documents to PDF and PDF files to editable Word documents with ConvertDocGoose."
+        content="Convert Word documents, PDFs, and Google Docs with ConvertDocGoose."
     >
 
     <meta
@@ -24,7 +24,7 @@
 
     <link
         rel="stylesheet"
-        href="/style.css?v=14"
+        href="/style.css?v=15"
     >
 
 </head>
@@ -78,8 +78,8 @@
 
 
                 <p class="hero-description">
-                    Convert Word documents to PDF or turn PDFs
-                    into editable Word files quickly and easily.
+                    Convert Word documents, PDFs, and Google Docs
+                    quickly and easily.
                 </p>
 
 
@@ -92,27 +92,43 @@
 
                     <button
                         id="wordToPdf"
-                        class="converter-tab word-tab active"
+                        class="converter-tab active"
                         type="button"
                     >
-                        <span class="tab-dot word-dot"></span>
                         Word to PDF
                     </button>
 
 
                     <button
                         id="pdfToWord"
-                        class="converter-tab pdf-tab"
+                        class="converter-tab"
                         type="button"
                     >
-                        <span class="tab-dot pdf-dot"></span>
                         PDF to Word
+                    </button>
+
+
+                    <button
+                        id="googleToPdf"
+                        class="converter-tab google-tab"
+                        type="button"
+                    >
+                        Google Doc to PDF
+                    </button>
+
+
+                    <button
+                        id="googleToWord"
+                        class="converter-tab google-tab"
+                        type="button"
+                    >
+                        Google Doc to Word
                     </button>
 
                 </div>
 
 
-                <!-- UPLOAD AREA -->
+                <!-- LOCAL FILE UPLOAD AREA -->
 
                 <div
                     id="uploadArea"
@@ -193,6 +209,7 @@
                                 Converting your document…
                             </span>
 
+
                             <span
                                 id="progressStatus"
                                 class="progress-status"
@@ -232,6 +249,127 @@
 
                     <div
                         id="statusMessage"
+                        class="status-message"
+                        aria-live="polite"
+                    ></div>
+
+                </div>
+
+
+                <!-- GOOGLE DOC AREA -->
+
+                <div
+                    id="googleArea"
+                    class="upload-area google-area"
+                    hidden
+                >
+
+                    <div
+                        class="google-doc-icon"
+                        aria-hidden="true"
+                    >
+                        G
+                    </div>
+
+
+                    <h2 id="googleTitle">
+                        Choose a Google Doc
+                    </h2>
+
+
+                    <p
+                        id="googleDescription"
+                        class="upload-description"
+                    >
+                        Select a document from your Google Drive.
+                    </p>
+
+
+                    <button
+                        id="chooseGoogleDocButton"
+                        class="google-drive-button"
+                        type="button"
+                    >
+                        Choose from Google Drive
+                    </button>
+
+
+                    <div
+                        id="selectedGoogleFile"
+                        class="selected-google-file"
+                        hidden
+                    >
+
+                        <span>
+                            Selected:
+                        </span>
+
+                        <strong id="selectedGoogleFileName"></strong>
+
+                    </div>
+
+
+                    <button
+                        id="convertGoogleButton"
+                        class="convert-button"
+                        type="button"
+                        hidden
+                    >
+                        Convert Google Doc
+                    </button>
+
+
+                    <div
+                        id="googleProgressContainer"
+                        class="progress-container"
+                        hidden
+                    >
+
+                        <div class="progress-top">
+
+                            <span
+                                id="googleProgressLabel"
+                                class="progress-label"
+                            >
+                                Exporting Google Doc…
+                            </span>
+
+
+                            <span
+                                id="googleProgressStatus"
+                                class="progress-status"
+                            >
+                                Processing
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="progress-track"
+                            role="progressbar"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            id="googleProgressTrack"
+                        >
+
+                            <div
+                                id="googleProgressBar"
+                                class="progress-bar google-progress-bar"
+                            ></div>
+
+                        </div>
+
+
+                        <p class="progress-note">
+                            Please keep this page open while your Google Doc is exported.
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        id="googleStatusMessage"
                         class="status-message"
                         aria-live="polite"
                     ></div>
@@ -280,6 +418,7 @@
                             <span class="converted-label">
                                 Converted file
                             </span>
+
 
                             <strong id="convertedFileName">
                                 document.pdf
@@ -342,7 +481,24 @@
     </footer>
 
 
-    <script src="/script.js?v=14"></script>
+    <!-- GOOGLE LIBRARIES -->
+
+    <script
+        src="https://apis.google.com/js/api.js"
+        async
+        defer
+        onload="onGoogleApiLoad()"
+    ></script>
+
+    <script
+        src="https://accounts.google.com/gsi/client"
+        async
+        defer
+        onload="gisLoaded()"
+    ></script>
+
+
+    <script src="/script.js?v=15"></script>
 
 </body>
 
