@@ -28,6 +28,21 @@ const statusMessage =
 const progressContainer =
     document.getElementById("progressContainer");
 
+const progressBar =
+    document.getElementById("progressBar");
+
+const progressTrack =
+    document.getElementById("progressTrack");
+
+const progressLabel =
+    document.getElementById("progressLabel");
+
+const progressStatus =
+    document.getElementById("progressStatus");
+
+const progressNote =
+    document.getElementById("progressNote");
+
 const successArea =
     document.getElementById("successArea");
 
@@ -49,12 +64,19 @@ let convertedBlob = null;
 
 let convertedOutputName = "";
 
+let progressTimer = null;
 
-// --------------------------------
+let progressValue = 0;
+
+
+// ========================================
 // STATUS
-// --------------------------------
+// ========================================
 
-function setStatus(message, type = "") {
+function setStatus(
+    message,
+    type = ""
+) {
 
     statusMessage.textContent =
         message;
@@ -77,9 +99,58 @@ function setStatus(message, type = "") {
 }
 
 
-// --------------------------------
+// ========================================
+// MODE APPEARANCE
+// ========================================
+
+function updateModeAppearance() {
+
+    uploadArea.classList.remove(
+        "word-mode",
+        "pdf-mode"
+    );
+
+
+    progressContainer.classList.remove(
+        "pdf-progress"
+    );
+
+
+    if (
+        conversionMode ===
+        "word-to-pdf"
+    ) {
+
+        uploadArea.classList.add(
+            "word-mode"
+        );
+
+        progressLabel.textContent =
+            "Converting Word to PDF…";
+
+    }
+
+    else {
+
+        uploadArea.classList.add(
+            "pdf-mode"
+        );
+
+        progressContainer.classList.add(
+            "pdf-progress"
+        );
+
+        progressLabel.textContent =
+            "Converting PDF to Word…";
+
+    }
+
+}
+
+
+// ========================================
 // RESET UPLOAD TEXT
-// --------------------------------
+// ========================================
 
 function resetUploadText() {
 
@@ -95,7 +166,9 @@ function resetUploadText() {
         uploadDescription.textContent =
             "Drag & drop your DOC or DOCX file here";
 
-    } else {
+    }
+
+    else {
 
         uploadTitle.textContent =
             "Upload your PDF document";
@@ -109,9 +182,263 @@ function resetUploadText() {
 }
 
 
-// --------------------------------
+// ========================================
+// RESET PROGRESS
+// ========================================
+
+function resetProgress() {
+
+    if (progressTimer) {
+
+        clearInterval(
+            progressTimer
+        );
+
+        progressTimer = null;
+
+    }
+
+
+    progressValue = 0;
+
+
+    progressBar.style.width =
+        "0%";
+
+
+    progressTrack.setAttribute(
+        "aria-valuenow",
+        "0"
+    );
+
+
+    progressStatus.textContent =
+        "Processing";
+
+
+    progressNote.textContent =
+        "Please keep this page open while your document is converted.";
+
+}
+
+
+// ========================================
+// START CONVERSION PROGRESS
+// ========================================
+
+function startProgress() {
+
+    resetProgress();
+
+
+    progressContainer.hidden =
+        false;
+
+
+    progressValue = 6;
+
+
+    progressBar.style.width =
+        progressValue + "%";
+
+
+    const startTime =
+        Date.now();
+
+
+    progressTimer =
+        setInterval(
+            () => {
+
+                const elapsedSeconds =
+                    (
+                        Date.now() -
+                        startTime
+                    ) / 1000;
+
+
+                /*
+                   The server does not provide an exact
+                   conversion percentage.
+
+                   This indicator advances with the real
+                   elapsed processing time but intentionally
+                   stops below 100 until the server confirms
+                   completion.
+                */
+
+
+                let target;
+
+
+                if (
+                    elapsedSeconds < 2
+                ) {
+
+                    target =
+                        18;
+
+                    progressStatus.textContent =
+                        "Uploading";
+
+                }
+
+                else if (
+                    elapsedSeconds < 5
+                ) {
+
+                    target =
+                        38;
+
+                    progressStatus.textContent =
+                        "Reading document";
+
+                }
+
+                else if (
+                    elapsedSeconds < 10
+                ) {
+
+                    target =
+                        58;
+
+                    progressStatus.textContent =
+                        "Converting";
+
+                }
+
+                else if (
+                    elapsedSeconds < 20
+                ) {
+
+                    target =
+                        74;
+
+                    progressStatus.textContent =
+                        "Converting";
+
+                }
+
+                else if (
+                    elapsedSeconds < 35
+                ) {
+
+                    target =
+                        84;
+
+                    progressStatus.textContent =
+                        "Finishing up";
+
+                }
+
+                else {
+
+                    target =
+                        92;
+
+                    progressStatus.textContent =
+                        "Still working";
+
+                }
+
+
+                /*
+                   Smoothly approach the target rather
+                   than jumping immediately.
+                */
+
+                if (
+                    progressValue <
+                    target
+                ) {
+
+                    progressValue +=
+                        Math.max(
+                            0.7,
+                            (
+                                target -
+                                progressValue
+                            ) * 0.10
+                        );
+
+
+                    if (
+                        progressValue >
+                        target
+                    ) {
+
+                        progressValue =
+                            target;
+
+                    }
+
+
+                    progressBar.style.width =
+                        progressValue +
+                        "%";
+
+
+                    progressTrack.setAttribute(
+                        "aria-valuenow",
+                        Math.round(
+                            progressValue
+                        )
+                    );
+
+                }
+
+            },
+            500
+        );
+
+}
+
+
+// ========================================
+// COMPLETE PROGRESS
+// ========================================
+
+function completeProgress() {
+
+    if (progressTimer) {
+
+        clearInterval(
+            progressTimer
+        );
+
+        progressTimer =
+            null;
+
+    }
+
+
+    progressValue =
+        100;
+
+
+    progressStatus.textContent =
+        "Complete";
+
+
+    progressBar.style.width =
+        "100%";
+
+
+    progressTrack.setAttribute(
+        "aria-valuenow",
+        "100"
+    );
+
+
+    progressNote.textContent =
+        "Your converted file is ready.";
+
+}
+
+
+// ========================================
 // RESET FILE
-// --------------------------------
+// ========================================
 
 function resetFileSelection() {
 
@@ -122,17 +449,23 @@ function resetFileSelection() {
         true;
 
 
+    resetProgress();
+
+
     setStatus("");
 
 
     resetUploadText();
 
+
+    updateModeAppearance();
+
 }
 
 
-// --------------------------------
+// ========================================
 // WORD TO PDF
-// --------------------------------
+// ========================================
 
 wordToPdfButton.addEventListener(
     "click",
@@ -162,9 +495,9 @@ wordToPdfButton.addEventListener(
 );
 
 
-// --------------------------------
+// ========================================
 // PDF TO WORD
-// --------------------------------
+// ========================================
 
 pdfToWordButton.addEventListener(
     "click",
@@ -194,9 +527,9 @@ pdfToWordButton.addEventListener(
 );
 
 
-// --------------------------------
+// ========================================
 // VALIDATE
-// --------------------------------
+// ========================================
 
 function validateFile(file) {
 
@@ -281,9 +614,9 @@ function validateFile(file) {
 }
 
 
-// --------------------------------
-// SELECTED FILE
-// --------------------------------
+// ========================================
+// SELECT FILE
+// ========================================
 
 function showSelectedFile(file) {
 
@@ -291,7 +624,9 @@ function showSelectedFile(file) {
         validateFile(file);
 
 
-    if (!validation.valid) {
+    if (
+        !validation.valid
+    ) {
 
         setStatus(
             validation.message,
@@ -324,9 +659,9 @@ function showSelectedFile(file) {
 }
 
 
-// --------------------------------
+// ========================================
 // FILE INPUT
-// --------------------------------
+// ========================================
 
 fileInput.addEventListener(
     "change",
@@ -350,36 +685,9 @@ fileInput.addEventListener(
 );
 
 
-// --------------------------------
-// KEYBOARD
-// --------------------------------
-
-uploadArea.addEventListener(
-    "keydown",
-    (event) => {
-
-        if (
-            event.target === uploadArea &&
-            (
-                event.key === "Enter" ||
-                event.key === " "
-            )
-        ) {
-
-            event.preventDefault();
-
-
-            fileInput.click();
-
-        }
-
-    }
-);
-
-
-// --------------------------------
-// DRAG
-// --------------------------------
+// ========================================
+// DRAG AND DROP
+// ========================================
 
 uploadArea.addEventListener(
     "dragover",
@@ -407,10 +715,6 @@ uploadArea.addEventListener(
     }
 );
 
-
-// --------------------------------
-// DROP
-// --------------------------------
 
 uploadArea.addEventListener(
     "drop",
@@ -458,10 +762,12 @@ uploadArea.addEventListener(
             fileInput.files =
                 transfer.files;
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.warn(
-                "Drag-and-drop file assignment is not supported in this browser.",
+                "Dropped file could not be assigned.",
                 error
             );
 
@@ -471,9 +777,9 @@ uploadArea.addEventListener(
 );
 
 
-// --------------------------------
+// ========================================
 // DOWNLOAD
-// --------------------------------
+// ========================================
 
 function downloadConvertedFile(
     blob,
@@ -525,9 +831,9 @@ function downloadConvertedFile(
 }
 
 
-// --------------------------------
-// SHOW SUCCESS
-// --------------------------------
+// ========================================
+// SUCCESS
+// ========================================
 
 function showSuccessScreen(
     blob,
@@ -560,9 +866,9 @@ function showSuccessScreen(
 }
 
 
-// --------------------------------
+// ========================================
 // DOWNLOAD AGAIN
-// --------------------------------
+// ========================================
 
 downloadAgainButton.addEventListener(
     "click",
@@ -587,9 +893,9 @@ downloadAgainButton.addEventListener(
 );
 
 
-// --------------------------------
+// ========================================
 // CONVERT ANOTHER
-// --------------------------------
+// ========================================
 
 convertAnotherButton.addEventListener(
     "click",
@@ -621,9 +927,9 @@ convertAnotherButton.addEventListener(
 );
 
 
-// --------------------------------
+// ========================================
 // CONVERT
-// --------------------------------
+// ========================================
 
 convertButton.addEventListener(
     "click",
@@ -637,7 +943,9 @@ convertButton.addEventListener(
             validateFile(file);
 
 
-        if (!validation.valid) {
+        if (
+            !validation.valid
+        ) {
 
             setStatus(
                 validation.message,
@@ -687,8 +995,10 @@ convertButton.addEventListener(
             "Converting...";
 
 
-        progressContainer.hidden =
-            false;
+        updateModeAppearance();
+
+
+        startProgress();
 
 
         setStatus("");
@@ -706,7 +1016,9 @@ convertButton.addEventListener(
                 );
 
 
-            if (!response.ok) {
+            if (
+                !response.ok
+            ) {
 
                 let errorMessage =
                     "Conversion failed. Please try again.";
@@ -728,10 +1040,11 @@ convertButton.addEventListener(
 
                     }
 
-                } catch (error) {
+                }
+
+                catch (error) {
 
                     console.error(
-                        "Could not read server error:",
                         error
                     );
 
@@ -757,35 +1070,43 @@ convertButton.addEventListener(
                 "word-to-pdf"
             ) {
 
-                const originalName =
+                outputName =
                     file.name.replace(
                         /\.(doc|docx)$/i,
                         ""
-                    );
-
-
-                outputName =
-                    originalName +
+                    ) +
                     ".pdf";
 
-            } else {
+            }
 
-                const originalName =
+            else {
+
+                outputName =
                     file.name.replace(
                         /\.pdf$/i,
                         ""
-                    );
-
-
-                outputName =
-                    originalName +
+                    ) +
                     ".docx";
 
             }
 
 
-            progressContainer.hidden =
-                true;
+            completeProgress();
+
+
+            /*
+               Allow the user to actually see the
+               progress bar reach 100 before the
+               success screen replaces it.
+            */
+
+            await new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        650
+                    )
+            );
 
 
             downloadConvertedFile(
@@ -799,12 +1120,15 @@ convertButton.addEventListener(
                 outputName
             );
 
-        } catch (error) {
+        }
 
-            console.error(
-                "Conversion error:",
-                error
-            );
+        catch (error) {
+
+            resetProgress();
+
+
+            progressContainer.hidden =
+                true;
 
 
             setStatus(
@@ -813,11 +1137,9 @@ convertButton.addEventListener(
                 "error"
             );
 
-        } finally {
+        }
 
-            progressContainer.hidden =
-                true;
-
+        finally {
 
             convertButton.disabled =
                 false;
@@ -842,3 +1164,10 @@ convertButton.addEventListener(
 
     }
 );
+
+
+// ========================================
+// INITIAL STATE
+// ========================================
+
+updateModeAppearance();
