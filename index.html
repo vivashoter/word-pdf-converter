@@ -26,7 +26,7 @@
 
     <link
         rel="stylesheet"
-        href="/style.css?v=18"
+        href="/style.css?v=20"
     >
 
 </head>
@@ -90,7 +90,7 @@
 
 
                 <!-- ========================================
-                     CONVERTER TABS
+                     TABS
                 ======================================== -->
 
                 <div
@@ -103,9 +103,11 @@
                         class="converter-tab word-tab active"
                         type="button"
                     >
+
                         <span class="tab-dot word-dot"></span>
 
                         Word to PDF
+
                     </button>
 
 
@@ -114,9 +116,11 @@
                         class="converter-tab pdf-tab"
                         type="button"
                     >
+
                         <span class="tab-dot pdf-dot"></span>
 
                         PDF to Word
+
                     </button>
 
 
@@ -125,9 +129,11 @@
                         class="converter-tab google-tab"
                         type="button"
                     >
+
                         <span class="tab-dot google-dot"></span>
 
                         Google Doc to PDF
+
                     </button>
 
 
@@ -136,16 +142,18 @@
                         class="converter-tab google-tab"
                         type="button"
                     >
+
                         <span class="tab-dot google-dot"></span>
 
                         Google Doc to Word
+
                     </button>
 
                 </div>
 
 
                 <!-- ========================================
-                     LOCAL UPLOAD AREA
+                     LOCAL FILE AREA
                 ======================================== -->
 
                 <div
@@ -276,7 +284,7 @@
 
 
                 <!-- ========================================
-                     GOOGLE DOC AREA
+                     GOOGLE AREA
                 ======================================== -->
 
                 <div
@@ -299,19 +307,28 @@
                     </p>
 
 
-                    <button
-                        id="chooseGoogleDocButton"
-                        class="google-drive-button"
-                        type="button"
-                    >
-                        Choose from Google Drive
-                    </button>
+                    <!-- TWO GOOGLE OPTIONS -->
+
+                    <div class="google-action-buttons">
+
+                        <button
+                            id="chooseGoogleDocButton"
+                            class="google-drive-button"
+                            type="button"
+                        >
+                            Choose from Google Drive
+                        </button>
 
 
-                    <p class="file-limit">
-                        The Google window includes an
-                        Upload option for files on your computer.
-                    </p>
+                        <button
+                            id="uploadGoogleDocButton"
+                            class="google-upload-button"
+                            type="button"
+                        >
+                            Upload from Computer
+                        </button>
+
+                    </div>
 
 
                     <div
@@ -323,6 +340,7 @@
                         <span>
                             Selected document
                         </span>
+
 
                         <strong id="selectedGoogleFileName">
                             No document selected
@@ -337,7 +355,7 @@
                         type="button"
                         hidden
                     >
-                        Convert Google Doc
+                        Convert Document
                     </button>
 
 
@@ -355,7 +373,7 @@
                                 id="googleProgressLabel"
                                 class="progress-label"
                             >
-                                Converting your Google Doc…
+                                Converting your document…
                             </span>
 
 
@@ -404,7 +422,7 @@
 
 
                 <!-- ========================================
-                     SUCCESS SCREEN
+                     SUCCESS
                 ======================================== -->
 
                 <div
@@ -515,26 +533,28 @@
 
 
     <!-- ========================================
-         GOOGLE LIBRARIES
+         IMPORTANT:
+         LOAD OUR CODE FIRST
     ======================================== -->
+
+    <script src="/script.js?v=20"></script>
+
+
+    <!-- GOOGLE PICKER -->
 
     <script
         src="https://apis.google.com/js/api.js"
-        async
-        defer
         onload="onGoogleApiLoad()"
     ></script>
 
 
+    <!-- GOOGLE IDENTITY -->
+
     <script
         src="https://accounts.google.com/gsi/client"
-        async
-        defer
         onload="gisLoaded()"
     ></script>
 
-
-    <script src="/script.js?v=18"></script>
 
 </body>
 
