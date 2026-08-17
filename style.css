@@ -1044,4 +1044,128 @@ body {
         margin-top: 12px;
     }
 
+   /* ========================================
+   GOOGLE CHOICE BUTTONS
+======================================== */
+
+.google-action-buttons {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 18px;
+
+    margin:
+        35px
+        auto
+        30px;
+}
+
+
+.google-drive-button,
+.google-upload-button {
+    width: 100%;
+
+    max-width: 395px;
+
+    min-height: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        20px
+        35px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 21px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+/* GOOGLE DRIVE */
+
+.google-drive-button {
+    background:
+        linear-gradient(
+            135deg,
+            #22a447,
+            #5b4cf0
+        );
+
+    box-shadow:
+        0 10px 25px
+        rgba(34, 164, 71, 0.22);
+}
+
+
+/* UPLOAD COMPUTER */
+
+.google-upload-button {
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #5b4cf0
+        );
+
+    box-shadow:
+        0 10px 25px
+        rgba(37, 99, 235, 0.22);
+}
+
+
+.google-drive-button:hover,
+.google-upload-button:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 14px 30px
+        rgba(91, 76, 240, 0.28);
+}
+
+
+.google-drive-button:disabled,
+.google-upload-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+@media (max-width: 520px) {
+
+    .google-drive-button,
+    .google-upload-button {
+        max-width: 320px;
+
+        min-height: 78px;
+
+        font-size: 18px;
+    }
+
+}
+
 }
