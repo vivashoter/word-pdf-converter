@@ -1,18 +1,19 @@
 /* ========================================
-   GOOGLE CONFIGURATION
+   GOOGLE CONFIG
 ======================================== */
 
 const GOOGLE_CLIENT_ID =
-    "239816509439-uhrb687i85r1susl9jmbn5it4afcdebe.apps.googleusercontent.com";
+    "PASTE_YOUR_CLIENT_ID_HERE";
 
 const GOOGLE_API_KEY =
-    "AIzaSyCAv-JotC9-W5JPMrbQ4T-25GYZ03d-kB4";
+    "PASTE_YOUR_API_KEY_HERE";
 
 const GOOGLE_APP_ID =
     "239816509439";
 
 const GOOGLE_SCOPE =
     "https://www.googleapis.com/auth/drive.file";
+
 
 /* ========================================
    MIME TYPES
@@ -27,120 +28,79 @@ const DOCX_MIME =
 const DOC_MIME =
     "application/msword";
 
+const PDF_MIME =
+    "application/pdf";
+
 
 /* ========================================
    ELEMENTS
 ======================================== */
 
 const wordToPdfButton =
-    document.getElementById(
-        "wordToPdf"
-    );
+    document.getElementById("wordToPdf");
 
 const pdfToWordButton =
-    document.getElementById(
-        "pdfToWord"
-    );
+    document.getElementById("pdfToWord");
 
 const googleToPdfButton =
-    document.getElementById(
-        "googleToPdf"
-    );
+    document.getElementById("googleToPdf");
 
 const googleToWordButton =
-    document.getElementById(
-        "googleToWord"
-    );
+    document.getElementById("googleToWord");
 
 const converterTabs =
-    document.getElementById(
-        "converterTabs"
-    );
+    document.getElementById("converterTabs");
 
 const fileInput =
-    document.getElementById(
-        "fileInput"
-    );
-
-const uploadTitle =
-    document.getElementById(
-        "uploadTitle"
-    );
-
-const uploadDescription =
-    document.getElementById(
-        "uploadDescription"
-    );
+    document.getElementById("fileInput");
 
 const uploadArea =
-    document.getElementById(
-        "uploadArea"
-    );
+    document.getElementById("uploadArea");
 
 const googleArea =
-    document.getElementById(
-        "googleArea"
-    );
+    document.getElementById("googleArea");
+
+const uploadTitle =
+    document.getElementById("uploadTitle");
+
+const uploadDescription =
+    document.getElementById("uploadDescription");
 
 const convertButton =
-    document.getElementById(
-        "convertButton"
-    );
+    document.getElementById("convertButton");
 
 const statusMessage =
-    document.getElementById(
-        "statusMessage"
-    );
+    document.getElementById("statusMessage");
 
 const progressContainer =
-    document.getElementById(
-        "progressContainer"
-    );
+    document.getElementById("progressContainer");
 
 const progressBar =
-    document.getElementById(
-        "progressBar"
-    );
+    document.getElementById("progressBar");
 
 const progressTrack =
-    document.getElementById(
-        "progressTrack"
-    );
+    document.getElementById("progressTrack");
 
 const progressLabel =
-    document.getElementById(
-        "progressLabel"
-    );
+    document.getElementById("progressLabel");
 
 const progressStatus =
-    document.getElementById(
-        "progressStatus"
-    );
+    document.getElementById("progressStatus");
 
 const progressNote =
-    document.getElementById(
-        "progressNote"
-    );
+    document.getElementById("progressNote");
 
 const successArea =
-    document.getElementById(
-        "successArea"
-    );
+    document.getElementById("successArea");
 
 const convertedFileName =
-    document.getElementById(
-        "convertedFileName"
-    );
+    document.getElementById("convertedFileName");
 
 const downloadAgainButton =
-    document.getElementById(
-        "downloadAgainButton"
-    );
+    document.getElementById("downloadAgainButton");
 
 const convertAnotherButton =
-    document.getElementById(
-        "convertAnotherButton"
-    );
+    document.getElementById("convertAnotherButton");
 
 
 /* ========================================
@@ -148,68 +108,47 @@ const convertAnotherButton =
 ======================================== */
 
 const googleTitle =
-    document.getElementById(
-        "googleTitle"
-    );
+    document.getElementById("googleTitle");
 
 const googleDescription =
-    document.getElementById(
-        "googleDescription"
-    );
+    document.getElementById("googleDescription");
 
 const chooseGoogleDocButton =
-    document.getElementById(
-        "chooseGoogleDocButton"
-    );
+    document.getElementById("chooseGoogleDocButton");
+
+const uploadGoogleDocButton =
+    document.getElementById("uploadGoogleDocButton");
 
 const selectedGoogleFile =
-    document.getElementById(
-        "selectedGoogleFile"
-    );
+    document.getElementById("selectedGoogleFile");
 
 const selectedGoogleFileName =
-    document.getElementById(
-        "selectedGoogleFileName"
-    );
+    document.getElementById("selectedGoogleFileName");
 
 const convertGoogleButton =
-    document.getElementById(
-        "convertGoogleButton"
-    );
+    document.getElementById("convertGoogleButton");
 
 const googleStatusMessage =
-    document.getElementById(
-        "googleStatusMessage"
-    );
+    document.getElementById("googleStatusMessage");
 
 const googleProgressContainer =
-    document.getElementById(
-        "googleProgressContainer"
-    );
+    document.getElementById("googleProgressContainer");
 
 const googleProgressBar =
-    document.getElementById(
-        "googleProgressBar"
-    );
+    document.getElementById("googleProgressBar");
 
 const googleProgressTrack =
-    document.getElementById(
-        "googleProgressTrack"
-    );
+    document.getElementById("googleProgressTrack");
 
 const googleProgressLabel =
-    document.getElementById(
-        "googleProgressLabel"
-    );
+    document.getElementById("googleProgressLabel");
 
 const googleProgressStatus =
-    document.getElementById(
-        "googleProgressStatus"
-    );
+    document.getElementById("googleProgressStatus");
 
 
 /* ========================================
-   STATE
+   GENERAL STATE
 ======================================== */
 
 let conversionMode =
@@ -225,12 +164,6 @@ let progressTimer =
     null;
 
 let progressValue =
-    0;
-
-let googleProgressTimer =
-    null;
-
-let googleProgressValue =
     0;
 
 
@@ -250,6 +183,9 @@ let googlePickerReady =
 let googleIdentityReady =
     false;
 
+let requestedPickerType =
+    "drive";
+
 let selectedGoogleDocId =
     null;
 
@@ -258,6 +194,12 @@ let selectedGoogleDocName =
 
 let selectedGoogleDocMimeType =
     null;
+
+let googleProgressTimer =
+    null;
+
+let googleProgressValue =
+    0;
 
 
 /* ========================================
@@ -377,8 +319,7 @@ function setMode(
 
 
     if (
-        mode ===
-        "word-to-pdf"
+        mode === "word-to-pdf"
     ) {
 
         wordToPdfButton.classList.add(
@@ -391,11 +332,11 @@ function setMode(
         googleArea.hidden =
             true;
 
-        fileInput.accept =
-            ".doc,.docx";
-
         uploadArea.className =
             "upload-area word-mode";
+
+        fileInput.accept =
+            ".doc,.docx";
 
         resetFileSelection();
 
@@ -403,8 +344,7 @@ function setMode(
 
 
     else if (
-        mode ===
-        "pdf-to-word"
+        mode === "pdf-to-word"
     ) {
 
         pdfToWordButton.classList.add(
@@ -417,11 +357,11 @@ function setMode(
         googleArea.hidden =
             true;
 
-        fileInput.accept =
-            ".pdf";
-
         uploadArea.className =
             "upload-area pdf-mode";
+
+        fileInput.accept =
+            ".pdf";
 
         resetFileSelection();
 
@@ -429,8 +369,7 @@ function setMode(
 
 
     else if (
-        mode ===
-        "google-to-pdf"
+        mode === "google-to-pdf"
     ) {
 
         googleToPdfButton.classList.add(
@@ -455,8 +394,7 @@ function setMode(
 
 
     else if (
-        mode ===
-        "google-to-word"
+        mode === "google-to-word"
     ) {
 
         googleToWordButton.classList.add(
@@ -473,7 +411,7 @@ function setMode(
             "Google Doc to Word";
 
         googleDescription.textContent =
-            "Choose a Google Doc from Drive or upload a Word document from your computer.";
+            "Choose a Google Doc from Drive or upload a PDF from your computer.";
 
         resetGoogleSelection();
 
@@ -483,288 +421,7 @@ function setMode(
 
 
 /* ========================================
-   LOCAL RESET
-======================================== */
-
-function resetUploadText() {
-
-    if (
-        conversionMode ===
-        "word-to-pdf"
-    ) {
-
-        uploadTitle.textContent =
-            "Upload your Word document";
-
-        uploadDescription.textContent =
-            "Drag & drop your DOC or DOCX file here";
-
-        progressLabel.textContent =
-            "Converting Word to PDF…";
-
-    }
-
-    else {
-
-        uploadTitle.textContent =
-            "Upload your PDF document";
-
-        uploadDescription.textContent =
-            "Drag & drop your PDF file here";
-
-        progressLabel.textContent =
-            "Converting PDF to Word…";
-
-    }
-
-}
-
-
-function resetFileSelection() {
-
-    fileInput.value =
-        "";
-
-    progressContainer.hidden =
-        true;
-
-    resetProgress();
-
-    setStatus("");
-
-    resetUploadText();
-
-}
-
-
-/* ========================================
-   LOCAL PROGRESS
-======================================== */
-
-function resetProgress() {
-
-    if (
-        progressTimer
-    ) {
-
-        clearInterval(
-            progressTimer
-        );
-
-        progressTimer =
-            null;
-
-    }
-
-
-    progressValue =
-        0;
-
-    progressBar.style.width =
-        "0%";
-
-    progressTrack.setAttribute(
-        "aria-valuenow",
-        "0"
-    );
-
-    progressStatus.textContent =
-        "Processing";
-
-    progressNote.textContent =
-        "Please keep this page open while your document is converted.";
-
-}
-
-
-function startProgress() {
-
-    resetProgress();
-
-    progressContainer.hidden =
-        false;
-
-    progressValue =
-        6;
-
-    progressBar.style.width =
-        "6%";
-
-    const startTime =
-        Date.now();
-
-
-    progressTimer =
-        setInterval(
-            () => {
-
-                const elapsedSeconds =
-                    (
-                        Date.now() -
-                        startTime
-                    ) / 1000;
-
-
-                let target;
-
-
-                if (
-                    elapsedSeconds < 2
-                ) {
-
-                    target =
-                        18;
-
-                    progressStatus.textContent =
-                        "Uploading";
-
-                }
-
-                else if (
-                    elapsedSeconds < 5
-                ) {
-
-                    target =
-                        38;
-
-                    progressStatus.textContent =
-                        "Reading document";
-
-                }
-
-                else if (
-                    elapsedSeconds < 10
-                ) {
-
-                    target =
-                        58;
-
-                    progressStatus.textContent =
-                        "Converting";
-
-                }
-
-                else if (
-                    elapsedSeconds < 20
-                ) {
-
-                    target =
-                        74;
-
-                    progressStatus.textContent =
-                        "Converting";
-
-                }
-
-                else if (
-                    elapsedSeconds < 35
-                ) {
-
-                    target =
-                        84;
-
-                    progressStatus.textContent =
-                        "Finishing up";
-
-                }
-
-                else {
-
-                    target =
-                        92;
-
-                    progressStatus.textContent =
-                        "Still working";
-
-                }
-
-
-                if (
-                    progressValue <
-                    target
-                ) {
-
-                    progressValue +=
-                        Math.max(
-                            0.7,
-                            (
-                                target -
-                                progressValue
-                            ) *
-                            0.10
-                        );
-
-
-                    if (
-                        progressValue >
-                        target
-                    ) {
-
-                        progressValue =
-                            target;
-
-                    }
-
-
-                    progressBar.style.width =
-                        progressValue +
-                        "%";
-
-
-                    progressTrack.setAttribute(
-                        "aria-valuenow",
-                        Math.round(
-                            progressValue
-                        )
-                    );
-
-                }
-
-            },
-            500
-        );
-
-}
-
-
-function completeProgress() {
-
-    if (
-        progressTimer
-    ) {
-
-        clearInterval(
-            progressTimer
-        );
-
-        progressTimer =
-            null;
-
-    }
-
-
-    progressValue =
-        100;
-
-    progressBar.style.width =
-        "100%";
-
-    progressTrack.setAttribute(
-        "aria-valuenow",
-        "100"
-    );
-
-    progressStatus.textContent =
-        "Complete";
-
-    progressNote.textContent =
-        "Your converted file is ready.";
-
-}
-
-
-/* ========================================
-   TAB EVENTS
+   TABS
 ======================================== */
 
 wordToPdfButton.addEventListener(
@@ -816,7 +473,56 @@ googleToWordButton.addEventListener(
 
 
 /* ========================================
-   LOCAL FILE VALIDATION
+   LOCAL FILE RESET
+======================================== */
+
+function resetFileSelection() {
+
+    fileInput.value =
+        "";
+
+    progressContainer.hidden =
+        true;
+
+    resetProgress();
+
+    setStatus("");
+
+
+    if (
+        conversionMode ===
+        "word-to-pdf"
+    ) {
+
+        uploadTitle.textContent =
+            "Upload your Word document";
+
+        uploadDescription.textContent =
+            "Drag & drop your DOC or DOCX file here";
+
+        progressLabel.textContent =
+            "Converting Word to PDF…";
+
+    }
+
+    else {
+
+        uploadTitle.textContent =
+            "Upload your PDF document";
+
+        uploadDescription.textContent =
+            "Drag & drop your PDF file here";
+
+        progressLabel.textContent =
+            "Converting PDF to Word…";
+
+    }
+
+}
+
+
+/* ========================================
+   LOCAL VALIDATION
 ======================================== */
 
 function validateFile(
@@ -834,7 +540,7 @@ function validateFile(
     }
 
 
-    const fileName =
+    const name =
         file.name.toLowerCase();
 
 
@@ -844,12 +550,8 @@ function validateFile(
     ) {
 
         if (
-            !fileName.endsWith(
-                ".doc"
-            ) &&
-            !fileName.endsWith(
-                ".docx"
-            )
+            !name.endsWith(".doc") &&
+            !name.endsWith(".docx")
         ) {
 
             return {
@@ -869,9 +571,7 @@ function validateFile(
     ) {
 
         if (
-            !fileName.endsWith(
-                ".pdf"
-            )
+            !name.endsWith(".pdf")
         ) {
 
             return {
@@ -885,21 +585,15 @@ function validateFile(
     }
 
 
-    const maximumFileSize =
-        25 *
-        1024 *
-        1024;
-
-
     if (
         file.size >
-        maximumFileSize
+        25 * 1024 * 1024
     ) {
 
         return {
             valid: false,
             message:
-                "File is too large. Maximum size is 25 MB."
+                "Maximum file size is 25 MB."
         };
 
     }
@@ -913,7 +607,7 @@ function validateFile(
 
 
 /* ========================================
-   LOCAL FILE SELECTION
+   LOCAL SELECT
 ======================================== */
 
 function showSelectedFile(
@@ -946,9 +640,6 @@ function showSelectedFile(
     uploadDescription.textContent =
         "File selected and ready to convert";
 
-    progressContainer.hidden =
-        true;
-
     setStatus("");
 
     return true;
@@ -960,26 +651,23 @@ fileInput.addEventListener(
     "change",
     () => {
 
-        if (
-            !fileInput.files ||
-            fileInput.files.length === 0
-        ) {
+        const file =
+            fileInput.files?.[0];
 
-            return;
+        if (file) {
+
+            showSelectedFile(
+                file
+            );
 
         }
-
-
-        showSelectedFile(
-            fileInput.files[0]
-        );
 
     }
 );
 
 
 /* ========================================
-   DRAG AND DROP
+   DRAG DROP
 ======================================== */
 
 uploadArea.addEventListener(
@@ -1020,7 +708,7 @@ uploadArea.addEventListener(
 
 
         const file =
-            event.dataTransfer.files[0];
+            event.dataTransfer.files?.[0];
 
 
         if (!file) {
@@ -1031,9 +719,7 @@ uploadArea.addEventListener(
 
 
         if (
-            !showSelectedFile(
-                file
-            )
+            !showSelectedFile(file)
         ) {
 
             return;
@@ -1057,7 +743,7 @@ uploadArea.addEventListener(
 
         catch (error) {
 
-            console.warn(
+            console.error(
                 error
             );
 
@@ -1068,15 +754,213 @@ uploadArea.addEventListener(
 
 
 /* ========================================
+   NORMAL PROGRESS
+======================================== */
+
+function resetProgress() {
+
+    if (
+        progressTimer
+    ) {
+
+        clearInterval(
+            progressTimer
+        );
+
+    }
+
+
+    progressTimer =
+        null;
+
+    progressValue =
+        0;
+
+    progressBar.style.width =
+        "0%";
+
+    progressTrack.setAttribute(
+        "aria-valuenow",
+        "0"
+    );
+
+    progressStatus.textContent =
+        "Processing";
+
+}
+
+
+function startProgress() {
+
+    resetProgress();
+
+    progressContainer.hidden =
+        false;
+
+    progressValue =
+        6;
+
+    progressBar.style.width =
+        "6%";
+
+
+    const started =
+        Date.now();
+
+
+    progressTimer =
+        setInterval(
+            () => {
+
+                const seconds =
+                    (
+                        Date.now() -
+                        started
+                    ) / 1000;
+
+
+                let target;
+
+
+                if (
+                    seconds < 2
+                ) {
+
+                    target =
+                        18;
+
+                    progressStatus.textContent =
+                        "Uploading";
+
+                }
+
+                else if (
+                    seconds < 5
+                ) {
+
+                    target =
+                        38;
+
+                    progressStatus.textContent =
+                        "Reading";
+
+                }
+
+                else if (
+                    seconds < 10
+                ) {
+
+                    target =
+                        58;
+
+                    progressStatus.textContent =
+                        "Converting";
+
+                }
+
+                else if (
+                    seconds < 20
+                ) {
+
+                    target =
+                        74;
+
+                    progressStatus.textContent =
+                        "Converting";
+
+                }
+
+                else {
+
+                    target =
+                        92;
+
+                    progressStatus.textContent =
+                        "Finishing";
+
+                }
+
+
+                if (
+                    progressValue <
+                    target
+                ) {
+
+                    progressValue +=
+                        Math.max(
+                            0.7,
+                            (
+                                target -
+                                progressValue
+                            ) *
+                            0.10
+                        );
+
+
+                    progressBar.style.width =
+                        progressValue +
+                        "%";
+
+
+                    progressTrack.setAttribute(
+                        "aria-valuenow",
+                        Math.round(
+                            progressValue
+                        )
+                    );
+
+                }
+
+            },
+            500
+        );
+
+}
+
+
+function completeProgress() {
+
+    if (
+        progressTimer
+    ) {
+
+        clearInterval(
+            progressTimer
+        );
+
+    }
+
+
+    progressTimer =
+        null;
+
+    progressValue =
+        100;
+
+    progressBar.style.width =
+        "100%";
+
+    progressTrack.setAttribute(
+        "aria-valuenow",
+        "100"
+    );
+
+    progressStatus.textContent =
+        "Complete";
+
+}
+
+
+/* ========================================
    DOWNLOAD
 ======================================== */
 
 function downloadConvertedFile(
     blob,
-    outputName
+    filename
 ) {
 
-    const downloadUrl =
+    const url =
         URL.createObjectURL(
             blob
         );
@@ -1089,13 +973,10 @@ function downloadConvertedFile(
 
 
     link.href =
-        downloadUrl;
+        url;
 
     link.download =
-        outputName;
-
-    link.style.display =
-        "none";
+        filename;
 
 
     document.body.appendChild(
@@ -1112,7 +993,7 @@ function downloadConvertedFile(
         () => {
 
             URL.revokeObjectURL(
-                downloadUrl
+                url
             );
 
         },
@@ -1128,17 +1009,17 @@ function downloadConvertedFile(
 
 function showSuccessScreen(
     blob,
-    outputName
+    filename
 ) {
 
     convertedBlob =
         blob;
 
     convertedOutputName =
-        outputName;
+        filename;
 
     convertedFileName.textContent =
-        outputName;
+        filename;
 
     converterTabs.hidden =
         true;
@@ -1156,71 +1037,7 @@ function showSuccessScreen(
 
 
 /* ========================================
-   DOWNLOAD AGAIN
-======================================== */
-
-downloadAgainButton.addEventListener(
-    "click",
-    () => {
-
-        if (
-            !convertedBlob ||
-            !convertedOutputName
-        ) {
-
-            return;
-
-        }
-
-
-        downloadConvertedFile(
-            convertedBlob,
-            convertedOutputName
-        );
-
-    }
-);
-
-
-/* ========================================
-   CONVERT ANOTHER
-======================================== */
-
-convertAnotherButton.addEventListener(
-    "click",
-    () => {
-
-        convertedBlob =
-            null;
-
-        convertedOutputName =
-            "";
-
-        selectedGoogleDocId =
-            null;
-
-        selectedGoogleDocName =
-            null;
-
-        selectedGoogleDocMimeType =
-            null;
-
-        successArea.hidden =
-            true;
-
-        converterTabs.hidden =
-            false;
-
-        setMode(
-            conversionMode
-        );
-
-    }
-);
-
-
-/* ========================================
-   LOCAL CONVERSION
+   LOCAL CONVERT
 ======================================== */
 
 convertButton.addEventListener(
@@ -1251,6 +1068,15 @@ convertButton.addEventListener(
         }
 
 
+        const endpoint =
+            conversionMode ===
+            "word-to-pdf"
+                ?
+                "/convert/word-to-pdf"
+                :
+                "/convert/pdf-to-word";
+
+
         const formData =
             new FormData();
 
@@ -1261,31 +1087,21 @@ convertButton.addEventListener(
         );
 
 
-        const endpoint =
-            conversionMode ===
-            "word-to-pdf"
-                ?
-                "/convert/word-to-pdf"
-                :
-                "/convert/pdf-to-word";
-
-
         disableAllTabs(
             true
         );
 
-        fileInput.disabled =
+        convertButton.disabled =
             true;
 
-        convertButton.disabled =
+        fileInput.disabled =
             true;
 
         convertButton.textContent =
             "Converting...";
 
-        startProgress();
 
-        setStatus("");
+        startProgress();
 
 
         try {
@@ -1307,38 +1123,31 @@ convertButton.addEventListener(
                 !response.ok
             ) {
 
-                let errorMessage =
-                    "Conversion failed. Please try again.";
+                let message =
+                    "Conversion failed.";
 
 
                 try {
 
-                    const errorData =
+                    const error =
                         await response.json();
 
-
                     if (
-                        errorData?.error
+                        error?.error
                     ) {
 
-                        errorMessage =
-                            errorData.error;
+                        message =
+                            error.error;
 
                     }
 
                 }
 
-                catch (error) {
-
-                    console.error(
-                        error
-                    );
-
-                }
+                catch {}
 
 
                 throw new Error(
-                    errorMessage
+                    message
                 );
 
             }
@@ -1381,7 +1190,7 @@ convertButton.addEventListener(
 
 
             await delay(
-                650
+                500
             );
 
 
@@ -1400,15 +1209,12 @@ convertButton.addEventListener(
 
         catch (error) {
 
-            resetProgress();
-
             progressContainer.hidden =
                 true;
 
 
             setStatus(
-                error.message ||
-                "Something went wrong during conversion.",
+                error.message,
                 "error"
             );
 
@@ -1420,10 +1226,10 @@ convertButton.addEventListener(
                 false
             );
 
-            fileInput.disabled =
+            convertButton.disabled =
                 false;
 
-            convertButton.disabled =
+            fileInput.disabled =
                 false;
 
             convertButton.textContent =
@@ -1436,7 +1242,7 @@ convertButton.addEventListener(
 
 
 /* ========================================
-   GOOGLE API LOAD
+   GOOGLE LIBRARY LOAD
 ======================================== */
 
 function onGoogleApiLoad() {
@@ -1447,6 +1253,10 @@ function onGoogleApiLoad() {
 
             googlePickerReady =
                 true;
+
+            console.log(
+                "Google Picker ready"
+            );
 
         }
     );
@@ -1474,10 +1284,13 @@ function gisLoaded() {
     googleIdentityReady =
         true;
 
+
+    console.log(
+        "Google Identity ready"
+    );
+
 }
 
-
-/* Expose callbacks to Google scripts */
 
 window.onGoogleApiLoad =
     onGoogleApiLoad;
@@ -1487,51 +1300,76 @@ window.gisLoaded =
 
 
 /* ========================================
-   GOOGLE BUTTON
+   GOOGLE BUTTONS
 ======================================== */
 
 chooseGoogleDocButton.addEventListener(
     "click",
     () => {
 
-        if (
-            GOOGLE_CLIENT_ID.includes(
-                "PASTE_"
-            ) ||
-            GOOGLE_API_KEY.includes(
-                "PASTE_"
-            )
-        ) {
+        requestedPickerType =
+            "drive";
 
-            setGoogleStatus(
-                "Add your Google Client ID and API key to script.js.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !googlePickerReady ||
-            !googleIdentityReady
-        ) {
-
-            setGoogleStatus(
-                "Google Drive is still loading. Please try again in a moment.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        requestGoogleAccess();
+        startGooglePicker();
 
     }
 );
+
+
+uploadGoogleDocButton.addEventListener(
+    "click",
+    () => {
+
+        requestedPickerType =
+            "upload";
+
+        startGooglePicker();
+
+    }
+);
+
+
+/* ========================================
+   START GOOGLE PICKER
+======================================== */
+
+function startGooglePicker() {
+
+    setGoogleStatus("");
+
+
+    if (
+        !googlePickerReady
+    ) {
+
+        setGoogleStatus(
+            "Google Picker is still loading. Please wait a moment.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !googleIdentityReady ||
+        !googleTokenClient
+    ) {
+
+        setGoogleStatus(
+            "Google sign-in is still loading. Please wait a moment.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    requestGoogleAccess();
+
+}
 
 
 /* ========================================
@@ -1577,10 +1415,8 @@ function requestGoogleAccess() {
     else {
 
         googleTokenClient.requestAccessToken({
-
             prompt:
                 "consent"
-
         });
 
     }
@@ -1594,47 +1430,78 @@ function requestGoogleAccess() {
 
 function showGooglePicker() {
 
+    const builder =
+        new google.picker.PickerBuilder();
+
+
     /*
-        VIEW 1:
-        Existing Google Docs
-        already in Google Drive.
+        CHOOSE FROM DRIVE
     */
 
-    const googleDocsView =
-        new google.picker.DocsView(
-            google.picker.ViewId.DOCUMENTS
+    if (
+        requestedPickerType ===
+        "drive"
+    ) {
+
+        const driveView =
+            new google.picker.DocsView(
+                google.picker.ViewId.DOCUMENTS
+            );
+
+
+        if (
+            conversionMode ===
+            "google-to-pdf"
+        ) {
+
+            driveView.setMimeTypes(
+                [
+                    GOOGLE_DOC_MIME,
+                    DOCX_MIME,
+                    DOC_MIME
+                ].join(",")
+            );
+
+        }
+
+        else {
+
+            driveView.setMimeTypes(
+                [
+                    GOOGLE_DOC_MIME,
+                    PDF_MIME
+                ].join(",")
+            );
+
+        }
+
+
+        builder.addView(
+            driveView
         );
 
-
-    googleDocsView.setMimeTypes(
-        [
-            GOOGLE_DOC_MIME,
-            DOCX_MIME,
-            DOC_MIME
-        ].join(",")
-    );
+    }
 
 
     /*
-        VIEW 2:
-        Upload a file from
-        the user's computer.
+        UPLOAD FROM COMPUTER
     */
 
-    const uploadView =
-        new google.picker.DocsUploadView();
+    else {
+
+        const uploadView =
+            new google.picker.DocsUploadView();
+
+
+        builder.addView(
+            uploadView
+        );
+
+    }
 
 
     const picker =
-        new google.picker.PickerBuilder()
-
-            .addView(
-                googleDocsView
-            )
-
-            .addView(
-                uploadView
-            )
+        builder
 
             .setOAuthToken(
                 googleAccessToken
@@ -1653,7 +1520,12 @@ function showGooglePicker() {
             )
 
             .setTitle(
-                "Choose or Upload a Document"
+                requestedPickerType ===
+                "upload"
+                    ?
+                    "Upload from Computer"
+                    :
+                    "Choose from Google Drive"
             )
 
             .setCallback(
@@ -1668,758 +1540,3 @@ function showGooglePicker() {
     );
 
 }
-
-
-/* ========================================
-   PICKER CALLBACK
-======================================== */
-
-function googlePickerCallback(
-    data
-) {
-
-    const action =
-        data[
-            google.picker.Response.ACTION
-        ];
-
-
-    if (
-        action ===
-        google.picker.Action.PICKED
-    ) {
-
-        const document =
-            data[
-                google.picker.Response.DOCUMENTS
-            ][0];
-
-
-        selectedGoogleDocId =
-            document[
-                google.picker.Document.ID
-            ];
-
-
-        selectedGoogleDocName =
-            document[
-                google.picker.Document.NAME
-            ] ||
-            "Document";
-
-
-        selectedGoogleDocMimeType =
-            document[
-                google.picker.Document.MIME_TYPE
-            ] ||
-            null;
-
-
-        selectedGoogleFileName.textContent =
-            selectedGoogleDocName;
-
-
-        selectedGoogleFile.hidden =
-            false;
-
-
-        convertGoogleButton.hidden =
-            false;
-
-
-        setGoogleStatus(
-            "Document selected and ready to convert.",
-            "success"
-        );
-
-    }
-
-}
-
-
-/* ========================================
-   GOOGLE PROGRESS
-======================================== */
-
-function resetGoogleProgress() {
-
-    if (
-        googleProgressTimer
-    ) {
-
-        clearInterval(
-            googleProgressTimer
-        );
-
-        googleProgressTimer =
-            null;
-
-    }
-
-
-    googleProgressValue =
-        0;
-
-
-    googleProgressBar.style.width =
-        "0%";
-
-
-    googleProgressTrack.setAttribute(
-        "aria-valuenow",
-        "0"
-    );
-
-
-    googleProgressStatus.textContent =
-        "Processing";
-
-}
-
-
-function startGoogleProgress() {
-
-    resetGoogleProgress();
-
-
-    googleProgressContainer.hidden =
-        false;
-
-
-    googleProgressValue =
-        8;
-
-
-    googleProgressBar.style.width =
-        "8%";
-
-
-    googleProgressStatus.textContent =
-        "Preparing";
-
-
-    googleProgressTimer =
-        setInterval(
-            () => {
-
-                if (
-                    googleProgressValue <
-                    90
-                ) {
-
-                    googleProgressValue +=
-                        Math.max(
-                            1,
-                            (
-                                90 -
-                                googleProgressValue
-                            ) *
-                            0.08
-                        );
-
-
-                    googleProgressBar.style.width =
-                        googleProgressValue +
-                        "%";
-
-
-                    googleProgressTrack.setAttribute(
-                        "aria-valuenow",
-                        Math.round(
-                            googleProgressValue
-                        )
-                    );
-
-                }
-
-
-                if (
-                    googleProgressValue >
-                    35
-                ) {
-
-                    googleProgressStatus.textContent =
-                        "Converting";
-
-                }
-
-
-                if (
-                    googleProgressValue >
-                    75
-                ) {
-
-                    googleProgressStatus.textContent =
-                        "Finishing";
-
-                }
-
-            },
-            400
-        );
-
-}
-
-
-function completeGoogleProgress() {
-
-    if (
-        googleProgressTimer
-    ) {
-
-        clearInterval(
-            googleProgressTimer
-        );
-
-        googleProgressTimer =
-            null;
-
-    }
-
-
-    googleProgressValue =
-        100;
-
-
-    googleProgressBar.style.width =
-        "100%";
-
-
-    googleProgressTrack.setAttribute(
-        "aria-valuenow",
-        "100"
-    );
-
-
-    googleProgressStatus.textContent =
-        "Complete";
-
-}
-
-
-/* ========================================
-   RESET GOOGLE
-======================================== */
-
-function resetGoogleSelection() {
-
-    selectedGoogleDocId =
-        null;
-
-    selectedGoogleDocName =
-        null;
-
-    selectedGoogleDocMimeType =
-        null;
-
-    selectedGoogleFile.hidden =
-        true;
-
-    convertGoogleButton.hidden =
-        true;
-
-    googleProgressContainer.hidden =
-        true;
-
-    resetGoogleProgress();
-
-    setGoogleStatus("");
-
-}
-
-
-/* ========================================
-   EXPORT NATIVE GOOGLE DOC
-======================================== */
-
-async function exportNativeGoogleDoc() {
-
-    let mimeType;
-
-    let extension;
-
-
-    if (
-        conversionMode ===
-        "google-to-pdf"
-    ) {
-
-        mimeType =
-            "application/pdf";
-
-        extension =
-            ".pdf";
-
-        googleProgressLabel.textContent =
-            "Exporting Google Doc to PDF…";
-
-    }
-
-    else {
-
-        mimeType =
-            DOCX_MIME;
-
-        extension =
-            ".docx";
-
-        googleProgressLabel.textContent =
-            "Exporting Google Doc to Word…";
-
-    }
-
-
-    const exportUrl =
-        "https://www.googleapis.com/drive/v3/files/" +
-        encodeURIComponent(
-            selectedGoogleDocId
-        ) +
-        "/export?mimeType=" +
-        encodeURIComponent(
-            mimeType
-        );
-
-
-    const response =
-        await fetch(
-            exportUrl,
-            {
-                headers: {
-
-                    Authorization:
-                        "Bearer " +
-                        googleAccessToken
-
-                }
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        let errorMessage =
-            "Google could not export this document.";
-
-
-        try {
-
-            const errorData =
-                await response.json();
-
-
-            if (
-                errorData?.error?.message
-            ) {
-
-                errorMessage =
-                    errorData.error.message;
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.error(
-                error
-            );
-
-        }
-
-
-        throw new Error(
-            errorMessage
-        );
-
-    }
-
-
-    const blob =
-        await response.blob();
-
-
-    return {
-
-        blob:
-            blob,
-
-        outputName:
-            removeExtension(
-                selectedGoogleDocName
-            ) +
-            extension
-
-    };
-
-}
-
-
-/* ========================================
-   DOWNLOAD REGULAR DRIVE FILE
-======================================== */
-
-async function downloadDriveFile() {
-
-    const url =
-        "https://www.googleapis.com/drive/v3/files/" +
-        encodeURIComponent(
-            selectedGoogleDocId
-        ) +
-        "?alt=media";
-
-
-    const response =
-        await fetch(
-            url,
-            {
-                headers: {
-
-                    Authorization:
-                        "Bearer " +
-                        googleAccessToken
-
-                }
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        throw new Error(
-            "Could not download the uploaded file from Google Drive."
-        );
-
-    }
-
-
-    return await response.blob();
-
-}
-
-
-/* ========================================
-   HANDLE UPLOADED WORD FILE
-======================================== */
-
-async function convertUploadedWordFile() {
-
-    const driveBlob =
-        await downloadDriveFile();
-
-
-    /*
-        If user selected Google-to-Word,
-        the file is already Word.
-    */
-
-    if (
-        conversionMode ===
-        "google-to-word"
-    ) {
-
-        return {
-
-            blob:
-                driveBlob,
-
-            outputName:
-                selectedGoogleDocName
-
-        };
-
-    }
-
-
-    /*
-        For Google-to-PDF,
-        use our existing
-        Word-to-PDF backend.
-    */
-
-    googleProgressLabel.textContent =
-        "Converting uploaded Word document to PDF…";
-
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "file",
-        driveBlob,
-        selectedGoogleDocName
-    );
-
-
-    const response =
-        await fetch(
-            "/convert/word-to-pdf",
-            {
-                method:
-                    "POST",
-
-                body:
-                    formData
-            }
-        );
-
-
-    if (
-        !response.ok
-    ) {
-
-        let errorMessage =
-            "The uploaded Word document could not be converted.";
-
-
-        try {
-
-            const errorData =
-                await response.json();
-
-
-            if (
-                errorData?.error
-            ) {
-
-                errorMessage =
-                    errorData.error;
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.error(
-                error
-            );
-
-        }
-
-
-        throw new Error(
-            errorMessage
-        );
-
-    }
-
-
-    const blob =
-        await response.blob();
-
-
-    return {
-
-        blob:
-            blob,
-
-        outputName:
-            removeExtension(
-                selectedGoogleDocName
-            ) +
-            ".pdf"
-
-    };
-
-}
-
-
-/* ========================================
-   GOOGLE CONVERT
-======================================== */
-
-convertGoogleButton.addEventListener(
-    "click",
-    async () => {
-
-        if (
-            !selectedGoogleDocId
-        ) {
-
-            setGoogleStatus(
-                "Please choose or upload a document first.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !googleAccessToken
-        ) {
-
-            setGoogleStatus(
-                "Google authorization expired. Please choose the document again.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        disableAllTabs(
-            true
-        );
-
-
-        chooseGoogleDocButton.disabled =
-            true;
-
-
-        convertGoogleButton.disabled =
-            true;
-
-
-        convertGoogleButton.textContent =
-            "Converting...";
-
-
-        setGoogleStatus("");
-
-
-        startGoogleProgress();
-
-
-        try {
-
-            let result;
-
-
-            if (
-                selectedGoogleDocMimeType ===
-                GOOGLE_DOC_MIME
-            ) {
-
-                result =
-                    await exportNativeGoogleDoc();
-
-            }
-
-            else if (
-                selectedGoogleDocMimeType ===
-                DOCX_MIME ||
-                selectedGoogleDocMimeType ===
-                DOC_MIME
-            ) {
-
-                result =
-                    await convertUploadedWordFile();
-
-            }
-
-            else {
-
-                throw new Error(
-                    "Please choose a Google Doc, DOC, or DOCX file."
-                );
-
-            }
-
-
-            completeGoogleProgress();
-
-
-            await delay(
-                500
-            );
-
-
-            downloadConvertedFile(
-                result.blob,
-                result.outputName
-            );
-
-
-            showSuccessScreen(
-                result.blob,
-                result.outputName
-            );
-
-        }
-
-        catch (error) {
-
-            resetGoogleProgress();
-
-            googleProgressContainer.hidden =
-                true;
-
-
-            setGoogleStatus(
-                error.message ||
-                "Document conversion failed.",
-                "error"
-            );
-
-        }
-
-        finally {
-
-            disableAllTabs(
-                false
-            );
-
-
-            chooseGoogleDocButton.disabled =
-                false;
-
-
-            convertGoogleButton.disabled =
-                false;
-
-
-            convertGoogleButton.textContent =
-                "Convert Google Doc";
-
-        }
-
-    }
-);
-
-
-/* ========================================
-   UTILITIES
-======================================== */
-
-function removeExtension(
-    name
-) {
-
-    return name.replace(
-        /\.[^/.]+$/,
-        ""
-    );
-
-}
-
-
-function delay(
-    milliseconds
-) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
-    );
-
-}
-
-
-/* ========================================
-   INITIAL STATE
-======================================== */
-
-setMode(
-    "word-to-pdf"
-);
