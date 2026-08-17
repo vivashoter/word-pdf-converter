@@ -69,6 +69,19 @@ def scripts():
 
 
 # ---------------------------------
+# LOGO
+# ---------------------------------
+
+@app.route("/convertdocgoose-logo.png")
+def logo():
+
+    return send_from_directory(
+        BASE_DIR,
+        "convertdocgoose-logo.png"
+    )
+
+
+# ---------------------------------
 # FILE TOO LARGE
 # ---------------------------------
 
