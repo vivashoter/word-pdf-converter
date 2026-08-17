@@ -26,7 +26,7 @@
 
     <link
         rel="stylesheet"
-        href="/style.css?v=20"
+        href="/style.css?v=22"
     >
 
 </head>
@@ -34,9 +34,8 @@
 
 <body>
 
-    <!-- ========================================
-         HEADER
-    ======================================== -->
+
+    <!-- HEADER -->
 
     <header class="site-header">
 
@@ -61,15 +60,14 @@
     </header>
 
 
-    <!-- ========================================
-         MAIN
-    ======================================== -->
+    <!-- MAIN -->
 
     <main class="main-content">
 
         <section class="hero">
 
             <div class="hero-container">
+
 
                 <p class="eyebrow">
                     SIMPLE DOCUMENT CONVERSION
@@ -89,14 +87,14 @@
                 </p>
 
 
-                <!-- ========================================
-                     TABS
-                ======================================== -->
+
+                <!-- CONVERTER TABS -->
 
                 <div
                     id="converterTabs"
                     class="converter-tabs"
                 >
+
 
                     <button
                         id="wordToPdf"
@@ -149,18 +147,19 @@
 
                     </button>
 
+
                 </div>
 
 
-                <!-- ========================================
-                     LOCAL FILE AREA
-                ======================================== -->
+
+                <!-- LOCAL UPLOAD AREA -->
 
                 <div
                     id="uploadArea"
                     class="upload-area word-mode"
                     tabindex="0"
                 >
+
 
                     <div
                         class="upload-icon"
@@ -218,6 +217,7 @@
                     </button>
 
 
+
                     <!-- LOCAL PROGRESS -->
 
                     <div
@@ -225,6 +225,7 @@
                         class="progress-container"
                         hidden
                     >
+
 
                         <div class="progress-top">
 
@@ -271,6 +272,7 @@
                             your document is converted.
                         </p>
 
+
                     </div>
 
 
@@ -280,18 +282,19 @@
                         aria-live="polite"
                     ></div>
 
+
                 </div>
 
 
-                <!-- ========================================
-                     GOOGLE AREA
-                ======================================== -->
+
+                <!-- GOOGLE AREA -->
 
                 <div
                     id="googleArea"
                     class="upload-area google-area"
                     hidden
                 >
+
 
                     <h2 id="googleTitle">
                         Google Doc to PDF
@@ -307,9 +310,9 @@
                     </p>
 
 
-                    <!-- TWO GOOGLE OPTIONS -->
 
                     <div class="google-action-buttons">
+
 
                         <button
                             id="chooseGoogleDocButton"
@@ -328,7 +331,19 @@
                             Upload from Computer
                         </button>
 
+
                     </div>
+
+
+
+                    <!-- REAL LOCAL COMPUTER INPUT -->
+
+                    <input
+                        id="googleComputerFileInput"
+                        type="file"
+                        hidden
+                    >
+
 
 
                     <div
@@ -341,12 +356,12 @@
                             Selected document
                         </span>
 
-
                         <strong id="selectedGoogleFileName">
                             No document selected
                         </strong>
 
                     </div>
+
 
 
                     <button
@@ -359,6 +374,7 @@
                     </button>
 
 
+
                     <!-- GOOGLE PROGRESS -->
 
                     <div
@@ -366,6 +382,7 @@
                         class="progress-container"
                         hidden
                     >
+
 
                         <div class="progress-top">
 
@@ -409,6 +426,7 @@
                             your document is converted.
                         </p>
 
+
                     </div>
 
 
@@ -418,18 +436,19 @@
                         aria-live="polite"
                     ></div>
 
+
                 </div>
 
 
-                <!-- ========================================
-                     SUCCESS
-                ======================================== -->
+
+                <!-- SUCCESS -->
 
                 <div
                     id="successArea"
                     class="success-area"
                     hidden
                 >
+
 
                     <div
                         class="success-check"
@@ -451,6 +470,7 @@
 
                     <div class="converted-file">
 
+
                         <div
                             class="converted-file-icon"
                             aria-hidden="true"
@@ -465,12 +485,12 @@
                                 Converted file
                             </span>
 
-
                             <strong id="convertedFileName">
                                 document.pdf
                             </strong>
 
                         </div>
+
 
                     </div>
 
@@ -492,7 +512,9 @@
                         Convert Another File
                     </button>
 
+
                 </div>
+
 
             </div>
 
@@ -501,13 +523,13 @@
     </main>
 
 
-    <!-- ========================================
-         FOOTER
-    ======================================== -->
+
+    <!-- FOOTER -->
 
     <footer class="site-footer">
 
         <div class="footer-container">
+
 
             <img
                 src="/convertdocgoose-logo.png"
@@ -527,17 +549,16 @@
                 All rights reserved.
             </p>
 
+
         </div>
 
     </footer>
 
 
-    <!-- ========================================
-         IMPORTANT:
-         LOAD OUR CODE FIRST
-    ======================================== -->
 
-    <script src="/script.js?v=20"></script>
+    <!-- LOAD OUR SCRIPT FIRST -->
+
+    <script src="/script.js?v=22"></script>
 
 
     <!-- GOOGLE PICKER -->
