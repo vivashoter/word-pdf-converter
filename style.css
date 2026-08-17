@@ -1,47 +1,14 @@
-/* ========================================
-   CONVERTDOCGOOSE BRAND COLORS
-======================================== */
-
-:root {
-    --brand-purple: #5b4cf0;
-    --brand-purple-dark: #4938dd;
-    --brand-purple-light: #f1efff;
-
-    --word-blue: #2563eb;
-    --word-blue-dark: #1d4ed8;
-    --word-blue-light: #eff6ff;
-
-    --pdf-red: #ef4444;
-    --pdf-red-dark: #dc2626;
-    --pdf-red-light: #fff1f2;
-
-    --google-green: #22a447;
-    --google-green-dark: #15803d;
-    --google-green-light: #ecfdf3;
-
-    --navy: #111827;
-    --text-gray: #6b7280;
-    --text-light: #9ca3af;
-
-    --border: #e5e7eb;
-    --background: #f7f8fc;
-    --white: #ffffff;
-}
-
-
-/* ========================================
-   GLOBAL
-======================================== */
-
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+
 html {
     -webkit-text-size-adjust: 100%;
 }
+
 
 body {
     min-height: 100vh;
@@ -55,8 +22,9 @@ body {
         Arial,
         sans-serif;
 
-    background: var(--background);
-    color: var(--navy);
+    background: #f7f8fc;
+
+    color: #1f2937;
 }
 
 
@@ -67,63 +35,49 @@ body {
 .site-header {
     width: 100%;
 
-    background: linear-gradient(
-        135deg,
-        #050d25 0%,
-        #071333 50%,
-        #0b1b46 100%
-    );
+    background: #ffffff;
 
-    border-bottom: 1px solid #15275a;
-
-    box-shadow:
-        0 8px 30px
-        rgba(0, 0, 0, 0.18);
+    border-bottom: 1px solid #e5e7eb;
 }
+
 
 .header-banner {
     width: 100%;
 
-    min-height: 240px;
+    min-height: 175px;
 
-    padding: 28px 40px;
+    padding:
+        18px
+        32px;
 
     display: flex;
 
     align-items: center;
-    justify-content: center;
+
+    justify-content: flex-start;
 }
 
-.logo {
-    display: flex;
 
-    align-items: center;
-    justify-content: center;
+.logo {
+    display: block;
 
     width: 100%;
-    max-width: 1350px;
 
-    margin: 0 auto;
+    max-width: 920px;
 
     text-decoration: none;
 }
+
 
 .site-logo-image {
     display: block;
 
     width: 100%;
-    height: auto;
-
-    max-height: 195px;
+    height: 140px;
 
     object-fit: contain;
-    object-position: center;
 
-    filter:
-        drop-shadow(
-            0 5px 16px
-            rgba(0, 0, 0, 0.30)
-        );
+    object-position: left center;
 }
 
 
@@ -136,24 +90,17 @@ body {
 }
 
 
-/* ========================================
-   HERO
-======================================== */
-
 .hero {
-    padding: 90px 24px 100px;
-
-    background:
-        radial-gradient(
-            circle at top center,
-            #efedff 0%,
-            #f6f6fd 38%,
-            #f7f8fc 75%
-        );
+    padding:
+        90px
+        24px
+        100px;
 }
+
 
 .hero-container {
     width: 100%;
+
     max-width: 850px;
 
     margin: 0 auto;
@@ -161,21 +108,28 @@ body {
     text-align: center;
 }
 
+
+/* ========================================
+   HERO
+======================================== */
+
 .eyebrow {
     margin-bottom: 28px;
 
-    color: var(--brand-purple);
+    color: #5146e5;
 
     font-size: 16px;
+
     font-weight: 750;
 
     letter-spacing: 4px;
 }
 
+
 .hero h1 {
     margin-bottom: 30px;
 
-    color: var(--navy);
+    color: #1f2937;
 
     font-size: clamp(
         44px,
@@ -190,12 +144,16 @@ body {
     letter-spacing: -2px;
 }
 
+
 .hero-description {
     max-width: 760px;
 
-    margin: 0 auto 55px;
+    margin:
+        0
+        auto
+        55px;
 
-    color: var(--text-gray);
+    color: #6b7280;
 
     font-size: 21px;
 
@@ -211,102 +169,60 @@ body {
     display: flex;
 
     width: 100%;
-    max-width: 540px;
 
-    margin: 0 auto 32px;
+    max-width: 520px;
 
-    padding: 5px;
+    margin:
+        0
+        auto
+        32px;
 
     overflow: hidden;
 
-    border: 1px solid #dde1e8;
-
     border-radius: 18px;
 
-    background: #ffffff;
-
-    box-shadow:
-        0 8px 25px
-        rgba(17, 24, 39, 0.06);
+    background: #e5e7eb;
 }
+
 
 .converter-tabs[hidden] {
     display: none;
 }
 
+
 .converter-tab {
     flex: 1;
 
-    min-height: 70px;
+    min-height: 76px;
 
     border: 0;
 
-    border-radius: 14px;
-
     background: transparent;
 
-    color: #4b5563;
+    color: #374151;
 
     font-family: inherit;
 
-    font-size: 18px;
-    font-weight: 650;
+    font-size: 19px;
 
     cursor: pointer;
 
     transition:
-        color 0.2s ease,
         background 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
-}
-
-.converter-tab:hover:not(.active) {
-    background: #f4f4f8;
+        color 0.2s ease;
 }
 
 
-/* WORD TO PDF */
-
-#wordToPdf.active {
-    background:
-        linear-gradient(
-            135deg,
-            var(--word-blue) 0%,
-            var(--brand-purple) 100%
-        );
+.converter-tab.active {
+    background: #5146e5;
 
     color: #ffffff;
-
-    box-shadow:
-        0 8px 20px
-        rgba(37, 99, 235, 0.24);
 }
 
-
-/* PDF TO WORD */
-
-#pdfToWord.active {
-    background:
-        linear-gradient(
-            135deg,
-            var(--pdf-red) 0%,
-            var(--brand-purple) 100%
-        );
-
-    color: #ffffff;
-
-    box-shadow:
-        0 8px 20px
-        rgba(239, 68, 68, 0.22);
-}
-
-.converter-tab:active {
-    transform: scale(0.985);
-}
 
 .converter-tab:disabled {
     cursor: not-allowed;
+
     opacity: 0.7;
 }
 
@@ -317,161 +233,70 @@ body {
 
 .upload-area {
     width: 100%;
+
     max-width: 720px;
 
     min-height: 610px;
 
     margin: 0 auto;
 
-    padding: 70px 40px 50px;
+    padding:
+        70px
+        40px
+        50px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff 0%,
-            #fdfdff 100%
-        );
+    background: #ffffff;
 
-    border: 3px dashed var(--word-blue);
+    border: 3px dashed #5952c9;
 
     border-radius: 32px;
 
     box-shadow:
-        0 18px 45px
-        rgba(31, 41, 55, 0.07);
+        0 15px 40px
+        rgba(31, 41, 55, 0.06);
 
     text-align: center;
 
     transition:
-        border-color 0.25s ease,
-        background 0.25s ease,
-        box-shadow 0.25s ease;
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
+
 
 .upload-area[hidden] {
     display: none;
 }
 
 
-/* WORD MODE */
+.upload-area.dragging {
+    border-color: #4338ca;
 
-.converter-tabs:has(#wordToPdf.active)
-~ .upload-area {
-    border-color: var(--word-blue);
+    background: #f5f3ff;
 }
 
-
-/* PDF MODE */
-
-.converter-tabs:has(#pdfToWord.active)
-~ .upload-area {
-    border-color: var(--pdf-red);
-}
-
-
-/* WORD DRAGGING */
-
-.converter-tabs:has(#wordToPdf.active)
-~ .upload-area.dragging {
-    border-color: var(--word-blue-dark);
-
-    background: var(--word-blue-light);
-
-    box-shadow:
-        0 18px 50px
-        rgba(37, 99, 235, 0.12);
-}
-
-
-/* PDF DRAGGING */
-
-.converter-tabs:has(#pdfToWord.active)
-~ .upload-area.dragging {
-    border-color: var(--pdf-red-dark);
-
-    background: var(--pdf-red-light);
-
-    box-shadow:
-        0 18px 50px
-        rgba(239, 68, 68, 0.12);
-}
-
-
-/* ========================================
-   UPLOAD ICON
-======================================== */
 
 .upload-icon {
-    display: flex;
+    margin-bottom: 40px;
 
-    width: 76px;
-    height: 76px;
+    color: #5146e5;
 
-    margin: 0 auto 36px;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: var(--brand-purple-light);
-
-    color: var(--brand-purple);
-
-    font-size: 48px;
+    font-size: 60px;
 
     line-height: 1;
-
-    box-shadow:
-        0 8px 22px
-        rgba(91, 76, 240, 0.10);
 }
 
-
-/* WORD ICON */
-
-.converter-tabs:has(#wordToPdf.active)
-~ .upload-area
-.upload-icon {
-    background:
-        linear-gradient(
-            135deg,
-            var(--word-blue-light),
-            var(--brand-purple-light)
-        );
-
-    color: var(--word-blue);
-}
-
-
-/* PDF ICON */
-
-.converter-tabs:has(#pdfToWord.active)
-~ .upload-area
-.upload-icon {
-    background:
-        linear-gradient(
-            135deg,
-            var(--pdf-red-light),
-            var(--brand-purple-light)
-        );
-
-    color: var(--pdf-red);
-}
-
-
-/* ========================================
-   UPLOAD TEXT
-======================================== */
 
 .upload-area h2 {
     max-width: 600px;
 
-    margin: 0 auto 14px;
+    margin:
+        0
+        auto
+        14px;
 
     overflow-wrap: anywhere;
 
-    color: var(--navy);
+    color: #1f2937;
 
     font-size: 32px;
 
@@ -479,6 +304,7 @@ body {
 
     font-weight: 750;
 }
+
 
 .upload-description {
     margin-bottom: 26px;
@@ -490,95 +316,62 @@ body {
     line-height: 1.5;
 }
 
+
 .or-text {
     margin-bottom: 27px;
 
-    color: var(--text-light);
+    color: #9ca3af;
 
     font-size: 20px;
 }
 
 
 /* ========================================
-   CHOOSE FILE BUTTON
+   CHOOSE FILE
 ======================================== */
 
 .choose-file-button {
     display: inline-flex;
 
     min-width: 240px;
+
     min-height: 72px;
 
     align-items: center;
+
     justify-content: center;
 
-    padding: 15px 30px;
+    padding:
+        15px
+        30px;
 
     border-radius: 17px;
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-purple),
-            #6b5cff
-        );
+    background: #5146e5;
 
     color: #ffffff;
 
     font-size: 20px;
+
     font-weight: 700;
 
     cursor: pointer;
 
-    box-shadow:
-        0 9px 22px
-        rgba(91, 76, 240, 0.22);
-
     transition:
         transform 0.15s ease,
-        box-shadow 0.15s ease,
         background 0.15s ease;
 }
 
 
-/* WORD MODE BUTTON */
-
-.converter-tabs:has(#wordToPdf.active)
-~ .upload-area
-.choose-file-button {
-    background:
-        linear-gradient(
-            135deg,
-            var(--word-blue),
-            var(--brand-purple)
-        );
-}
-
-
-/* PDF MODE BUTTON */
-
-.converter-tabs:has(#pdfToWord.active)
-~ .upload-area
-.choose-file-button {
-    background:
-        linear-gradient(
-            135deg,
-            var(--pdf-red),
-            var(--brand-purple)
-        );
-}
-
 .choose-file-button:hover {
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 11px 28px
-        rgba(91, 76, 240, 0.28);
+    background: #4338ca;
 }
+
 
 .choose-file-button:active {
     transform: scale(0.98);
 }
+
 
 .file-limit {
     margin-top: 30px;
@@ -597,60 +390,55 @@ body {
     display: block;
 
     min-width: 250px;
+
     min-height: 72px;
 
-    margin: 35px auto 0;
+    margin:
+        35px
+        auto
+        0;
 
-    padding: 15px 32px;
+    padding:
+        15px
+        32px;
 
     border: 0;
 
     border-radius: 17px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #111827,
-            #242c42
-        );
+    background: #111827;
 
     color: #ffffff;
 
     font-family: inherit;
 
     font-size: 20px;
+
     font-weight: 700;
 
     cursor: pointer;
 
-    box-shadow:
-        0 8px 20px
-        rgba(17, 24, 39, 0.15);
-
     transition:
         transform 0.15s ease,
-        box-shadow 0.15s ease,
+        background 0.15s ease,
         opacity 0.15s ease;
 }
 
-.convert-button:hover {
-    transform: translateY(-1px);
 
-    box-shadow:
-        0 11px 26px
-        rgba(17, 24, 39, 0.20);
+.convert-button:hover {
+    background: #030712;
 }
+
 
 .convert-button:active {
     transform: scale(0.98);
 }
 
+
 .convert-button:disabled {
     cursor: not-allowed;
 
-    opacity: 0.68;
-
-    transform: none;
+    opacity: 0.75;
 }
 
 
@@ -660,22 +448,20 @@ body {
 
 .progress-container {
     width: 100%;
+
     max-width: 440px;
 
-    margin: 30px auto 0;
-
-    padding: 16px 18px;
-
-    background: #fafafe;
-
-    border: 1px solid #e7e7ef;
-
-    border-radius: 14px;
+    margin:
+        28px
+        auto
+        0;
 }
+
 
 .progress-container[hidden] {
     display: none;
 }
+
 
 .progress-header {
     margin-bottom: 11px;
@@ -685,14 +471,17 @@ body {
     color: #374151;
 
     font-size: 14px;
+
     font-weight: 650;
 }
+
 
 .progress-track {
     position: relative;
 
     width: 100%;
-    height: 9px;
+
+    height: 8px;
 
     overflow: hidden;
 
@@ -700,6 +489,7 @@ body {
 
     border-radius: 999px;
 }
+
 
 .progress-bar {
     position: absolute;
@@ -711,12 +501,7 @@ body {
 
     width: 24%;
 
-    background:
-        linear-gradient(
-            90deg,
-            var(--word-blue),
-            var(--brand-purple)
-        );
+    background: #5146e5;
 
     border-radius: 999px;
 
@@ -727,30 +512,17 @@ body {
         infinite;
 
     box-shadow:
-        0 0 10px
-        rgba(91, 76, 240, 0.25);
+        0 0 8px
+        rgba(81, 70, 229, 0.22);
 }
 
-
-/* PDF PROGRESS */
-
-.converter-tabs:has(#pdfToWord.active)
-~ .upload-area
-.progress-bar {
-    background:
-        linear-gradient(
-            90deg,
-            var(--pdf-red),
-            var(--brand-purple)
-        );
-}
 
 .progress-note {
     margin-top: 10px;
 
     text-align: left;
 
-    color: var(--text-light);
+    color: #9ca3af;
 
     font-size: 13px;
 }
@@ -765,6 +537,7 @@ body {
     100% {
         left: 100%;
     }
+
 }
 
 
@@ -777,19 +550,21 @@ body {
 
     margin-top: 25px;
 
-    color: var(--text-gray);
+    color: #6b7280;
 
     font-size: 16px;
 
     line-height: 1.5;
 }
 
+
 .status-message.success {
-    color: var(--google-green-dark);
+    color: #166534;
 }
 
+
 .status-message.error {
-    color: var(--pdf-red-dark);
+    color: #b91c1c;
 }
 
 
@@ -799,85 +574,94 @@ body {
 
 .success-area {
     width: 100%;
+
     max-width: 720px;
 
     min-height: 500px;
 
     margin: 0 auto;
 
-    padding: 65px 45px;
+    padding:
+        65px
+        45px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff,
-            #fbfffc
-        );
+    background: #ffffff;
 
-    border: 1px solid #dfe8e2;
+    border: 1px solid #e5e7eb;
 
     border-radius: 32px;
 
     box-shadow:
-        0 18px 45px
+        0 15px 40px
         rgba(31, 41, 55, 0.07);
 
     text-align: center;
 }
 
+
 .success-area[hidden] {
     display: none;
 }
 
+
 .success-check {
     display: flex;
 
-    width: 76px;
-    height: 76px;
+    width: 72px;
+    height: 72px;
 
-    margin: 0 auto 25px;
+    margin:
+        0
+        auto
+        25px;
 
     align-items: center;
+
     justify-content: center;
 
     border-radius: 50%;
 
-    background: var(--google-green-light);
+    background: #ecfdf3;
 
-    color: var(--google-green);
+    color: #15803d;
 
-    font-size: 40px;
-    font-weight: 800;
+    font-size: 38px;
 
-    box-shadow:
-        0 7px 20px
-        rgba(34, 164, 71, 0.12);
+    font-weight: 700;
 }
+
 
 .success-area h2 {
     margin-bottom: 12px;
 
-    color: var(--navy);
+    color: #111827;
 
     font-size: 32px;
+
     font-weight: 750;
 }
+
 
 .success-description {
     margin-bottom: 30px;
 
-    color: var(--text-gray);
+    color: #6b7280;
 
     font-size: 17px;
 }
+
 
 .converted-file {
     display: flex;
 
     width: 100%;
+
     max-width: 480px;
 
-    margin: 0 auto 32px;
+    margin:
+        0
+        auto
+        32px;
 
     padding: 18px;
 
@@ -887,12 +671,13 @@ body {
 
     background: #f9fafb;
 
-    border: 1px solid var(--border);
+    border: 1px solid #e5e7eb;
 
     border-radius: 14px;
 
     text-align: left;
 }
+
 
 .converted-file-icon {
     display: flex;
@@ -903,17 +688,20 @@ body {
     flex-shrink: 0;
 
     align-items: center;
+
     justify-content: center;
 
     border-radius: 10px;
 
-    background: var(--google-green-light);
+    background: #eef2ff;
 
-    color: var(--google-green);
+    color: #5146e5;
 
     font-size: 20px;
+
     font-weight: 800;
 }
+
 
 .converted-file-info {
     min-width: 0;
@@ -925,16 +713,18 @@ body {
     gap: 3px;
 }
 
+
 .converted-label {
-    color: var(--text-light);
+    color: #9ca3af;
 
     font-size: 12px;
 }
 
+
 .converted-file-info strong {
     overflow: hidden;
 
-    color: var(--navy);
+    color: #1f2937;
 
     font-size: 15px;
 
@@ -944,72 +734,61 @@ body {
 }
 
 
-/* ========================================
-   DOWNLOAD AGAIN
-======================================== */
-
 .download-again-button {
     display: block;
 
     width: 100%;
+
     max-width: 330px;
 
     min-height: 64px;
 
-    margin: 0 auto 14px;
+    margin:
+        0
+        auto
+        14px;
 
-    padding: 14px 25px;
+    padding:
+        14px
+        25px;
 
     border: 0;
 
     border-radius: 15px;
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-purple),
-            #6b5cff
-        );
+    background: #5146e5;
 
     color: #ffffff;
 
     font-family: inherit;
 
     font-size: 18px;
+
     font-weight: 700;
 
     cursor: pointer;
-
-    box-shadow:
-        0 8px 20px
-        rgba(91, 76, 240, 0.20);
 }
+
 
 .download-again-button:hover {
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-purple-dark),
-            var(--brand-purple)
-        );
+    background: #4338ca;
 }
 
-
-/* ========================================
-   CONVERT ANOTHER
-======================================== */
 
 .convert-another-button {
     display: block;
 
     width: 100%;
+
     max-width: 330px;
 
     min-height: 58px;
 
     margin: 0 auto;
 
-    padding: 12px 25px;
+    padding:
+        12px
+        25px;
 
     border: 1px solid #d1d5db;
 
@@ -1022,19 +801,15 @@ body {
     font-family: inherit;
 
     font-size: 16px;
+
     font-weight: 650;
 
     cursor: pointer;
-
-    transition:
-        background 0.15s ease,
-        border-color 0.15s ease;
 }
 
-.convert-another-button:hover {
-    background: var(--brand-purple-light);
 
-    border-color: #c9c4ff;
+.convert-another-button:hover {
+    background: #f9fafb;
 }
 
 
@@ -1045,17 +820,15 @@ body {
 .site-footer {
     width: 100%;
 
-    padding: 45px 20px;
+    padding:
+        45px
+        20px;
 
-    background:
-        linear-gradient(
-            180deg,
-            #ffffff,
-            #fafaff
-        );
+    background: #ffffff;
 
-    border-top: 1px solid var(--border);
+    border-top: 1px solid #e5e7eb;
 }
+
 
 .footer-container {
     max-width: 1100px;
@@ -1064,6 +837,7 @@ body {
 
     text-align: center;
 }
+
 
 .footer-logo-image {
     width: 220px;
@@ -1074,16 +848,18 @@ body {
     margin-bottom: 12px;
 }
 
+
 .footer-tagline {
     margin-bottom: 15px;
 
-    color: var(--text-gray);
+    color: #6b7280;
 
     font-size: 14px;
 }
 
+
 .footer-copyright {
-    color: var(--text-light);
+    color: #9ca3af;
 
     font-size: 13px;
 }
@@ -1096,30 +872,31 @@ body {
 @media (max-width: 768px) {
 
     .header-banner {
-        min-height: 175px;
+        min-height: 150px;
 
-        padding: 20px 24px;
+        padding:
+            16px
+            24px;
     }
+
 
     .logo {
-        width: 100%;
-
-        max-width: 900px;
+        max-width: 720px;
     }
+
 
     .site-logo-image {
-        width: 100%;
-
-        height: auto;
-
-        max-height: 140px;
-
-        object-position: center;
+        height: 115px;
     }
+
 
     .hero {
-        padding: 70px 24px 80px;
+        padding:
+            70px
+            24px
+            80px;
     }
+
 
     .eyebrow {
         font-size: 14px;
@@ -1127,31 +904,40 @@ body {
         letter-spacing: 3px;
     }
 
+
     .hero h1 {
         font-size: 50px;
     }
+
 
     .hero-description {
         font-size: 19px;
     }
 
-    .converter-tab {
-        min-height: 66px;
 
-        font-size: 17px;
+    .converter-tab {
+        min-height: 68px;
+
+        font-size: 18px;
     }
+
 
     .upload-area {
         min-height: 580px;
 
-        padding: 60px 32px 45px;
+        padding:
+            60px
+            32px
+            45px;
 
         border-radius: 28px;
     }
 
+
     .upload-area h2 {
         font-size: 29px;
     }
+
 }
 
 
@@ -1164,28 +950,32 @@ body {
     .header-banner {
         min-height: 125px;
 
-        padding: 14px 12px;
+        padding:
+            12px
+            16px;
     }
 
-    .logo {
-        width: 100%;
 
+    .logo {
         max-width: 100%;
     }
 
+
     .site-logo-image {
         width: 100%;
+        height: 95px;
 
-        height: auto;
-
-        max-height: 100px;
-
-        object-position: center;
+        object-position: left center;
     }
+
 
     .hero {
-        padding: 58px 18px 65px;
+        padding:
+            58px
+            18px
+            65px;
     }
+
 
     .eyebrow {
         margin-bottom: 22px;
@@ -1195,6 +985,7 @@ body {
         letter-spacing: 2.5px;
     }
 
+
     .hero h1 {
         margin-bottom: 24px;
 
@@ -1202,6 +993,7 @@ body {
 
         letter-spacing: -1px;
     }
+
 
     .hero-description {
         margin-bottom: 42px;
@@ -1211,52 +1003,60 @@ body {
         line-height: 1.65;
     }
 
+
     .converter-tabs {
         margin-bottom: 25px;
 
         border-radius: 15px;
-
-        padding: 4px;
     }
+
 
     .converter-tab {
-        min-height: 60px;
+        min-height: 62px;
 
-        padding: 10px 8px;
+        padding:
+            10px
+            8px;
 
-        font-size: 15px;
+        font-size: 16px;
     }
+
 
     .upload-area {
         min-height: 540px;
 
-        padding: 52px 22px 38px;
+        padding:
+            52px
+            22px
+            38px;
 
         border-width: 2px;
 
         border-radius: 25px;
     }
 
+
     .upload-icon {
-        width: 66px;
-        height: 66px;
+        margin-bottom: 32px;
 
-        margin-bottom: 30px;
-
-        font-size: 42px;
+        font-size: 52px;
     }
+
 
     .upload-area h2 {
         font-size: 26px;
     }
 
+
     .upload-description {
         font-size: 17px;
     }
 
+
     .or-text {
         font-size: 18px;
     }
+
 
     .choose-file-button {
         width: 100%;
@@ -1264,14 +1064,17 @@ body {
         max-width: 250px;
 
         min-width: 0;
+
         min-height: 64px;
 
         font-size: 18px;
     }
 
+
     .file-limit {
         font-size: 15px;
     }
+
 
     .convert-button {
         width: 100%;
@@ -1279,40 +1082,50 @@ body {
         max-width: 250px;
 
         min-width: 0;
+
         min-height: 64px;
 
         font-size: 18px;
     }
 
+
     .progress-container {
         max-width: 300px;
     }
 
+
     .success-area {
         min-height: 460px;
 
-        padding: 50px 22px;
+        padding:
+            50px
+            22px;
 
         border-radius: 25px;
     }
+
 
     .success-area h2 {
         font-size: 28px;
     }
 
+
     .converted-file {
         padding: 15px;
     }
+
 
     .download-again-button,
     .convert-another-button {
         max-width: 100%;
     }
 
+
     .footer-logo-image {
         width: 190px;
         height: 50px;
     }
+
 }
 
 
@@ -1323,18 +1136,19 @@ body {
 @media (max-width: 360px) {
 
     .header-banner {
-        min-height: 105px;
-
-        padding: 10px;
+        min-height: 110px;
     }
+
 
     .site-logo-image {
-        max-height: 85px;
+        height: 82px;
     }
+
 
     .hero h1 {
         font-size: 37px;
     }
+
 }
 
 
@@ -1345,10 +1159,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
 
     .progress-bar {
-        animation: none;
-
         left: 0;
 
         width: 24%;
+
+        animation: none;
     }
+
 }
