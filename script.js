@@ -1654,5 +1654,456 @@ function showGooglePicker() {
         true
     );
 
+   /* ========================================
+   DOWNLOAD NORMAL DRIVE FILE
+======================================== */
+
+async function downloadDriveFile() {
+
+    const url =
+        "https://www.googleapis.com/drive/v3/files/" +
+        encodeURIComponent(
+            selectedGoogleDocId
+        ) +
+        "?alt=media";
+
+
+    const response =
+        await fetch(
+            url,
+            {
+
+                headers: {
+
+                    Authorization:
+                        "Bearer " +
+                        googleAccessToken
+
+                }
+
+            }
+        );
+
+
+    if (
+        !response.ok
+    ) {
+
+        throw new Error(
+            "Could not download the selected Google Drive file."
+        );
+
+    }
+
+
+    return await response.blob();
+
 }
+
+
+/* ========================================
+   CONVERT FILE THROUGH EXISTING BACKEND
+======================================== */
+
+async function convertBlobWithBackend(
+    blob,
+    filename
+) {
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "file",
+        blob,
+        filename
+    );
+
+
+    let endpoint;
+
+    let extension;
+
+
+    if (
+        conversionMode ===
+        "google-to-pdf"
+    ) {
+
+        endpoint =
+            "/convert/word-to-pdf";
+
+        extension =
+            ".pdf";
+
+        googleProgressLabel.textContent =
+            "Converting Word document to PDF…";
+
+    }
+
+    else {
+
+        endpoint =
+            "/convert/pdf-to-word";
+
+        extension =
+            ".docx";
+
+        googleProgressLabel.textContent =
+            "Converting PDF to Word…";
+
+    }
+
+
+    const response =
+        await fetch(
+            endpoint,
+            {
+
+                method:
+                    "POST",
+
+                body:
+                    formData
+
+            }
+        );
+
+
+    if (
+        !response.ok
+    ) {
+
+        let message =
+            "Document conversion failed.";
+
+
+        try {
+
+            const error =
+                await response.json();
+
+
+            if (
+                error?.error
+            ) {
+
+                message =
+                    error.error;
+
+            }
+
+        }
+
+        catch {}
+
+
+        throw new Error(
+            message
+        );
+
+    }
+
+
+    return {
+
+        blob:
+            await response.blob(),
+
+        outputName:
+            removeExtension(
+                filename
+            ) +
+            extension
+
+    };
+
 }
+
+
+/* ========================================
+   GOOGLE AREA CONVERT
+======================================== */
+
+convertGoogleButton.addEventListener(
+    "click",
+    async () => {
+
+        if (
+            !selectedGoogleSource
+        ) {
+
+            setGoogleStatus(
+                "Choose a document first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        disableAllTabs(
+            true
+        );
+
+
+        chooseGoogleDocButton.disabled =
+            true;
+
+        uploadGoogleDocButton.disabled =
+            true;
+
+        convertGoogleButton.disabled =
+            true;
+
+        convertGoogleButton.textContent =
+            "Converting...";
+
+
+        setGoogleStatus("");
+
+
+        startGoogleProgress();
+
+
+        try {
+
+            let result;
+
+
+            /*
+                LOCAL COMPUTER FILE
+            */
+
+            if (
+                selectedGoogleSource ===
+                "computer"
+            ) {
+
+                const localFile =
+                    googleComputerFileInput.files?.[0];
+
+
+                if (!localFile) {
+
+                    throw new Error(
+                        "Please upload your file again."
+                    );
+
+                }
+
+
+                result =
+                    await convertBlobWithBackend(
+                        localFile,
+                        localFile.name
+                    );
+
+            }
+
+
+            /*
+                GOOGLE DRIVE FILE
+            */
+
+            else {
+
+                if (
+                    !selectedGoogleDocId
+                ) {
+
+                    throw new Error(
+                        "Please choose a Google Drive document again."
+                    );
+
+                }
+
+
+                if (
+                    selectedGoogleDocMimeType ===
+                    GOOGLE_DOC_MIME
+                ) {
+
+                    result =
+                        await exportNativeGoogleDoc();
+
+                }
+
+                else {
+
+                    const driveBlob =
+                        await downloadDriveFile();
+
+
+                    result =
+                        await convertBlobWithBackend(
+                            driveBlob,
+                            selectedGoogleDocName
+                        );
+
+                }
+
+            }
+
+
+            completeGoogleProgress();
+
+
+            await delay(
+                500
+            );
+
+
+            downloadConvertedFile(
+                result.blob,
+                result.outputName
+            );
+
+
+            showSuccessScreen(
+                result.blob,
+                result.outputName
+            );
+
+        }
+
+        catch (error) {
+
+            googleProgressContainer.hidden =
+                true;
+
+
+            setGoogleStatus(
+                error.message ||
+                "Document conversion failed.",
+                "error"
+            );
+
+        }
+
+        finally {
+
+            disableAllTabs(
+                false
+            );
+
+
+            chooseGoogleDocButton.disabled =
+                false;
+
+            uploadGoogleDocButton.disabled =
+                false;
+
+            convertGoogleButton.disabled =
+                false;
+
+            convertGoogleButton.textContent =
+                "Convert Document";
+
+        }
+
+    }
+);
+
+
+/* ========================================
+   DOWNLOAD AGAIN
+======================================== */
+
+downloadAgainButton.addEventListener(
+    "click",
+    () => {
+
+        if (
+            !convertedBlob ||
+            !convertedOutputName
+        ) {
+
+            return;
+
+        }
+
+
+        downloadConvertedFile(
+            convertedBlob,
+            convertedOutputName
+        );
+
+    }
+);
+
+
+/* ========================================
+   CONVERT ANOTHER
+======================================== */
+
+convertAnotherButton.addEventListener(
+    "click",
+    () => {
+
+        convertedBlob =
+            null;
+
+        convertedOutputName =
+            "";
+
+
+        successArea.hidden =
+            true;
+
+
+        converterTabs.hidden =
+            false;
+
+
+        setMode(
+            conversionMode
+        );
+
+    }
+);
+
+
+/* ========================================
+   UTILITIES
+======================================== */
+
+function removeExtension(
+    filename
+) {
+
+    return filename.replace(
+        /\.[^/.]+$/,
+        ""
+    );
+
+}
+
+
+function delay(
+    milliseconds
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+
+}
+
+
+/* ========================================
+   INITIAL STATE
+======================================== */
+
+setMode(
+    "word-to-pdf"
+);
+
+}
+
