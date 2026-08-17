@@ -6,10 +6,12 @@
     box-sizing: border-box;
 }
 
+
 html {
     margin: 0;
     padding: 0;
 }
+
 
 body {
     margin: 0;
@@ -44,13 +46,16 @@ body {
     border-bottom: 1px solid #eeeeee;
 }
 
+
 .header-banner {
     width: 100%;
 
     min-height: 215px;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     padding: 25px 20px;
@@ -58,19 +63,25 @@ body {
     background: #ffffff;
 }
 
+
 .logo {
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     text-decoration: none;
 }
 
+
 .site-logo-image {
     display: block;
 
-    width: min(760px, 80vw);
+    width: min(
+        760px,
+        80vw
+    );
 
     height: auto;
 
@@ -86,9 +97,14 @@ body {
     min-height: 700px;
 }
 
+
 .hero {
-    padding: 65px 20px 100px;
+    padding:
+        65px
+        20px
+        100px;
 }
+
 
 .hero-container {
     width: 100%;
@@ -106,26 +122,32 @@ body {
 ======================================== */
 
 .eyebrow {
-    margin: 0 0 18px;
+    margin:
+        0
+        0
+        18px;
 
     color: #5b4cf0;
 
     font-size: 14px;
+
     font-weight: 800;
 
     letter-spacing: 1.8px;
 }
+
 
 .hero h1 {
     margin: 0;
 
     color: #111827;
 
-    font-size: clamp(
-        42px,
-        6vw,
-        72px
-    );
+    font-size:
+        clamp(
+            42px,
+            6vw,
+            72px
+        );
 
     font-weight: 800;
 
@@ -134,10 +156,14 @@ body {
     letter-spacing: -2px;
 }
 
+
 .hero-description {
     max-width: 700px;
 
-    margin: 24px auto 45px;
+    margin:
+        24px
+        auto
+        45px;
 
     color: #6b7280;
 
@@ -148,7 +174,7 @@ body {
 
 
 /* ========================================
-   CONVERTER TABS
+   TABS
 ======================================== */
 
 .converter-tabs {
@@ -156,13 +182,17 @@ body {
 
     max-width: 760px;
 
-    margin: 0 auto 40px;
+    margin:
+        0
+        auto
+        40px;
 
     padding: 8px;
 
     display: flex;
 
     align-items: stretch;
+
     justify-content: center;
 
     gap: 6px;
@@ -178,12 +208,15 @@ body {
         rgba(17, 24, 39, 0.08);
 }
 
+
 .converter-tab {
     flex: 1;
 
     min-height: 70px;
 
-    padding: 12px 15px;
+    padding:
+        12px
+        15px;
 
     border: none;
 
@@ -196,6 +229,7 @@ body {
     font-family: inherit;
 
     font-size: 18px;
+
     font-weight: 700;
 
     line-height: 1.25;
@@ -209,16 +243,15 @@ body {
         box-shadow 0.2s ease;
 }
 
+
 .converter-tab:hover {
     background: #f8fafc;
 }
 
-.converter-tab:active {
-    transform: scale(0.98);
-}
 
 .tab-dot {
     width: 9px;
+
     height: 9px;
 
     display: inline-block;
@@ -228,20 +261,21 @@ body {
     border-radius: 50%;
 }
 
+
 .word-dot {
     background: #2563eb;
 }
+
 
 .pdf-dot {
     background: #ef4444;
 }
 
+
 .google-dot {
     background: #22a447;
 }
 
-
-/* WORD ACTIVE */
 
 .word-tab.active {
     background:
@@ -252,14 +286,8 @@ body {
         );
 
     color: #ffffff;
-
-    box-shadow:
-        0 8px 20px
-        rgba(37, 99, 235, 0.22);
 }
 
-
-/* PDF ACTIVE */
 
 .pdf-tab.active {
     background:
@@ -270,14 +298,8 @@ body {
         );
 
     color: #ffffff;
-
-    box-shadow:
-        0 8px 20px
-        rgba(239, 68, 68, 0.22);
 }
 
-
-/* GOOGLE ACTIVE */
 
 .google-tab.active {
     background:
@@ -285,14 +307,11 @@ body {
             135deg,
             #22a447,
             #5b4cf0
-        ) !important;
+        );
 
-    color: #ffffff !important;
-
-    box-shadow:
-        0 8px 20px
-        rgba(34, 164, 71, 0.25);
+    color: #ffffff;
 }
+
 
 .converter-tab.active .tab-dot {
     background: #ffffff;
@@ -300,7 +319,7 @@ body {
 
 
 /* ========================================
-   UPLOAD AREA
+   UPLOAD AREAS
 ======================================== */
 
 .upload-area {
@@ -308,7 +327,9 @@ body {
 
     min-height: 550px;
 
-    padding: 70px 40px;
+    padding:
+        70px
+        40px;
 
     background: #ffffff;
 
@@ -321,32 +342,38 @@ body {
         rgba(17, 24, 39, 0.06);
 
     text-align: center;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
 }
+
 
 .upload-area.word-mode {
     border-color: #2563eb;
 }
 
+
 .upload-area.pdf-mode {
     border-color: #ef4444;
 }
 
+
 .google-area {
-    border-color: #22a447 !important;
+    border-color: #22a447;
 }
+
 
 .upload-icon {
     width: 78px;
+
     height: 78px;
 
-    margin: 0 auto 22px;
+    margin:
+        0
+        auto
+        22px;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     border-radius: 50%;
@@ -356,22 +383,32 @@ body {
     color: #2563eb;
 
     font-size: 40px;
+
     font-weight: 700;
 }
 
+
 .upload-area h2 {
-    margin: 0 0 18px;
+    margin:
+        0
+        0
+        18px;
 
     color: #111827;
 
     font-size: 36px;
+
     font-weight: 800;
 }
+
 
 .upload-description {
     max-width: 650px;
 
-    margin: 0 auto 28px;
+    margin:
+        0
+        auto
+        28px;
 
     color: #6b7280;
 
@@ -380,12 +417,13 @@ body {
     line-height: 1.5;
 }
 
+
 .or-text {
-    margin: 15px 0;
+    margin:
+        15px
+        0;
 
     color: #9ca3af;
-
-    font-size: 15px;
 }
 
 
@@ -395,14 +433,18 @@ body {
 
 .choose-file-button {
     min-width: 280px;
+
     min-height: 72px;
 
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
-    padding: 16px 30px;
+    padding:
+        16px
+        30px;
 
     border-radius: 17px;
 
@@ -416,29 +458,18 @@ body {
     color: #ffffff;
 
     font-size: 20px;
+
     font-weight: 700;
 
     cursor: pointer;
-
-    box-shadow:
-        0 10px 25px
-        rgba(37, 99, 235, 0.22);
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
 }
 
-.choose-file-button:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 14px 30px
-        rgba(37, 99, 235, 0.30);
-}
 
 .file-limit {
-    margin: 18px 0 30px;
+    margin:
+        18px
+        0
+        30px;
 
     color: #9ca3af;
 
@@ -447,21 +478,25 @@ body {
 
 
 /* ========================================
-   MAIN CONVERT BUTTON
+   CONVERT BUTTON
 ======================================== */
 
 .convert-button {
     min-width: 320px;
+
     min-height: 90px;
 
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
     margin-top: 12px;
 
-    padding: 20px 40px;
+    padding:
+        20px
+        40px;
 
     border: none;
 
@@ -474,6 +509,7 @@ body {
     font-family: inherit;
 
     font-size: 22px;
+
     font-weight: 800;
 
     cursor: pointer;
@@ -481,574 +517,16 @@ body {
     box-shadow:
         0 12px 28px
         rgba(17, 24, 39, 0.18);
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease,
-        background 0.15s ease;
-}
-
-.convert-button:hover {
-    transform: translateY(-2px);
-
-    background: #202b43;
-
-    box-shadow:
-        0 16px 34px
-        rgba(17, 24, 39, 0.24);
 }
 
 
 /* ========================================
-   GOOGLE DRIVE BUTTON
-======================================== */
-
-.google-drive-button {
-    min-width: 320px;
-    min-height: 90px;
-
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    margin: 10px auto 20px;
-
-    padding: 20px 40px;
-
-    border: none;
-
-    border-radius: 20px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #22a447,
-            #5b4cf0
-        );
-
-    color: #ffffff;
-
-    font-family: inherit;
-
-    font-size: 22px;
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 10px 25px
-        rgba(34, 164, 71, 0.22);
-
-    transition:
-        transform 0.15s ease,
-        box-shadow 0.15s ease;
-}
-
-.google-drive-button:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 14px 30px
-        rgba(34, 164, 71, 0.30);
-}
-
-.google-drive-button:disabled {
-    cursor: not-allowed;
-
-    opacity: 0.65;
-}
-
-
-/* ========================================
-   GOOGLE CONVERSION
-======================================== */
-
-.google-convert-button {
-    display: flex;
-
-    margin: 25px auto 0;
-}
-
-.selected-google-file {
-    width: 100%;
-
-    max-width: 520px;
-
-    margin: 20px auto;
-
-    padding: 18px 22px;
-
-    background: #f0fdf4;
-
-    border: 1px solid #bbf7d0;
-
-    border-radius: 15px;
-
-    color: #374151;
-}
-
-.selected-google-file span {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: #6b7280;
-
-    font-size: 13px;
-}
-
-.selected-google-file strong {
-    display: block;
-
-    color: #15803d;
-
-    font-size: 17px;
-
-    overflow-wrap: anywhere;
-}
-
-
-/* ========================================
-   PROGRESS
-======================================== */
-
-.progress-container {
-    width: 100%;
-
-    max-width: 600px;
-
-    margin: 40px auto 0;
-
-    text-align: left;
-}
-
-.progress-top {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-
-    margin-bottom: 10px;
-}
-
-.progress-label {
-    color: #374151;
-
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.progress-status {
-    color: #6b7280;
-
-    font-size: 13px;
-}
-
-.progress-track {
-    width: 100%;
-    height: 12px;
-
-    overflow: hidden;
-
-    background: #e5e7eb;
-
-    border-radius: 999px;
-}
-
-.progress-bar {
-    width: 0%;
-    height: 100%;
-
-    background:
-        linear-gradient(
-            90deg,
-            #2563eb,
-            #5b4cf0
-        );
-
-    border-radius: 999px;
-
-    transition: width 0.3s ease;
-}
-
-.google-progress-bar {
-    background:
-        linear-gradient(
-            90deg,
-            #22a447,
-            #5b4cf0
-        ) !important;
-}
-
-.progress-note {
-    margin-top: 10px;
-
-    color: #9ca3af;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   STATUS
-======================================== */
-
-.status-message {
-    margin-top: 25px;
-
-    color: #374151;
-
-    font-size: 15px;
-
-    line-height: 1.5;
-}
-
-
-/* ========================================
-   SUCCESS
-======================================== */
-
-.success-area {
-    width: 100%;
-
-    padding: 70px 40px;
-
-    background: #ffffff;
-
-    border-radius: 35px;
-
-    box-shadow:
-        0 18px 45px
-        rgba(17, 24, 39, 0.08);
-
-    text-align: center;
-}
-
-.success-check {
-    width: 80px;
-    height: 80px;
-
-    margin: 0 auto 20px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: #dcfce7;
-
-    color: #16a34a;
-
-    font-size: 42px;
-    font-weight: 800;
-}
-
-.success-area h2 {
-    margin: 0 0 12px;
-
-    color: #111827;
-
-    font-size: 38px;
-}
-
-.success-description {
-    margin-bottom: 30px;
-
-    color: #6b7280;
-
-    font-size: 19px;
-}
-
-.converted-file {
-    max-width: 520px;
-
-    margin: 0 auto 30px;
-
-    padding: 18px 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    background: #f8fafc;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 15px;
-
-    text-align: left;
-}
-
-.converted-file-icon {
-    width: 44px;
-    height: 44px;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    background: #dcfce7;
-
-    color: #16a34a;
-
-    font-weight: 800;
-}
-
-.converted-file-info {
-    min-width: 0;
-}
-
-.converted-label {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: #6b7280;
-
-    font-size: 13px;
-}
-
-.converted-file-info strong {
-    display: block;
-
-    color: #111827;
-
-    overflow-wrap: anywhere;
-}
-
-
-/* ========================================
-   SUCCESS BUTTONS
-======================================== */
-
-.download-again-button,
-.convert-another-button {
-    min-width: 280px;
-
-    padding: 17px 28px;
-
-    border-radius: 16px;
-
-    font-family: inherit;
-
-    font-size: 17px;
-    font-weight: 700;
-
-    cursor: pointer;
-}
-
-.download-again-button {
-    border: none;
-
-    background: #172033;
-
-    color: #ffffff;
-}
-
-.convert-another-button {
-    margin-left: 10px;
-
-    border: 1px solid #d1d5db;
-
-    background: #ffffff;
-
-    color: #374151;
-}
-
-
-/* ========================================
-   FOOTER
-======================================== */
-
-.site-footer {
-    padding: 50px 20px;
-
-    background: #ffffff;
-
-    border-top: 1px solid #e5e7eb;
-
-    text-align: center;
-}
-
-.footer-container {
-    max-width: 1000px;
-
-    margin: 0 auto;
-}
-
-.footer-logo-image {
-    width: 260px;
-    max-width: 70%;
-
-    height: auto;
-}
-
-.footer-tagline {
-    margin: 15px 0 8px;
-
-    color: #6b7280;
-
-    font-size: 15px;
-}
-
-.footer-copyright {
-    margin: 0;
-
-    color: #9ca3af;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   HIDDEN
-======================================== */
-
-[hidden] {
-    display: none !important;
-}
-
-
-/* ========================================
-   MOBILE
-======================================== */
-
-@media (max-width: 768px) {
-
-    .header-banner {
-        min-height: 160px;
-    }
-
-    .site-logo-image {
-        width: min(620px, 92vw);
-    }
-
-    .hero {
-        padding:
-            45px
-            15px
-            70px;
-    }
-
-    .hero-description {
-        font-size: 18px;
-    }
-
-    .converter-tabs {
-        max-width: 600px;
-
-        flex-wrap: wrap;
-    }
-
-    .converter-tab {
-        flex: 1 1 45%;
-
-        font-size: 16px;
-    }
-
-    .upload-area {
-        min-height: 500px;
-
-        padding:
-            55px
-            25px;
-
-        border-radius: 28px;
-    }
-
-    .upload-area h2 {
-        font-size: 30px;
-    }
-
-    .upload-description {
-        font-size: 18px;
-    }
-
-}
-
-
-@media (max-width: 520px) {
-
-    .header-banner {
-        min-height: 125px;
-
-        padding:
-            15px
-            10px;
-    }
-
-    .site-logo-image {
-        width: 95vw;
-    }
-
-    .hero h1 {
-        font-size: 42px;
-
-        letter-spacing: -1px;
-    }
-
-    .converter-tabs {
-        flex-direction: column;
-    }
-
-    .converter-tab {
-        width: 100%;
-
-        flex: none;
-    }
-
-    .upload-area {
-        padding:
-            45px
-            18px;
-    }
-
-    .choose-file-button,
-    .google-drive-button,
-    .convert-button,
-    .download-again-button,
-    .convert-another-button {
-        width: 100%;
-
-        min-width: 0;
-
-        max-width: 320px;
-
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .google-drive-button,
-    .convert-button {
-        min-height: 78px;
-
-        font-size: 19px;
-    }
-
-    .download-again-button,
-    .convert-another-button {
-        display: block;
-
-        margin-top: 12px;
-    }
-
-   /* ========================================
-   GOOGLE CHOICE BUTTONS
+   GOOGLE BUTTONS
 ======================================== */
 
 .google-action-buttons {
+    width: 100%;
+
     display: flex;
 
     flex-direction: column;
@@ -1069,6 +547,8 @@ body {
     width: 100%;
 
     max-width: 395px;
+
+    min-width: 320px;
 
     min-height: 90px;
 
@@ -1102,8 +582,6 @@ body {
 }
 
 
-/* GOOGLE DRIVE */
-
 .google-drive-button {
     background:
         linear-gradient(
@@ -1117,8 +595,6 @@ body {
         rgba(34, 164, 71, 0.22);
 }
 
-
-/* UPLOAD COMPUTER */
 
 .google-upload-button {
     background:
@@ -1145,27 +621,391 @@ body {
 }
 
 
-.google-drive-button:disabled,
-.google-upload-button:disabled {
-    opacity: 0.6;
+/* ========================================
+   SELECTED GOOGLE FILE
+======================================== */
 
-    cursor: not-allowed;
+.selected-google-file {
+    width: 100%;
 
-    transform: none;
+    max-width: 520px;
+
+    margin:
+        20px
+        auto;
+
+    padding:
+        18px
+        22px;
+
+    background: #f0fdf4;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius: 15px;
+
+    color: #374151;
+}
+
+
+.selected-google-file span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+.selected-google-file strong {
+    display: block;
+
+    color: #15803d;
+
+    font-size: 17px;
+}
+
+
+/* ========================================
+   PROGRESS
+======================================== */
+
+.progress-container {
+    width: 100%;
+
+    max-width: 600px;
+
+    margin:
+        40px
+        auto
+        0;
+
+    text-align: left;
+}
+
+
+.progress-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 10px;
+}
+
+
+.progress-track {
+    width: 100%;
+
+    height: 12px;
+
+    overflow: hidden;
+
+    background: #e5e7eb;
+
+    border-radius: 999px;
+}
+
+
+.progress-bar {
+    width: 0%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #5b4cf0
+        );
+
+    border-radius: 999px;
+
+    transition:
+        width
+        0.3s
+        ease;
+}
+
+
+.google-progress-bar {
+    background:
+        linear-gradient(
+            90deg,
+            #22a447,
+            #5b4cf0
+        );
+}
+
+
+.progress-note {
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   STATUS
+======================================== */
+
+.status-message {
+    margin-top: 25px;
+
+    color: #374151;
+
+    font-size: 15px;
+}
+
+
+.status-message.success {
+    color: #15803d;
+}
+
+
+.status-message.error {
+    color: #dc2626;
+}
+
+
+/* ========================================
+   SUCCESS
+======================================== */
+
+.success-area {
+    width: 100%;
+
+    padding:
+        70px
+        40px;
+
+    background: #ffffff;
+
+    border-radius: 35px;
+
+    text-align: center;
+}
+
+
+.success-check {
+    width: 80px;
+
+    height: 80px;
+
+    margin:
+        0
+        auto
+        20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dcfce7;
+
+    color: #16a34a;
+
+    font-size: 42px;
+}
+
+
+.converted-file {
+    max-width: 520px;
+
+    margin:
+        0
+        auto
+        30px;
+
+    padding:
+        18px
+        20px;
+
+    display: flex;
+
+    gap: 15px;
+
+    background: #f8fafc;
+
+    border:
+        1px solid
+        #e5e7eb;
+
+    border-radius: 15px;
+
+    text-align: left;
+}
+
+
+.download-again-button,
+.convert-another-button {
+    min-width: 280px;
+
+    padding:
+        17px
+        28px;
+
+    border-radius: 16px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.download-again-button {
+    border: none;
+
+    background: #172033;
+
+    color: #ffffff;
+}
+
+
+.convert-another-button {
+    margin-left: 10px;
+
+    border:
+        1px solid
+        #d1d5db;
+
+    background: #ffffff;
+
+    color: #374151;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.site-footer {
+    padding:
+        50px
+        20px;
+
+    background: #ffffff;
+
+    text-align: center;
+}
+
+
+.footer-logo-image {
+    width: 260px;
+
+    max-width: 70%;
+
+    height: auto;
+}
+
+
+.footer-tagline {
+    color: #6b7280;
+}
+
+
+.footer-copyright {
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   HIDDEN
+======================================== */
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .converter-tabs {
+        flex-wrap: wrap;
+    }
+
+
+    .converter-tab {
+        flex:
+            1
+            1
+            45%;
+    }
+
+
+    .upload-area {
+        padding:
+            55px
+            25px;
+    }
+
 }
 
 
 @media (max-width: 520px) {
 
-    .google-drive-button,
-    .google-upload-button {
-        max-width: 320px;
-
-        min-height: 78px;
-
-        font-size: 18px;
+    .header-banner {
+        min-height: 125px;
     }
 
-}
+
+    .site-logo-image {
+        width: 95vw;
+    }
+
+
+    .converter-tabs {
+        flex-direction: column;
+    }
+
+
+    .converter-tab {
+        width: 100%;
+    }
+
+
+    .google-drive-button,
+    .google-upload-button,
+    .convert-button,
+    .choose-file-button {
+        width: 100%;
+
+        min-width: 0;
+
+        max-width: 320px;
+    }
+
+
+    .download-again-button,
+    .convert-another-button {
+        display: block;
+
+        width: 100%;
+
+        max-width: 320px;
+
+        margin:
+            12px
+            auto;
+    }
 
 }
