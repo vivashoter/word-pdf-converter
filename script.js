@@ -15,23 +15,6 @@ const GOOGLE_SCOPE =
     "https://www.googleapis.com/auth/drive.file";
 
 /* ========================================
-   GOOGLE CONFIGURATION
-======================================== */
-
-const GOOGLE_CLIENT_ID =
-    "PASTE_YOUR_CLIENT_ID_HERE";
-
-const GOOGLE_API_KEY =
-    "PASTE_YOUR_API_KEY_HERE";
-
-const GOOGLE_APP_ID =
-    "239816509439";
-
-const GOOGLE_SCOPE =
-    "https://www.googleapis.com/auth/drive.file";
-
-
-/* ========================================
    MIME TYPES
 ======================================== */
 
