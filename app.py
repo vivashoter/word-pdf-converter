@@ -45,6 +45,45 @@ def home():
         "index.html"
     )
 
+# ---------------------------------
+# INFORMATION PAGES
+# ---------------------------------
+
+@app.route("/privacy.html")
+def privacy():
+
+    return send_from_directory(
+        BASE_DIR,
+        "privacy.html"
+    )
+
+
+@app.route("/terms.html")
+def terms():
+
+    return send_from_directory(
+        BASE_DIR,
+        "terms.html"
+    )
+
+
+@app.route("/about.html")
+def about():
+
+    return send_from_directory(
+        BASE_DIR,
+        "about.html"
+    )
+
+
+@app.route("/contact.html")
+def contact():
+
+    return send_from_directory(
+        BASE_DIR,
+        "contact.html"
+    )
+
 
 # ---------------------------------
 # WEBSITE FILES
