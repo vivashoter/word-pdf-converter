@@ -26,7 +26,7 @@
 
     <link
         rel="stylesheet"
-        href="/style.css?v=23"
+        href="/style.css?v=24"
     >
 
 </head>
@@ -41,18 +41,18 @@
 
     <header class="site-header">
 
-        <div class="header-banner">
+        <div class="header-inner">
 
             <a
                 href="/"
-                class="logo"
+                class="header-logo-link"
                 aria-label="ConvertDocGoose Home"
             >
 
                 <img
                     src="/convertdocgoose-logo.png"
                     alt="ConvertDocGoose"
-                    class="site-logo-image"
+                    class="header-logo-image"
                 >
 
             </a>
@@ -92,7 +92,7 @@
 
 
                 <!-- ========================================
-                     CONVERTER TABS
+                     CONVERSION OPTIONS
                 ======================================== -->
 
                 <div
@@ -101,18 +101,30 @@
                 >
 
 
+                    <!-- WORD TO PDF -->
+
                     <button
                         id="wordToPdf"
                         class="converter-tab word-tab active"
                         type="button"
                     >
 
-                        <span class="tab-dot word-dot"></span>
+                        <span class="tab-icon word-icon">
+                            W
+                        </span>
 
-                        Word to PDF
+                        <span class="tab-label">
+                            Word to PDF
+                        </span>
+
+                        <span class="tab-arrow">
+                            →
+                        </span>
 
                     </button>
 
+
+                    <!-- PDF TO WORD -->
 
                     <button
                         id="pdfToWord"
@@ -120,35 +132,63 @@
                         type="button"
                     >
 
-                        <span class="tab-dot pdf-dot"></span>
+                        <span class="tab-icon pdf-icon">
+                            PDF
+                        </span>
 
-                        PDF to Word
+                        <span class="tab-label">
+                            PDF to Word
+                        </span>
+
+                        <span class="tab-arrow">
+                            →
+                        </span>
 
                     </button>
 
+
+                    <!-- GOOGLE DOC TO PDF -->
 
                     <button
                         id="googleToPdf"
-                        class="converter-tab google-tab"
+                        class="converter-tab google-pdf-tab"
                         type="button"
                     >
 
-                        <span class="tab-dot google-dot"></span>
+                        <span class="tab-icon google-icon">
+                            G
+                        </span>
 
-                        Google Doc to PDF
+                        <span class="tab-label">
+                            Google Doc to PDF
+                        </span>
+
+                        <span class="tab-arrow">
+                            →
+                        </span>
 
                     </button>
 
 
+                    <!-- GOOGLE DOC TO WORD -->
+
                     <button
                         id="googleToWord"
-                        class="converter-tab google-tab"
+                        class="converter-tab google-word-tab"
                         type="button"
                     >
 
-                        <span class="tab-dot google-dot"></span>
+                        <span class="tab-icon google-word-icon">
+                            W
+                        </span>
 
-                        Google Doc to Word
+                        <span class="tab-label">
+                            Google Doc to Word
+                        </span>
+
+                        <span class="tab-arrow">
+                            →
+                        </span>
 
                     </button>
 
@@ -302,6 +342,14 @@
                 >
 
 
+                    <div
+                        class="upload-icon google-upload-main-icon"
+                        aria-hidden="true"
+                    >
+                        G
+                    </div>
+
+
                     <h2 id="googleTitle">
                         Google Doc to PDF
                     </h2>
@@ -339,8 +387,6 @@
 
                     </div>
 
-
-                    <!-- REAL LOCAL COMPUTER INPUT -->
 
                     <input
                         id="googleComputerFileInput"
@@ -531,52 +577,57 @@
 
     <footer class="site-footer">
 
-        <div class="footer-container">
+        <div class="footer-inner">
 
 
-            <img
-                src="/convertdocgoose-logo.png"
-                alt=""
-                class="footer-logo-image"
-                aria-hidden="true"
-            >
+            <div class="footer-left">
+
+                <img
+                    src="/convertdocgoose-logo.png"
+                    alt="ConvertDocGoose"
+                    class="footer-logo-image"
+                >
 
 
-            <p class="footer-tagline">
-                Simple document conversion.
-            </p>
+                <p class="footer-tagline">
+                    Simple document conversion.
+                </p>
 
 
-            <!-- NEW FOOTER LINKS -->
+                <nav
+                    class="footer-links"
+                    aria-label="Footer navigation"
+                >
 
-            <nav
-                class="footer-links"
-                aria-label="Footer navigation"
-            >
+                    <a href="/privacy.html">
+                        Privacy Policy
+                    </a>
 
-                <a href="/privacy.html">
-                    Privacy Policy
-                </a>
+                    <a href="/terms.html">
+                        Terms of Service
+                    </a>
 
-                <a href="/terms.html">
-                    Terms of Service
-                </a>
+                    <a href="/about.html">
+                        About
+                    </a>
 
-                <a href="/about.html">
-                    About
-                </a>
+                    <a href="/contact.html">
+                        Contact
+                    </a>
 
-                <a href="/contact.html">
-                    Contact
-                </a>
+                </nav>
 
-            </nav>
+            </div>
 
 
-            <p class="footer-copyright">
-                © 2026 ConvertDocGoose.
-                All rights reserved.
-            </p>
+            <div class="footer-right">
+
+                <p class="footer-copyright">
+                    © 2026 ConvertDocGoose.
+                    All rights reserved.
+                </p>
+
+            </div>
 
 
         </div>
@@ -588,20 +639,14 @@
          JAVASCRIPT
     ======================================== -->
 
-    <!-- OUR SCRIPT FIRST -->
-
     <script src="/script.js?v=22"></script>
 
-
-    <!-- GOOGLE PICKER -->
 
     <script
         src="https://apis.google.com/js/api.js"
         onload="onGoogleApiLoad()"
     ></script>
 
-
-    <!-- GOOGLE IDENTITY -->
 
     <script
         src="https://accounts.google.com/gsi/client"
