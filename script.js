@@ -2070,31 +2070,24 @@ convertAnotherButton.addEventListener(
    UTILITIES
 ======================================== */
 
-function removeExtension(
-    filename
-) {
+/* ========================================
+   UTILITIES
+======================================== */
 
+function removeExtension(filename) {
     return filename.replace(
         /\.[^/.]+$/,
         ""
     );
-
 }
 
 
-function delay(
-    milliseconds
-) {
-
+function delay(milliseconds) {
     return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
+        resolve => setTimeout(resolve, milliseconds)
     );
-
 }
+
 
 
 /* ========================================
