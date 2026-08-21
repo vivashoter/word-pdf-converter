@@ -7,44 +7,46 @@ from flask import (
 )
 
 from pdf2docx import Converter
+
+from docx import Document
+from docx.shared import Pt
+from docx.enum.section import WD_SECTION
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
 from werkzeug.utils import secure_filename
 
 import fitz
 import os
+import re
 import subprocess
 import tempfile
 
 
-# ---------------------------------
-# BASE DIRECTORY
-# ---------------------------------
+# =========================================
+# BASIC CONFIG
+# =========================================
 
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
 
-
-# ---------------------------------
-# APP
-# ---------------------------------
-
 app = Flask(__name__)
 
-
-# ---------------------------------
-# FILE SIZE LIMIT
-# ---------------------------------
-
-MAX_FILE_SIZE = 25 * 1024 * 1024
-
-app.config["MAX_CONTENT_LENGTH"] = (
-    MAX_FILE_SIZE
+MAX_FILE_SIZE = (
+    25 *
+    1024 *
+    1024
 )
 
+app.config[
+    "MAX_CONTENT_LENGTH"
+] = MAX_FILE_SIZE
 
-# ---------------------------------
-# HOME PAGE
-# ---------------------------------
+
+# =========================================
+# WEBSITE ROUTES
+# =========================================
 
 @app.route("/")
 def home():
@@ -54,10 +56,6 @@ def home():
         "index.html"
     )
 
-
-# ---------------------------------
-# INFORMATION PAGES
-# ---------------------------------
 
 @app.route("/privacy.html")
 def privacy():
@@ -95,10 +93,6 @@ def contact():
     )
 
 
-# ---------------------------------
-# WEBSITE FILES
-# ---------------------------------
-
 @app.route("/style.css")
 def styles():
 
@@ -117,11 +111,9 @@ def scripts():
     )
 
 
-# ---------------------------------
-# LOGO
-# ---------------------------------
-
-@app.route("/convertdocgoose-logo.png")
+@app.route(
+    "/convertdocgoose-logo.png"
+)
 def logo():
 
     return send_from_directory(
@@ -129,10 +121,6 @@ def logo():
         "convertdocgoose-logo.png"
     )
 
-
-# ---------------------------------
-# FAVICON
-# ---------------------------------
 
 @app.route("/favicon.png")
 def favicon():
@@ -143,9 +131,9 @@ def favicon():
     )
 
 
-# ---------------------------------
+# =========================================
 # FILE TOO LARGE
-# ---------------------------------
+# =========================================
 
 @app.errorhandler(413)
 def file_too_large(error):
@@ -156,9 +144,9 @@ def file_too_large(error):
     }), 413
 
 
-# =================================
+# =========================================
 # WORD TO PDF
-# =================================
+# =========================================
 
 @app.route(
     "/convert/word-to-pdf",
@@ -174,7 +162,9 @@ def word_to_pdf():
         }), 400
 
 
-    uploaded_file = request.files["file"]
+    uploaded_file = (
+        request.files["file"]
+    )
 
 
     if uploaded_file.filename == "":
@@ -191,7 +181,10 @@ def word_to_pdf():
 
 
     if not filename.lower().endswith(
-        (".doc", ".docx")
+        (
+            ".doc",
+            ".docx"
+        )
     ):
 
         return jsonify({
@@ -206,7 +199,6 @@ def word_to_pdf():
             temp_dir,
             filename
         )
-
 
         uploaded_file.save(
             input_path
@@ -225,9 +217,13 @@ def word_to_pdf():
                     temp_dir,
                     input_path
                 ],
+
                 check=True,
+
                 timeout=120,
+
                 capture_output=True,
+
                 text=True
             )
 
@@ -235,7 +231,7 @@ def word_to_pdf():
             if result.stdout:
 
                 print(
-                    "LibreOffice output:",
+                    "LibreOffice:",
                     result.stdout
                 )
 
@@ -252,17 +248,16 @@ def word_to_pdf():
 
             return jsonify({
                 "error":
-                "The conversion took too long. Please try again."
+                "The conversion took too long."
             }), 504
 
 
         except subprocess.CalledProcessError as error:
 
             print(
-                "LibreOffice conversion error:",
+                "LibreOffice error:",
                 error.stderr
             )
-
 
             return jsonify({
                 "error":
@@ -277,7 +272,6 @@ def word_to_pdf():
                 error
             )
 
-
             return jsonify({
                 "error":
                 "The Word document could not be converted."
@@ -288,7 +282,8 @@ def word_to_pdf():
             os.path.splitext(
                 filename
             )[0]
-            + ".pdf"
+            +
+            ".pdf"
         )
 
 
@@ -320,27 +315,26 @@ def word_to_pdf():
 
         return send_file(
             output_path,
+
             as_attachment=True,
-            download_name=output_name,
-            mimetype="application/pdf"
+
+            download_name=(
+                output_name
+            ),
+
+            mimetype=(
+                "application/pdf"
+            )
         )
 
 
-# =================================
-# PDF ANALYSIS
-# =================================
+# =========================================
+# PDF TEXT CHECK
+# =========================================
 
-def pdf_needs_ocr(
+def pdf_has_real_text(
     input_path
 ):
-
-    """
-    Decide whether a PDF is primarily scanned/image-based.
-
-    Digital PDFs already containing usable text should NOT
-    be OCRed because OCR can damage the original positioning
-    and make PDF-to-DOCX layout reconstruction worse.
-    """
 
     document = None
 
@@ -362,49 +356,42 @@ def pdf_needs_ocr(
         pages_with_text = 0
 
 
-        for page_number in range(
-            document.page_count
-        ):
-
-            page = document.load_page(
-                page_number
-            )
-
+        for page in document:
 
             text = page.get_text(
                 "text"
             ).strip()
 
 
-            character_count = len(
+            count = len(
                 text
             )
 
 
             total_characters += (
-                character_count
+                count
             )
 
 
-            if character_count >= 20:
+            if count >= 30:
 
                 pages_with_text += 1
 
 
-        average_characters = (
+        average = (
             total_characters /
             document.page_count
         )
 
 
-        text_page_ratio = (
+        ratio = (
             pages_with_text /
             document.page_count
         )
 
 
         print(
-            "PDF text analysis:",
+            "PDF analysis:",
             {
                 "pages":
                     document.page_count,
@@ -412,47 +399,35 @@ def pdf_needs_ocr(
                 "characters":
                     total_characters,
 
-                "average_characters":
+                "average":
                     round(
-                        average_characters,
+                        average,
                         2
                     ),
 
                 "text_page_ratio":
                     round(
-                        text_page_ratio,
+                        ratio,
                         2
                     )
             }
         )
 
 
-        # If most pages contain real text,
-        # preserve the original PDF.
-        if (
-            average_characters >= 50
+        return (
+            average >= 40
             or
-            text_page_ratio >= 0.50
-        ):
-
-            return False
-
-
-        # Very little extracted text means
-        # this is probably scanned.
-        return True
+            ratio >= 0.50
+        )
 
 
     except Exception as error:
 
         print(
-            "PDF text analysis error:",
+            "PDF analysis error:",
             error
         )
 
-
-        # Safest fallback:
-        # do NOT modify the original PDF.
         return False
 
 
@@ -463,9 +438,9 @@ def pdf_needs_ocr(
             document.close()
 
 
-# =================================
-# OCR PDF
-# =================================
+# =========================================
+# OCR
+# =========================================
 
 def create_ocr_pdf(
     input_path,
@@ -498,9 +473,13 @@ def create_ocr_pdf(
 
     result = subprocess.run(
         command,
+
         check=True,
+
         timeout=150,
+
         capture_output=True,
+
         text=True
     )
 
@@ -508,7 +487,7 @@ def create_ocr_pdf(
     if result.stdout:
 
         print(
-            "OCRmyPDF output:",
+            "OCRmyPDF:",
             result.stdout
         )
 
@@ -516,7 +495,7 @@ def create_ocr_pdf(
     if result.stderr:
 
         print(
-            "OCRmyPDF warnings:",
+            "OCR warnings:",
             result.stderr
         )
 
@@ -532,10 +511,973 @@ def create_ocr_pdf(
     )
 
 
-# =================================
-# PDF TO WORD
-# EDITABLE MODE
-# =================================
+# =========================================
+# FONT HELPERS
+# =========================================
+
+def clean_font_name(
+    name
+):
+
+    if not name:
+
+        return "Arial"
+
+
+    # Remove embedded PDF subset prefix,
+    # for example ABCDEF+Arial
+    name = re.sub(
+        r"^[A-Z]{6}\+",
+        "",
+        name
+    )
+
+
+    replacements = {
+        "Helvetica":
+            "Arial",
+
+        "Helvetica-Bold":
+            "Arial",
+
+        "Times-Roman":
+            "Times New Roman",
+
+        "Times-Bold":
+            "Times New Roman",
+
+        "Times-Italic":
+            "Times New Roman",
+
+        "Courier":
+            "Courier New"
+    }
+
+
+    return replacements.get(
+        name,
+        name
+    )
+
+
+def pdf_color_to_hex(
+    color_value
+):
+
+    try:
+
+        value = int(
+            color_value
+        )
+
+
+        red = (
+            value >>
+            16
+        ) & 255
+
+
+        green = (
+            value >>
+            8
+        ) & 255
+
+
+        blue = (
+            value
+        ) & 255
+
+
+        return (
+            f"{red:02X}"
+            f"{green:02X}"
+            f"{blue:02X}"
+        )
+
+
+    except Exception:
+
+        return "000000"
+
+
+# =========================================
+# EDITABLE WORD TEXTBOX
+# =========================================
+
+def add_editable_textbox(
+    paragraph,
+    text,
+    x,
+    y,
+    width,
+    height,
+    font_name,
+    font_size,
+    color,
+    bold=False,
+    italic=False
+):
+
+    if not text:
+
+        return
+
+
+    # Give text a little extra room.
+    # This reduces unwanted Word wrapping.
+
+    width = max(
+        width + 3,
+        4
+    )
+
+
+    height = max(
+        height + 2,
+        font_size * 1.2
+    )
+
+
+    pict = OxmlElement(
+        "w:pict"
+    )
+
+
+    shape = OxmlElement(
+        "v:rect"
+    )
+
+
+    shape.set(
+        "style",
+
+        (
+            "position:absolute;"
+            f"margin-left:{x}pt;"
+            f"margin-top:{y}pt;"
+            f"width:{width}pt;"
+            f"height:{height}pt;"
+            "z-index:10;"
+            "mso-position-horizontal-relative:page;"
+            "mso-position-vertical-relative:page;"
+            "mso-wrap-style:none;"
+        )
+    )
+
+
+    shape.set(
+        "stroked",
+        "f"
+    )
+
+
+    shape.set(
+        "filled",
+        "f"
+    )
+
+
+    textbox = OxmlElement(
+        "v:textbox"
+    )
+
+
+    textbox.set(
+        "inset",
+        "0,0,0,0"
+    )
+
+
+    text_content = OxmlElement(
+        "w:txbxContent"
+    )
+
+
+    word_paragraph = OxmlElement(
+        "w:p"
+    )
+
+
+    paragraph_properties = (
+        OxmlElement(
+            "w:pPr"
+        )
+    )
+
+
+    spacing = OxmlElement(
+        "w:spacing"
+    )
+
+
+    spacing.set(
+        qn("w:before"),
+        "0"
+    )
+
+
+    spacing.set(
+        qn("w:after"),
+        "0"
+    )
+
+
+    spacing.set(
+        qn("w:line"),
+        "200"
+    )
+
+
+    spacing.set(
+        qn("w:lineRule"),
+        "auto"
+    )
+
+
+    paragraph_properties.append(
+        spacing
+    )
+
+
+    word_paragraph.append(
+        paragraph_properties
+    )
+
+
+    run = OxmlElement(
+        "w:r"
+    )
+
+
+    run_properties = (
+        OxmlElement(
+            "w:rPr"
+        )
+    )
+
+
+    fonts = OxmlElement(
+        "w:rFonts"
+    )
+
+
+    fonts.set(
+        qn("w:ascii"),
+        font_name
+    )
+
+
+    fonts.set(
+        qn("w:hAnsi"),
+        font_name
+    )
+
+
+    fonts.set(
+        qn("w:eastAsia"),
+        font_name
+    )
+
+
+    run_properties.append(
+        fonts
+    )
+
+
+    size = OxmlElement(
+        "w:sz"
+    )
+
+
+    size.set(
+        qn("w:val"),
+        str(
+            max(
+                2,
+                round(
+                    font_size *
+                    2
+                )
+            )
+        )
+    )
+
+
+    run_properties.append(
+        size
+    )
+
+
+    color_element = (
+        OxmlElement(
+            "w:color"
+        )
+    )
+
+
+    color_element.set(
+        qn("w:val"),
+        color
+    )
+
+
+    run_properties.append(
+        color_element
+    )
+
+
+    if bold:
+
+        run_properties.append(
+            OxmlElement(
+                "w:b"
+            )
+        )
+
+
+    if italic:
+
+        run_properties.append(
+            OxmlElement(
+                "w:i"
+            )
+        )
+
+
+    run.append(
+        run_properties
+    )
+
+
+    text_element = OxmlElement(
+        "w:t"
+    )
+
+
+    text_element.set(
+        qn("xml:space"),
+        "preserve"
+    )
+
+
+    text_element.text = text
+
+
+    run.append(
+        text_element
+    )
+
+
+    word_paragraph.append(
+        run
+    )
+
+
+    text_content.append(
+        word_paragraph
+    )
+
+
+    textbox.append(
+        text_content
+    )
+
+
+    shape.append(
+        textbox
+    )
+
+
+    pict.append(
+        shape
+    )
+
+
+    paragraph._p.append(
+        pict
+    )
+
+
+# =========================================
+# CREATE TEXT-FREE PDF BACKGROUND
+# =========================================
+
+def create_background_pdf(
+    input_path,
+    background_path
+):
+
+    source = fitz.open(
+        input_path
+    )
+
+
+    # Save a working copy.
+    source.save(
+        background_path
+    )
+
+    source.close()
+
+
+    background = fitz.open(
+        background_path
+    )
+
+
+    for page in background:
+
+        text_data = page.get_text(
+            "dict"
+        )
+
+
+        found_text = False
+
+
+        for block in text_data[
+            "blocks"
+        ]:
+
+            if block.get(
+                "type"
+            ) != 0:
+
+                continue
+
+
+            for line in block.get(
+                "lines",
+                []
+            ):
+
+                for span in line.get(
+                    "spans",
+                    []
+                ):
+
+                    text = span.get(
+                        "text",
+                        ""
+                    )
+
+
+                    if not text.strip():
+
+                        continue
+
+
+                    bbox = span.get(
+                        "bbox"
+                    )
+
+
+                    if not bbox:
+
+                        continue
+
+
+                    rectangle = fitz.Rect(
+                        bbox
+                    )
+
+
+                    # Slightly shrink vertically
+                    # so nearby form lines stay visible.
+
+                    inset = min(
+                        0.5,
+                        rectangle.height *
+                        0.05
+                    )
+
+
+                    rectangle.y0 += (
+                        inset
+                    )
+
+                    rectangle.y1 -= (
+                        inset
+                    )
+
+
+                    page.add_redact_annot(
+                        rectangle,
+
+                        fill=(
+                            1,
+                            1,
+                            1
+                        ),
+
+                        cross_out=False
+                    )
+
+
+                    found_text = True
+
+
+        if found_text:
+
+            # Remove text only.
+            # Keep graphics and images.
+            page.apply_redactions(
+                images=0,
+                graphics=0,
+                text=0
+            )
+
+
+    temp_output = (
+        background_path +
+        ".clean.pdf"
+    )
+
+
+    background.save(
+        temp_output,
+
+        garbage=4,
+
+        deflate=True
+    )
+
+
+    background.close()
+
+
+    os.replace(
+        temp_output,
+        background_path
+    )
+
+
+# =========================================
+# HIGH-FIDELITY EDITABLE PDF TO WORD
+# =========================================
+
+def convert_positioned_pdf_to_docx(
+    input_path,
+    output_path,
+    temp_dir
+):
+
+    source = fitz.open(
+        input_path
+    )
+
+
+    background_pdf_path = (
+        os.path.join(
+            temp_dir,
+            "background.pdf"
+        )
+    )
+
+
+    create_background_pdf(
+        input_path,
+        background_pdf_path
+    )
+
+
+    backgrounds = fitz.open(
+        background_pdf_path
+    )
+
+
+    word = Document()
+
+
+    # Use existing first paragraph.
+    paragraph = (
+        word.paragraphs[0]
+    )
+
+
+    paragraph.paragraph_format.space_before = (
+        Pt(0)
+    )
+
+    paragraph.paragraph_format.space_after = (
+        Pt(0)
+    )
+
+
+    for page_number in range(
+        source.page_count
+    ):
+
+        source_page = (
+            source.load_page(
+                page_number
+            )
+        )
+
+
+        background_page = (
+            backgrounds.load_page(
+                page_number
+            )
+        )
+
+
+        page_width = (
+            source_page.rect.width
+        )
+
+
+        page_height = (
+            source_page.rect.height
+        )
+
+
+        # ---------------------------------
+        # PAGE SECTION
+        # ---------------------------------
+
+        if page_number > 0:
+
+            word.add_section(
+                WD_SECTION.NEW_PAGE
+            )
+
+
+            paragraph = (
+                word.add_paragraph()
+            )
+
+
+            paragraph.paragraph_format.space_before = (
+                Pt(0)
+            )
+
+            paragraph.paragraph_format.space_after = (
+                Pt(0)
+            )
+
+
+        section = (
+            word.sections[-1]
+        )
+
+
+        section.page_width = (
+            Pt(
+                page_width
+            )
+        )
+
+
+        section.page_height = (
+            Pt(
+                page_height
+            )
+        )
+
+
+        section.top_margin = Pt(0)
+        section.bottom_margin = Pt(0)
+
+        section.left_margin = Pt(0)
+        section.right_margin = Pt(0)
+
+        section.header_distance = Pt(0)
+        section.footer_distance = Pt(0)
+
+
+        # ---------------------------------
+        # RENDER TEXT-FREE BACKGROUND
+        # ---------------------------------
+
+        image_path = os.path.join(
+            temp_dir,
+            (
+                f"page_"
+                f"{page_number + 1}.png"
+            )
+        )
+
+
+        pixmap = (
+            background_page.get_pixmap(
+                matrix=fitz.Matrix(
+                    2,
+                    2
+                ),
+
+                alpha=False
+            )
+        )
+
+
+        pixmap.save(
+            image_path
+        )
+
+
+        run = paragraph.add_run()
+
+
+        # Leave a tiny amount of room
+        # for Word's paragraph mark.
+
+        run.add_picture(
+            image_path,
+
+            width=Pt(
+                page_width
+            ),
+
+            height=Pt(
+                max(
+                    1,
+                    page_height -
+                    1
+                )
+            )
+        )
+
+
+        # ---------------------------------
+        # EXTRACT ORIGINAL EDITABLE TEXT
+        # ---------------------------------
+
+        page_data = source_page.get_text(
+            "dict"
+        )
+
+
+        for block in page_data[
+            "blocks"
+        ]:
+
+            if block.get(
+                "type"
+            ) != 0:
+
+                continue
+
+
+            for line in block.get(
+                "lines",
+                []
+            ):
+
+                for span in line.get(
+                    "spans",
+                    []
+                ):
+
+                    text = span.get(
+                        "text",
+                        ""
+                    )
+
+
+                    if not text:
+
+                        continue
+
+
+                    bbox = span.get(
+                        "bbox"
+                    )
+
+
+                    if not bbox:
+
+                        continue
+
+
+                    x0 = bbox[0]
+
+                    y0 = bbox[1]
+
+                    x1 = bbox[2]
+
+                    y1 = bbox[3]
+
+
+                    width = (
+                        x1 -
+                        x0
+                    )
+
+
+                    height = (
+                        y1 -
+                        y0
+                    )
+
+
+                    size = float(
+                        span.get(
+                            "size",
+                            10
+                        )
+                    )
+
+
+                    raw_font = span.get(
+                        "font",
+                        "Arial"
+                    )
+
+
+                    font_name = (
+                        clean_font_name(
+                            raw_font
+                        )
+                    )
+
+
+                    font_lower = (
+                        raw_font.lower()
+                    )
+
+
+                    bold = (
+                        "bold"
+                        in
+                        font_lower
+                    )
+
+
+                    italic = (
+                        "italic"
+                        in
+                        font_lower
+                        or
+                        "oblique"
+                        in
+                        font_lower
+                    )
+
+
+                    color = (
+                        pdf_color_to_hex(
+                            span.get(
+                                "color",
+                                0
+                            )
+                        )
+                    )
+
+
+                    # Word's text baseline differs
+                    # slightly from PDF positioning.
+
+                    y_position = max(
+                        0,
+                        y0 -
+                        0.5
+                    )
+
+
+                    add_editable_textbox(
+                        paragraph=paragraph,
+
+                        text=text,
+
+                        x=x0,
+
+                        y=y_position,
+
+                        width=width,
+
+                        height=height,
+
+                        font_name=font_name,
+
+                        font_size=size,
+
+                        color=color,
+
+                        bold=bold,
+
+                        italic=italic
+                    )
+
+
+    source.close()
+
+    backgrounds.close()
+
+
+    word.save(
+        output_path
+    )
+
+
+# =========================================
+# SCANNED PDF FALLBACK
+# =========================================
+
+def convert_scanned_pdf_to_docx(
+    input_path,
+    output_path,
+    temp_dir
+):
+
+    ocr_path = os.path.join(
+        temp_dir,
+        "ocr.pdf"
+    )
+
+
+    pdf_to_convert = (
+        input_path
+    )
+
+
+    try:
+
+        if create_ocr_pdf(
+            input_path,
+            ocr_path
+        ):
+
+            pdf_to_convert = (
+                ocr_path
+            )
+
+
+    except Exception as error:
+
+        print(
+            "OCR fallback error:",
+            error
+        )
+
+
+    converter = None
+
+
+    try:
+
+        converter = Converter(
+            pdf_to_convert
+        )
+
+
+        converter.convert(
+            output_path,
+            start=0,
+            end=None
+        )
+
+
+    finally:
+
+        if converter is not None:
+
+            converter.close()
+
+
+# =========================================
+# PDF TO WORD ROUTE
+# =========================================
 
 @app.route(
     "/convert/pdf-to-word",
@@ -551,7 +1493,9 @@ def pdf_to_word():
         }), 400
 
 
-    uploaded_file = request.files["file"]
+    uploaded_file = (
+        request.files["file"]
+    )
 
 
     if uploaded_file.filename == "":
@@ -590,14 +1534,16 @@ def pdf_to_word():
         )
 
 
-        base_name = os.path.splitext(
-            filename
-        )[0]
+        base_name = (
+            os.path.splitext(
+                filename
+            )[0]
+        )
 
 
         output_name = (
-            base_name
-            + ".docx"
+            base_name +
+            ".docx"
         )
 
 
@@ -607,153 +1553,54 @@ def pdf_to_word():
         )
 
 
-        ocr_pdf_path = os.path.join(
-            temp_dir,
-            base_name
-            + "_ocr.pdf"
-        )
-
-
-        pdf_for_conversion = (
-            input_path
-        )
-
-
-        # ---------------------------------
-        # DETECT WHETHER OCR IS NEEDED
-        # ---------------------------------
-
         try:
 
-            needs_ocr = pdf_needs_ocr(
+            if pdf_has_real_text(
                 input_path
-            )
+            ):
+
+                print(
+                    "Digital PDF detected."
+                )
+
+                print(
+                    "Using positioned editable "
+                    "layout conversion."
+                )
 
 
-        except Exception as error:
-
-            print(
-                "OCR detection error:",
-                error
-            )
-
-            needs_ocr = False
-
-
-        # ---------------------------------
-        # OCR ONLY SCANNED PDFs
-        # ---------------------------------
-
-        if needs_ocr:
-
-            print(
-                "Scanned PDF detected. "
-                "Running OCR before Word conversion."
-            )
-
-
-            try:
-
-                ocr_success = create_ocr_pdf(
+                convert_positioned_pdf_to_docx(
                     input_path,
-                    ocr_pdf_path
+                    output_path,
+                    temp_dir
                 )
 
 
-                if ocr_success:
-
-                    pdf_for_conversion = (
-                        ocr_pdf_path
-                    )
-
-
-                    print(
-                        "OCR-enhanced PDF will be used."
-                    )
-
-
-                else:
-
-                    print(
-                        "OCR did not create a usable PDF. "
-                        "Using original PDF."
-                    )
-
-
-            except subprocess.TimeoutExpired:
+            else:
 
                 print(
-                    "OCR timed out. "
-                    "Using original PDF."
+                    "Scanned PDF detected."
                 )
-
-
-            except subprocess.CalledProcessError as error:
 
                 print(
-                    "OCRmyPDF could not process this PDF."
+                    "Using OCR fallback."
                 )
 
 
-                if error.stderr:
-
-                    print(
-                        error.stderr
-                    )
-
-
-                print(
-                    "Using original PDF."
+                convert_scanned_pdf_to_docx(
+                    input_path,
+                    output_path,
+                    temp_dir
                 )
-
-
-            except Exception as error:
-
-                print(
-                    "OCR error:",
-                    error
-                )
-
-
-                print(
-                    "Using original PDF."
-                )
-
-
-        else:
-
-            print(
-                "Digital/selectable-text PDF detected. "
-                "Skipping OCR to preserve layout."
-            )
-
-
-        # ---------------------------------
-        # PDF TO DOCX
-        # ---------------------------------
-
-        converter = None
-
-
-        try:
-
-            converter = Converter(
-                pdf_for_conversion
-            )
-
-
-            converter.convert(
-                output_path,
-                start=0,
-                end=None
-            )
 
 
         except Exception as error:
 
             print(
                 "PDF to Word error:",
-                error
+                repr(
+                    error
+                )
             )
 
 
@@ -762,26 +1609,6 @@ def pdf_to_word():
                 "The PDF could not be converted to Word."
             }), 500
 
-
-        finally:
-
-            if converter is not None:
-
-                try:
-
-                    converter.close()
-
-                except Exception as error:
-
-                    print(
-                        "Converter close warning:",
-                        error
-                    )
-
-
-        # ---------------------------------
-        # VERIFY OUTPUT
-        # ---------------------------------
 
         if not os.path.exists(
             output_path
@@ -804,15 +1631,20 @@ def pdf_to_word():
 
 
         print(
-            "PDF to Word conversion complete:",
+            "Created:",
             output_name
         )
 
 
         return send_file(
             output_path,
+
             as_attachment=True,
-            download_name=output_name,
+
+            download_name=(
+                output_name
+            ),
+
             mimetype=(
                 "application/vnd."
                 "openxmlformats-officedocument."
@@ -821,9 +1653,9 @@ def pdf_to_word():
         )
 
 
-# =================================
+# =========================================
 # START SERVER
-# =================================
+# =========================================
 
 if __name__ == "__main__":
 
