@@ -4,3 +4,4 @@ pdf2docx
 ocrmypdf==17.8.1
 PyMuPDF
 python-docx
+pikepdf
