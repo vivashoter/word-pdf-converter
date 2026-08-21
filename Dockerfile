@@ -9,6 +9,7 @@ RUN apt-get update && \
         qpdf \
         fonts-liberation \
         poppler-utils \
+        git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,10 +19,9 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install ExactDoc directly from its official repository
 RUN pip install --no-cache-dir \
-    "https://github.com/longligooo/pdf-to-editable-word-skill/releases/download/v0.1.0/pdf_to_editable_word-0.1.0-py3-none-any.whl"
-
-RUN pdf2word doctor
+    "git+https://github.com/ebt55/exactdoc.git"
 
 COPY . .
 
