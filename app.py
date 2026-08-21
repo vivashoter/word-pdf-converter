@@ -9,15 +9,24 @@ from flask import (
 from pdf2docx import Converter
 from werkzeug.utils import secure_filename
 
+import fitz
 import os
 import subprocess
 import tempfile
 
 
+# ---------------------------------
+# BASE DIRECTORY
+# ---------------------------------
+
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
 
+
+# ---------------------------------
+# APP
+# ---------------------------------
 
 app = Flask(__name__)
 
@@ -44,6 +53,7 @@ def home():
         BASE_DIR,
         "index.html"
     )
+
 
 # ---------------------------------
 # INFORMATION PAGES
@@ -121,6 +131,19 @@ def logo():
 
 
 # ---------------------------------
+# FAVICON
+# ---------------------------------
+
+@app.route("/favicon.png")
+def favicon():
+
+    return send_from_directory(
+        BASE_DIR,
+        "favicon.png"
+    )
+
+
+# ---------------------------------
 # FILE TOO LARGE
 # ---------------------------------
 
@@ -133,9 +156,9 @@ def file_too_large(error):
     }), 413
 
 
-# ---------------------------------
+# =================================
 # WORD TO PDF
-# ---------------------------------
+# =================================
 
 @app.route(
     "/convert/word-to-pdf",
@@ -209,10 +232,12 @@ def word_to_pdf():
             )
 
 
-            print(
-                "LibreOffice output:",
-                result.stdout
-            )
+            if result.stdout:
+
+                print(
+                    "LibreOffice output:",
+                    result.stdout
+                )
 
 
             if result.stderr:
@@ -283,6 +308,16 @@ def word_to_pdf():
             }), 500
 
 
+        if os.path.getsize(
+            output_path
+        ) == 0:
+
+            return jsonify({
+                "error":
+                "The PDF was created but was empty."
+            }), 500
+
+
         return send_file(
             output_path,
             as_attachment=True,
@@ -291,9 +326,146 @@ def word_to_pdf():
         )
 
 
-# ---------------------------------
+# =================================
+# PDF ANALYSIS
+# =================================
+
+def pdf_needs_ocr(
+    input_path
+):
+
+    """
+    Decide whether a PDF is primarily scanned/image-based.
+
+    Digital PDFs already containing usable text should NOT
+    be OCRed because OCR can damage the original positioning
+    and make PDF-to-DOCX layout reconstruction worse.
+    """
+
+    document = None
+
+
+    try:
+
+        document = fitz.open(
+            input_path
+        )
+
+
+        if document.page_count == 0:
+
+            return False
+
+
+        total_characters = 0
+
+        pages_with_text = 0
+
+
+        for page_number in range(
+            document.page_count
+        ):
+
+            page = document.load_page(
+                page_number
+            )
+
+
+            text = page.get_text(
+                "text"
+            ).strip()
+
+
+            character_count = len(
+                text
+            )
+
+
+            total_characters += (
+                character_count
+            )
+
+
+            if character_count >= 20:
+
+                pages_with_text += 1
+
+
+        average_characters = (
+            total_characters /
+            document.page_count
+        )
+
+
+        text_page_ratio = (
+            pages_with_text /
+            document.page_count
+        )
+
+
+        print(
+            "PDF text analysis:",
+            {
+                "pages":
+                    document.page_count,
+
+                "characters":
+                    total_characters,
+
+                "average_characters":
+                    round(
+                        average_characters,
+                        2
+                    ),
+
+                "text_page_ratio":
+                    round(
+                        text_page_ratio,
+                        2
+                    )
+            }
+        )
+
+
+        # If most pages contain real text,
+        # preserve the original PDF.
+        if (
+            average_characters >= 50
+            or
+            text_page_ratio >= 0.50
+        ):
+
+            return False
+
+
+        # Very little extracted text means
+        # this is probably scanned.
+        return True
+
+
+    except Exception as error:
+
+        print(
+            "PDF text analysis error:",
+            error
+        )
+
+
+        # Safest fallback:
+        # do NOT modify the original PDF.
+        return False
+
+
+    finally:
+
+        if document is not None:
+
+            document.close()
+
+
+# =================================
 # OCR PDF
-# ---------------------------------
+# =================================
 
 def create_ocr_pdf(
     input_path,
@@ -360,9 +532,10 @@ def create_ocr_pdf(
     )
 
 
-# ---------------------------------
+# =================================
 # PDF TO WORD
-# ---------------------------------
+# EDITABLE MODE
+# =================================
 
 @app.route(
     "/convert/pdf-to-word",
@@ -422,13 +595,6 @@ def pdf_to_word():
         )[0]
 
 
-        ocr_pdf_path = os.path.join(
-            temp_dir,
-            base_name
-            + "_ocr.pdf"
-        )
-
-
         output_name = (
             base_name
             + ".docx"
@@ -441,76 +607,130 @@ def pdf_to_word():
         )
 
 
+        ocr_pdf_path = os.path.join(
+            temp_dir,
+            base_name
+            + "_ocr.pdf"
+        )
+
+
         pdf_for_conversion = (
             input_path
         )
 
 
-        # --------------------------
-        # OCR PASS
-        # --------------------------
+        # ---------------------------------
+        # DETECT WHETHER OCR IS NEEDED
+        # ---------------------------------
 
         try:
 
-            ocr_success = create_ocr_pdf(
-                input_path,
-                ocr_pdf_path
-            )
-
-
-            if ocr_success:
-
-                pdf_for_conversion = (
-                    ocr_pdf_path
-                )
-
-
-                print(
-                    "OCR-enhanced PDF will be used."
-                )
-
-
-        except subprocess.TimeoutExpired:
-
-            print(
-                "OCR timed out. "
-                "Falling back to original PDF."
-            )
-
-
-        except subprocess.CalledProcessError as error:
-
-            print(
-                "OCRmyPDF could not process this PDF."
-            )
-
-
-            print(
-                error.stderr
-            )
-
-
-            print(
-                "Falling back to original PDF."
+            needs_ocr = pdf_needs_ocr(
+                input_path
             )
 
 
         except Exception as error:
 
             print(
-                "OCR error:",
+                "OCR detection error:",
                 error
             )
 
+            needs_ocr = False
+
+
+        # ---------------------------------
+        # OCR ONLY SCANNED PDFs
+        # ---------------------------------
+
+        if needs_ocr:
 
             print(
-                "Falling back to original PDF."
+                "Scanned PDF detected. "
+                "Running OCR before Word conversion."
             )
 
 
-        # --------------------------
+            try:
+
+                ocr_success = create_ocr_pdf(
+                    input_path,
+                    ocr_pdf_path
+                )
+
+
+                if ocr_success:
+
+                    pdf_for_conversion = (
+                        ocr_pdf_path
+                    )
+
+
+                    print(
+                        "OCR-enhanced PDF will be used."
+                    )
+
+
+                else:
+
+                    print(
+                        "OCR did not create a usable PDF. "
+                        "Using original PDF."
+                    )
+
+
+            except subprocess.TimeoutExpired:
+
+                print(
+                    "OCR timed out. "
+                    "Using original PDF."
+                )
+
+
+            except subprocess.CalledProcessError as error:
+
+                print(
+                    "OCRmyPDF could not process this PDF."
+                )
+
+
+                if error.stderr:
+
+                    print(
+                        error.stderr
+                    )
+
+
+                print(
+                    "Using original PDF."
+                )
+
+
+            except Exception as error:
+
+                print(
+                    "OCR error:",
+                    error
+                )
+
+
+                print(
+                    "Using original PDF."
+                )
+
+
+        else:
+
+            print(
+                "Digital/selectable-text PDF detected. "
+                "Skipping OCR to preserve layout."
+            )
+
+
+        # ---------------------------------
         # PDF TO DOCX
-        # --------------------------
+        # ---------------------------------
 
         converter = None
 
@@ -547,8 +767,21 @@ def pdf_to_word():
 
             if converter is not None:
 
-                converter.close()
+                try:
 
+                    converter.close()
+
+                except Exception as error:
+
+                    print(
+                        "Converter close warning:",
+                        error
+                    )
+
+
+        # ---------------------------------
+        # VERIFY OUTPUT
+        # ---------------------------------
 
         if not os.path.exists(
             output_path
@@ -570,6 +803,12 @@ def pdf_to_word():
             }), 500
 
 
+        print(
+            "PDF to Word conversion complete:",
+            output_name
+        )
+
+
         return send_file(
             output_path,
             as_attachment=True,
@@ -582,9 +821,9 @@ def pdf_to_word():
         )
 
 
-# ---------------------------------
+# =================================
 # START SERVER
-# ---------------------------------
+# =================================
 
 if __name__ == "__main__":
 
