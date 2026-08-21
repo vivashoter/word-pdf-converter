@@ -11,10 +11,11 @@ from pdf2docx import Converter
 from docx import Document
 from docx.shared import Pt
 from docx.enum.section import WD_SECTION
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
+from docx.oxml import parse_xml
 
 from werkzeug.utils import secure_filename
+
+from xml.sax.saxutils import escape
 
 import fitz
 import os
@@ -31,13 +32,16 @@ BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
 
+
 app = Flask(__name__)
+
 
 MAX_FILE_SIZE = (
     25 *
     1024 *
     1024
 )
+
 
 app.config[
     "MAX_CONTENT_LENGTH"
@@ -200,6 +204,7 @@ def word_to_pdf():
             filename
         )
 
+
         uploaded_file.save(
             input_path
         )
@@ -259,6 +264,7 @@ def word_to_pdf():
                 error.stderr
             )
 
+
             return jsonify({
                 "error":
                 "The Word document could not be converted."
@@ -269,8 +275,9 @@ def word_to_pdf():
 
             print(
                 "Word to PDF error:",
-                error
+                repr(error)
             )
+
 
             return jsonify({
                 "error":
@@ -329,7 +336,7 @@ def word_to_pdf():
 
 
 # =========================================
-# PDF TEXT CHECK
+# DETECT DIGITAL VS SCANNED PDF
 # =========================================
 
 def pdf_has_real_text(
@@ -363,28 +370,28 @@ def pdf_has_real_text(
             ).strip()
 
 
-            count = len(
+            character_count = len(
                 text
             )
 
 
             total_characters += (
-                count
+                character_count
             )
 
 
-            if count >= 30:
+            if character_count >= 30:
 
                 pages_with_text += 1
 
 
-        average = (
+        average_characters = (
             total_characters /
             document.page_count
         )
 
 
-        ratio = (
+        text_page_ratio = (
             pages_with_text /
             document.page_count
         )
@@ -401,13 +408,13 @@ def pdf_has_real_text(
 
                 "average":
                     round(
-                        average,
+                        average_characters,
                         2
                     ),
 
                 "text_page_ratio":
                     round(
-                        ratio,
+                        text_page_ratio,
                         2
                     )
             }
@@ -415,9 +422,9 @@ def pdf_has_real_text(
 
 
         return (
-            average >= 40
+            average_characters >= 40
             or
-            ratio >= 0.50
+            text_page_ratio >= 0.50
         )
 
 
@@ -425,8 +432,9 @@ def pdf_has_real_text(
 
         print(
             "PDF analysis error:",
-            error
+            repr(error)
         )
+
 
         return False
 
@@ -524,8 +532,6 @@ def clean_font_name(
         return "Arial"
 
 
-    # Remove embedded PDF subset prefix,
-    # for example ABCDEF+Arial
     name = re.sub(
         r"^[A-Z]{6}\+",
         "",
@@ -534,10 +540,17 @@ def clean_font_name(
 
 
     replacements = {
+
         "Helvetica":
             "Arial",
 
         "Helvetica-Bold":
+            "Arial",
+
+        "Helvetica-Oblique":
+            "Arial",
+
+        "Helvetica-BoldOblique":
             "Arial",
 
         "Times-Roman":
@@ -549,8 +562,15 @@ def clean_font_name(
         "Times-Italic":
             "Times New Roman",
 
+        "Times-BoldItalic":
+            "Times New Roman",
+
         "Courier":
+            "Courier New",
+
+        "Courier-Bold":
             "Courier New"
+
     }
 
 
@@ -601,7 +621,7 @@ def pdf_color_to_hex(
 
 
 # =========================================
-# EDITABLE WORD TEXTBOX
+# EDITABLE POSITIONED TEXTBOX
 # =========================================
 
 def add_editable_textbox(
@@ -623,273 +643,155 @@ def add_editable_textbox(
         return
 
 
-    # Give text a little extra room.
-    # This reduces unwanted Word wrapping.
-
     width = max(
-        width + 3,
-        4
+        width + 5,
+        8
     )
 
 
     height = max(
-        height + 2,
-        font_size * 1.2
+        height + 4,
+        font_size * 1.45
     )
 
 
-    pict = OxmlElement(
-        "w:pict"
+    safe_text = escape(
+        str(text)
     )
 
 
-    shape = OxmlElement(
-        "v:rect"
+    safe_font = escape(
+        str(font_name),
+        {
+            '"':
+                "&quot;"
+        }
     )
 
 
-    shape.set(
-        "style",
-
-        (
-            "position:absolute;"
-            f"margin-left:{x}pt;"
-            f"margin-top:{y}pt;"
-            f"width:{width}pt;"
-            f"height:{height}pt;"
-            "z-index:10;"
-            "mso-position-horizontal-relative:page;"
-            "mso-position-vertical-relative:page;"
-            "mso-wrap-style:none;"
-        )
-    )
-
-
-    shape.set(
-        "stroked",
-        "f"
-    )
-
-
-    shape.set(
-        "filled",
-        "f"
-    )
-
-
-    textbox = OxmlElement(
-        "v:textbox"
-    )
-
-
-    textbox.set(
-        "inset",
-        "0,0,0,0"
-    )
-
-
-    text_content = OxmlElement(
-        "w:txbxContent"
-    )
-
-
-    word_paragraph = OxmlElement(
-        "w:p"
-    )
-
-
-    paragraph_properties = (
-        OxmlElement(
-            "w:pPr"
-        )
-    )
-
-
-    spacing = OxmlElement(
-        "w:spacing"
-    )
-
-
-    spacing.set(
-        qn("w:before"),
-        "0"
-    )
-
-
-    spacing.set(
-        qn("w:after"),
-        "0"
-    )
-
-
-    spacing.set(
-        qn("w:line"),
-        "200"
-    )
-
-
-    spacing.set(
-        qn("w:lineRule"),
-        "auto"
-    )
-
-
-    paragraph_properties.append(
-        spacing
-    )
-
-
-    word_paragraph.append(
-        paragraph_properties
-    )
-
-
-    run = OxmlElement(
-        "w:r"
-    )
-
-
-    run_properties = (
-        OxmlElement(
-            "w:rPr"
-        )
-    )
-
-
-    fonts = OxmlElement(
-        "w:rFonts"
-    )
-
-
-    fonts.set(
-        qn("w:ascii"),
-        font_name
-    )
-
-
-    fonts.set(
-        qn("w:hAnsi"),
-        font_name
-    )
-
-
-    fonts.set(
-        qn("w:eastAsia"),
-        font_name
-    )
-
-
-    run_properties.append(
-        fonts
-    )
-
-
-    size = OxmlElement(
-        "w:sz"
-    )
-
-
-    size.set(
-        qn("w:val"),
-        str(
-            max(
-                2,
-                round(
-                    font_size *
-                    2
-                )
-            )
-        )
-    )
-
-
-    run_properties.append(
-        size
-    )
-
-
-    color_element = (
-        OxmlElement(
-            "w:color"
-        )
-    )
-
-
-    color_element.set(
-        qn("w:val"),
+    safe_color = str(
         color
+    ).replace(
+        '"',
+        ""
     )
 
 
-    run_properties.append(
-        color_element
-    )
+    bold_xml = ""
+
+    italic_xml = ""
 
 
     if bold:
 
-        run_properties.append(
-            OxmlElement(
-                "w:b"
-            )
-        )
+        bold_xml = "<w:b/>"
 
 
     if italic:
 
-        run_properties.append(
-            OxmlElement(
-                "w:i"
-            )
+        italic_xml = "<w:i/>"
+
+
+    font_size_half_points = max(
+        2,
+        round(
+            font_size *
+            2
         )
-
-
-    run.append(
-        run_properties
     )
 
 
-    text_element = OxmlElement(
-        "w:t"
-    )
+    textbox_xml = f"""
+    <w:pict
+        xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+        xmlns:v="urn:schemas-microsoft-com:vml"
+        xmlns:o="urn:schemas-microsoft-com:office:office">
+
+        <v:rect
+            stroked="f"
+            filled="f"
+            style="
+                position:absolute;
+                margin-left:{x}pt;
+                margin-top:{y}pt;
+                width:{width}pt;
+                height:{height}pt;
+                z-index:10;
+                mso-position-horizontal-relative:page;
+                mso-position-vertical-relative:page;
+                mso-wrap-distance-left:0;
+                mso-wrap-distance-right:0;
+                mso-wrap-distance-top:0;
+                mso-wrap-distance-bottom:0;
+            ">
+
+            <v:textbox
+                inset="0,0,0,0"
+            >
+
+                <w:txbxContent>
+
+                    <w:p>
+
+                        <w:pPr>
+
+                            <w:spacing
+                                w:before="0"
+                                w:after="0"
+                                w:line="200"
+                                w:lineRule="auto"
+                            />
+
+                        </w:pPr>
+
+                        <w:r>
+
+                            <w:rPr>
+
+                                <w:rFonts
+                                    w:ascii="{safe_font}"
+                                    w:hAnsi="{safe_font}"
+                                    w:eastAsia="{safe_font}"
+                                />
+
+                                <w:sz
+                                    w:val="{font_size_half_points}"
+                                />
+
+                                <w:szCs
+                                    w:val="{font_size_half_points}"
+                                />
+
+                                <w:color
+                                    w:val="{safe_color}"
+                                />
+
+                                {bold_xml}
+
+                                {italic_xml}
+
+                            </w:rPr>
+
+                            <w:t
+                                xml:space="preserve"
+                            >{safe_text}</w:t>
+
+                        </w:r>
+
+                    </w:p>
+
+                </w:txbxContent>
+
+            </v:textbox>
+
+        </v:rect>
+
+    </w:pict>
+    """
 
 
-    text_element.set(
-        qn("xml:space"),
-        "preserve"
-    )
-
-
-    text_element.text = text
-
-
-    run.append(
-        text_element
-    )
-
-
-    word_paragraph.append(
-        run
-    )
-
-
-    text_content.append(
-        word_paragraph
-    )
-
-
-    textbox.append(
-        text_content
-    )
-
-
-    shape.append(
-        textbox
-    )
-
-
-    pict.append(
-        shape
+    pict = parse_xml(
+        textbox_xml
     )
 
 
@@ -912,10 +814,10 @@ def create_background_pdf(
     )
 
 
-    # Save a working copy.
     source.save(
         background_path
     )
+
 
     source.close()
 
@@ -935,9 +837,10 @@ def create_background_pdf(
         found_text = False
 
 
-        for block in text_data[
-            "blocks"
-        ]:
+        for block in text_data.get(
+            "blocks",
+            []
+        ):
 
             if block.get(
                 "type"
@@ -982,23 +885,50 @@ def create_background_pdf(
                     )
 
 
-                    # Slightly shrink vertically
-                    # so nearby form lines stay visible.
+                    # Slightly shrink the redaction
+                    # so nearby form lines remain visible.
 
-                    inset = min(
-                        0.5,
+                    vertical_inset = min(
+                        0.35,
                         rectangle.height *
-                        0.05
+                        0.04
+                    )
+
+
+                    horizontal_inset = min(
+                        0.20,
+                        rectangle.width *
+                        0.01
+                    )
+
+
+                    rectangle.x0 += (
+                        horizontal_inset
+                    )
+
+
+                    rectangle.x1 -= (
+                        horizontal_inset
                     )
 
 
                     rectangle.y0 += (
-                        inset
+                        vertical_inset
                     )
 
+
                     rectangle.y1 -= (
-                        inset
+                        vertical_inset
                     )
+
+
+                    if (
+                        rectangle.width <= 0
+                        or
+                        rectangle.height <= 0
+                    ):
+
+                        continue
 
 
                     page.add_redact_annot(
@@ -1019,23 +949,20 @@ def create_background_pdf(
 
         if found_text:
 
-            # Remove text only.
-            # Keep graphics and images.
             page.apply_redactions(
                 images=0,
-                graphics=0,
-                text=0
+                graphics=0
             )
 
 
-    temp_output = (
+    cleaned_path = (
         background_path +
         ".clean.pdf"
     )
 
 
     background.save(
-        temp_output,
+        cleaned_path,
 
         garbage=4,
 
@@ -1047,13 +974,13 @@ def create_background_pdf(
 
 
     os.replace(
-        temp_output,
+        cleaned_path,
         background_path
     )
 
 
 # =========================================
-# HIGH-FIDELITY EDITABLE PDF TO WORD
+# POSITIONED EDITABLE PDF -> DOCX
 # =========================================
 
 def convert_positioned_pdf_to_docx(
@@ -1067,11 +994,9 @@ def convert_positioned_pdf_to_docx(
     )
 
 
-    background_pdf_path = (
-        os.path.join(
-            temp_dir,
-            "background.pdf"
-        )
+    background_pdf_path = os.path.join(
+        temp_dir,
+        "background.pdf"
     )
 
 
@@ -1087,21 +1012,6 @@ def convert_positioned_pdf_to_docx(
 
 
     word = Document()
-
-
-    # Use existing first paragraph.
-    paragraph = (
-        word.paragraphs[0]
-    )
-
-
-    paragraph.paragraph_format.space_before = (
-        Pt(0)
-    )
-
-    paragraph.paragraph_format.space_after = (
-        Pt(0)
-    )
 
 
     for page_number in range(
@@ -1122,68 +1032,80 @@ def convert_positioned_pdf_to_docx(
         )
 
 
-        page_width = (
+        page_width = float(
             source_page.rect.width
         )
 
 
-        page_height = (
+        page_height = float(
             source_page.rect.height
         )
 
 
         # ---------------------------------
-        # PAGE SECTION
+        # SECTION
         # ---------------------------------
 
-        if page_number > 0:
+        if page_number == 0:
 
-            word.add_section(
-                WD_SECTION.NEW_PAGE
+            section = (
+                word.sections[0]
+            )
+
+        else:
+
+            section = (
+                word.add_section(
+                    WD_SECTION.NEW_PAGE
+                )
             )
 
 
-            paragraph = (
-                word.add_paragraph()
-            )
-
-
-            paragraph.paragraph_format.space_before = (
-                Pt(0)
-            )
-
-            paragraph.paragraph_format.space_after = (
-                Pt(0)
-            )
-
-
-        section = (
-            word.sections[-1]
+        section.page_width = Pt(
+            page_width
         )
 
 
-        section.page_width = (
-            Pt(
-                page_width
-            )
-        )
-
-
-        section.page_height = (
-            Pt(
-                page_height
-            )
+        section.page_height = Pt(
+            page_height
         )
 
 
         section.top_margin = Pt(0)
+
         section.bottom_margin = Pt(0)
 
         section.left_margin = Pt(0)
+
         section.right_margin = Pt(0)
 
         section.header_distance = Pt(0)
+
         section.footer_distance = Pt(0)
+
+
+        # ---------------------------------
+        # CREATE PAGE PARAGRAPH
+        # ---------------------------------
+
+        paragraph = (
+            word.add_paragraph()
+        )
+
+
+        paragraph.paragraph_format.space_before = (
+            Pt(0)
+        )
+
+
+        paragraph.paragraph_format.space_after = (
+            Pt(0)
+        )
+
+
+        paragraph.paragraph_format.line_spacing = (
+            1
+        )
 
 
         # ---------------------------------
@@ -1216,13 +1138,12 @@ def convert_positioned_pdf_to_docx(
         )
 
 
-        run = paragraph.add_run()
+        background_run = (
+            paragraph.add_run()
+        )
 
 
-        # Leave a tiny amount of room
-        # for Word's paragraph mark.
-
-        run.add_picture(
+        background_run.add_picture(
             image_path,
 
             width=Pt(
@@ -1232,15 +1153,14 @@ def convert_positioned_pdf_to_docx(
             height=Pt(
                 max(
                     1,
-                    page_height -
-                    1
+                    page_height - 2
                 )
             )
         )
 
 
         # ---------------------------------
-        # EXTRACT ORIGINAL EDITABLE TEXT
+        # ORIGINAL EDITABLE TEXT
         # ---------------------------------
 
         page_data = source_page.get_text(
@@ -1248,9 +1168,10 @@ def convert_positioned_pdf_to_docx(
         )
 
 
-        for block in page_data[
-            "blocks"
-        ]:
+        for block in page_data.get(
+            "blocks",
+            []
+        ):
 
             if block.get(
                 "type"
@@ -1290,28 +1211,39 @@ def convert_positioned_pdf_to_docx(
                         continue
 
 
-                    x0 = bbox[0]
-
-                    y0 = bbox[1]
-
-                    x1 = bbox[2]
-
-                    y1 = bbox[3]
-
-
-                    width = (
-                        x1 -
-                        x0
+                    x0 = float(
+                        bbox[0]
                     )
 
 
-                    height = (
-                        y1 -
-                        y0
+                    y0 = float(
+                        bbox[1]
                     )
 
 
-                    size = float(
+                    x1 = float(
+                        bbox[2]
+                    )
+
+
+                    y1 = float(
+                        bbox[3]
+                    )
+
+
+                    width = max(
+                        1,
+                        x1 - x0
+                    )
+
+
+                    height = max(
+                        1,
+                        y1 - y0
+                    )
+
+
+                    font_size = float(
                         span.get(
                             "size",
                             10
@@ -1319,9 +1251,11 @@ def convert_positioned_pdf_to_docx(
                     )
 
 
-                    raw_font = span.get(
-                        "font",
-                        "Arial"
+                    raw_font = str(
+                        span.get(
+                            "font",
+                            "Arial"
+                        )
                     )
 
 
@@ -1332,7 +1266,7 @@ def convert_positioned_pdf_to_docx(
                     )
 
 
-                    font_lower = (
+                    lower_font = (
                         raw_font.lower()
                     )
 
@@ -1340,18 +1274,18 @@ def convert_positioned_pdf_to_docx(
                     bold = (
                         "bold"
                         in
-                        font_lower
+                        lower_font
                     )
 
 
                     italic = (
                         "italic"
                         in
-                        font_lower
+                        lower_font
                         or
                         "oblique"
                         in
-                        font_lower
+                        lower_font
                     )
 
 
@@ -1365,13 +1299,12 @@ def convert_positioned_pdf_to_docx(
                     )
 
 
-                    # Word's text baseline differs
-                    # slightly from PDF positioning.
+                    # PDF and Word text origins differ
+                    # slightly. This compensates for it.
 
                     y_position = max(
                         0,
-                        y0 -
-                        0.5
+                        y0 - 1.0
                     )
 
 
@@ -1390,7 +1323,7 @@ def convert_positioned_pdf_to_docx(
 
                         font_name=font_name,
 
-                        font_size=size,
+                        font_size=font_size,
 
                         color=color,
 
@@ -1401,6 +1334,7 @@ def convert_positioned_pdf_to_docx(
 
 
     source.close()
+
 
     backgrounds.close()
 
@@ -1433,21 +1367,40 @@ def convert_scanned_pdf_to_docx(
 
     try:
 
-        if create_ocr_pdf(
+        ocr_success = create_ocr_pdf(
             input_path,
             ocr_path
-        ):
+        )
+
+
+        if ocr_success:
 
             pdf_to_convert = (
                 ocr_path
             )
 
 
+    except subprocess.TimeoutExpired:
+
+        print(
+            "OCR timed out. "
+            "Using original PDF."
+        )
+
+
+    except subprocess.CalledProcessError as error:
+
+        print(
+            "OCR failed:",
+            error.stderr
+        )
+
+
     except Exception as error:
 
         print(
             "OCR fallback error:",
-            error
+            repr(error)
         )
 
 
@@ -1472,11 +1425,17 @@ def convert_scanned_pdf_to_docx(
 
         if converter is not None:
 
-            converter.close()
+            try:
+
+                converter.close()
+
+            except Exception:
+
+                pass
 
 
 # =========================================
-# PDF TO WORD ROUTE
+# PDF TO WORD
 # =========================================
 
 @app.route(
@@ -1563,6 +1522,7 @@ def pdf_to_word():
                     "Digital PDF detected."
                 )
 
+
                 print(
                     "Using positioned editable "
                     "layout conversion."
@@ -1582,6 +1542,7 @@ def pdf_to_word():
                     "Scanned PDF detected."
                 )
 
+
                 print(
                     "Using OCR fallback."
                 )
@@ -1598,9 +1559,7 @@ def pdf_to_word():
 
             print(
                 "PDF to Word error:",
-                repr(
-                    error
-                )
+                repr(error)
             )
 
 
@@ -1631,7 +1590,7 @@ def pdf_to_word():
 
 
         print(
-            "Created:",
+            "PDF to Word created:",
             output_name
         )
 
