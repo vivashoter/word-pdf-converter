@@ -270,8 +270,81 @@ def word_to_pdf():
 
 
 # =========================================
+# EXACTDOC HELPER
+# =========================================
+
+def run_exactdoc(
+    input_path,
+    output_path
+):
+
+    return subprocess.run(
+        [
+            "exactdoc",
+            input_path,
+            "-o",
+            output_path
+        ],
+        check=True,
+        timeout=180,
+        capture_output=True,
+        text=True
+    )
+
+
+# =========================================
+# FLATTEN INTERACTIVE PDF
+# =========================================
+
+def flatten_pdf_form(
+    input_path,
+    output_path
+):
+
+    result = subprocess.run(
+        [
+            "qpdf",
+
+            input_path,
+
+            output_path,
+
+            "--generate-appearances",
+
+            "--flatten-annotations=all"
+        ],
+
+        check=True,
+        timeout=120,
+        capture_output=True,
+        text=True
+    )
+
+
+    if result.stdout:
+        print(
+            "QPDF output:",
+            result.stdout
+        )
+
+
+    if result.stderr:
+        print(
+            "QPDF warnings:",
+            result.stderr
+        )
+
+
+    return (
+        os.path.exists(output_path)
+        and
+        os.path.getsize(output_path) > 0
+    )
+
+
+# =========================================
 # PDF TO WORD
-# EXACTDOC
+# EXACTDOC + FORM FLATTEN RETRY
 # =========================================
 
 @app.route(
@@ -282,7 +355,8 @@ def pdf_to_word():
 
     if "file" not in request.files:
         return jsonify({
-            "error": "No file uploaded."
+            "error":
+            "No file uploaded."
         }), 400
 
 
@@ -291,7 +365,8 @@ def pdf_to_word():
 
     if uploaded_file.filename == "":
         return jsonify({
-            "error": "No file selected."
+            "error":
+            "No file selected."
         }), 400
 
 
@@ -300,7 +375,9 @@ def pdf_to_word():
     )
 
 
-    if not filename.lower().endswith(".pdf"):
+    if not filename.lower().endswith(
+        ".pdf"
+    ):
         return jsonify({
             "error":
             "Please upload a PDF file."
@@ -336,6 +413,13 @@ def pdf_to_word():
         )
 
 
+        flattened_path = os.path.join(
+            temp_dir,
+            base_name +
+            "_flattened.pdf"
+        )
+
+
         try:
 
             print(
@@ -344,38 +428,116 @@ def pdf_to_word():
             )
 
 
-            result = subprocess.run(
-                [
-                    "exactdoc",
+            try:
+
+                result = run_exactdoc(
                     input_path,
-                    "-o",
                     output_path
-                ],
-                check=True,
-                timeout=180,
-                capture_output=True,
-                text=True
-            )
-
-
-            if result.stdout:
-                print(
-                    "ExactDoc output:",
-                    result.stdout
                 )
 
 
-            if result.stderr:
+                if result.stdout:
+                    print(
+                        "ExactDoc output:",
+                        result.stdout
+                    )
+
+
+                if result.stderr:
+                    print(
+                        "ExactDoc warnings:",
+                        result.stderr
+                    )
+
+
+            except subprocess.CalledProcessError as error:
+
                 print(
-                    "ExactDoc warnings:",
-                    result.stderr
+                    "ExactDoc first attempt exit code:",
+                    error.returncode
                 )
+
+                print(
+                    "ExactDoc first attempt stdout:",
+                    error.stdout
+                )
+
+                print(
+                    "ExactDoc first attempt stderr:",
+                    error.stderr
+                )
+
+
+                # =================================
+                # INTERACTIVE FORM
+                # =================================
+
+                if error.returncode == 19:
+
+                    print(
+                        "Interactive PDF detected."
+                    )
+
+                    print(
+                        "Flattening temporary copy "
+                        "and retrying ExactDoc."
+                    )
+
+
+                    flatten_success = flatten_pdf_form(
+                        input_path,
+                        flattened_path
+                    )
+
+
+                    if not flatten_success:
+
+                        return jsonify({
+                            "error":
+                            "The interactive PDF could not "
+                            "be prepared for Word conversion."
+                        }), 500
+
+
+                    # Remove any partial DOCX
+                    if os.path.exists(
+                        output_path
+                    ):
+
+                        os.remove(
+                            output_path
+                        )
+
+
+                    retry_result = run_exactdoc(
+                        flattened_path,
+                        output_path
+                    )
+
+
+                    if retry_result.stdout:
+                        print(
+                            "ExactDoc retry output:",
+                            retry_result.stdout
+                        )
+
+
+                    if retry_result.stderr:
+                        print(
+                            "ExactDoc retry warnings:",
+                            retry_result.stderr
+                        )
+
+
+                else:
+
+                    raise
 
 
         except subprocess.TimeoutExpired:
 
             print(
-                "ExactDoc conversion timed out."
+                "PDF conversion timed out."
             )
 
             return jsonify({
@@ -387,40 +549,36 @@ def pdf_to_word():
         except subprocess.CalledProcessError as error:
 
             print(
-                "ExactDoc exit code:",
+                "Final conversion exit code:",
                 error.returncode
             )
 
             print(
-                "ExactDoc stdout:",
+                "Final conversion stdout:",
                 error.stdout
             )
 
             print(
-                "ExactDoc stderr:",
+                "Final conversion stderr:",
                 error.stderr
             )
 
 
-            # ExactDoc code 17 = OCR required
             if error.returncode == 17:
 
                 return jsonify({
                     "error":
                     "This appears to be a scanned PDF. "
-                    "OCR support is required before it can "
-                    "be converted to editable Word."
+                    "OCR support will be added next."
                 }), 422
 
 
-            # ExactDoc code 19 = interactive form
             if error.returncode == 19:
 
                 return jsonify({
                     "error":
-                    "This PDF contains an interactive form "
-                    "that cannot currently be converted "
-                    "reliably to editable Word."
+                    "This interactive PDF still could not "
+                    "be converted reliably after flattening."
                 }), 422
 
 
@@ -430,22 +588,24 @@ def pdf_to_word():
             }), 500
 
 
-        except FileNotFoundError:
+        except FileNotFoundError as error:
 
             print(
-                "ExactDoc command was not found."
+                "Missing server command:",
+                repr(error)
             )
 
             return jsonify({
                 "error":
-                "The PDF converter is not available on the server."
+                "The PDF conversion tool is not available "
+                "on the server."
             }), 500
 
 
         except Exception as error:
 
             print(
-                "ExactDoc unexpected error:",
+                "PDF to Word unexpected error:",
                 repr(error)
             )
 
@@ -456,14 +616,12 @@ def pdf_to_word():
 
 
         # =================================
-        # VERIFY DOCX
+        # VERIFY OUTPUT
         # =================================
 
-        if not os.path.exists(output_path):
-
-            print(
-                "ExactDoc finished but no DOCX was created."
-            )
+        if not os.path.exists(
+            output_path
+        ):
 
             return jsonify({
                 "error":
@@ -471,7 +629,9 @@ def pdf_to_word():
             }), 500
 
 
-        if os.path.getsize(output_path) == 0:
+        if os.path.getsize(
+            output_path
+        ) == 0:
 
             return jsonify({
                 "error":
@@ -480,7 +640,7 @@ def pdf_to_word():
 
 
         print(
-            "ExactDoc conversion complete:",
+            "PDF to Word conversion complete:",
             output_name
         )
 
