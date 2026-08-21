@@ -12,6 +12,8 @@ import os
 import subprocess
 import tempfile
 
+import pikepdf
+
 
 # =========================================
 # BASIC CONFIG
@@ -392,7 +394,8 @@ def create_ocr_pdf(
 
 
 # =========================================
-# FLATTEN INTERACTIVE PDF FORM
+# FLATTEN INTERACTIVE PDF
+# USING PIKEPDF
 # =========================================
 
 def flatten_pdf_form(
@@ -401,87 +404,82 @@ def flatten_pdf_form(
 ):
 
     print(
-        "Flattening PDF annotations "
-        "and removing AcroForm...",
+        "Flattening PDF form with pikepdf...",
         flush=True
     )
 
 
-    result = subprocess.run(
-        [
-            "qpdf",
+    try:
 
-            "--generate-appearances",
+        with pikepdf.Pdf.open(
+            input_path
+        ) as pdf:
 
-            "--flatten-annotations=all",
+            # Create appearance streams for fields
+            # so their visible values remain on the page.
+            pdf.generate_appearance_streams()
 
-            "--remove-acroform",
 
-            input_path,
+            # Burn annotations/form appearances
+            # into normal PDF page content.
+            pdf.flatten_annotations(
+                "all"
+            )
 
+
+            pdf.save(
+                output_path
+            )
+
+
+        if not os.path.exists(
             output_path
-        ],
-        check=True,
-        timeout=120,
-        capture_output=True,
-        text=True
-    )
+        ):
+
+            print(
+                "pikepdf did not create output.",
+                flush=True
+            )
+
+            return False
 
 
-    if result.stdout:
+        if os.path.getsize(
+            output_path
+        ) == 0:
+
+            print(
+                "pikepdf output is empty.",
+                flush=True
+            )
+
+            return False
+
 
         print(
-            "QPDF output:",
-            result.stdout,
+            "pikepdf form flatten complete.",
             flush=True
         )
 
 
-    if result.stderr:
+        return True
+
+
+    except Exception as error:
 
         print(
-            "QPDF warnings:",
-            result.stderr,
+            "pikepdf flatten error:",
+            repr(error),
             flush=True
         )
 
-
-    if not os.path.exists(
-        output_path
-    ):
-
-        print(
-            "QPDF did not create output.",
-            flush=True
-        )
 
         return False
-
-
-    if os.path.getsize(
-        output_path
-    ) == 0:
-
-        print(
-            "QPDF output is empty.",
-            flush=True
-        )
-
-        return False
-
-
-    print(
-        "QPDF flatten/remove AcroForm complete.",
-        flush=True
-    )
-
-
-    return True
 
 
 # =========================================
 # PDF TO WORD
-# EXACTDOC + AUTOMATIC FALLBACKS
+# EXACTDOC + PIKEPDF + OCR FALLBACKS
 # =========================================
 
 @app.route(
@@ -588,7 +586,7 @@ def pdf_to_word():
 
 
             # =================================
-            # FIRST ATTEMPT
+            # FIRST EXACTDOC ATTEMPT
             # =================================
 
             try:
@@ -639,8 +637,7 @@ def pdf_to_word():
 
 
                 # =================================
-                # EXIT 19:
-                # INTERACTIVE PDF FORM
+                # INTERACTIVE FORM
                 # =================================
 
                 if first_error.returncode == 19:
@@ -651,8 +648,8 @@ def pdf_to_word():
                     )
 
                     print(
-                        "Creating flattened copy "
-                        "with AcroForm removed...",
+                        "Flattening with pikepdf "
+                        "and retrying ExactDoc.",
                         flush=True
                     )
 
@@ -728,16 +725,6 @@ def pdf_to_word():
                         )
 
 
-                        if retry_error.returncode == 19:
-
-                            return jsonify({
-                                "error":
-                                "This PDF uses interactive form "
-                                "features that cannot currently "
-                                "be converted reliably to editable Word."
-                            }), 422
-
-
                         if retry_error.returncode == 17:
 
                             print(
@@ -794,13 +781,22 @@ def pdf_to_word():
                                 )
 
 
+                        elif retry_error.returncode == 19:
+
+                            return jsonify({
+                                "error":
+                                "This PDF still contains form "
+                                "structures that ExactDoc cannot "
+                                "convert reliably."
+                            }), 422
+
+
                         else:
 
                             raise retry_error
 
 
                 # =================================
-                # EXIT 17:
                 # OCR REQUIRED
                 # =================================
 
