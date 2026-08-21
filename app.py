@@ -34,7 +34,6 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
 
 @app.route("/")
 def home():
-
     return send_from_directory(
         BASE_DIR,
         "index.html"
@@ -43,7 +42,6 @@ def home():
 
 @app.route("/privacy.html")
 def privacy():
-
     return send_from_directory(
         BASE_DIR,
         "privacy.html"
@@ -52,7 +50,6 @@ def privacy():
 
 @app.route("/terms.html")
 def terms():
-
     return send_from_directory(
         BASE_DIR,
         "terms.html"
@@ -61,7 +58,6 @@ def terms():
 
 @app.route("/about.html")
 def about():
-
     return send_from_directory(
         BASE_DIR,
         "about.html"
@@ -70,7 +66,6 @@ def about():
 
 @app.route("/contact.html")
 def contact():
-
     return send_from_directory(
         BASE_DIR,
         "contact.html"
@@ -79,7 +74,6 @@ def contact():
 
 @app.route("/style.css")
 def styles():
-
     return send_from_directory(
         BASE_DIR,
         "style.css"
@@ -88,7 +82,6 @@ def styles():
 
 @app.route("/script.js")
 def scripts():
-
     return send_from_directory(
         BASE_DIR,
         "script.js"
@@ -97,7 +90,6 @@ def scripts():
 
 @app.route("/convertdocgoose-logo.png")
 def logo():
-
     return send_from_directory(
         BASE_DIR,
         "convertdocgoose-logo.png"
@@ -106,7 +98,6 @@ def logo():
 
 @app.route("/favicon.png")
 def favicon():
-
     return send_from_directory(
         BASE_DIR,
         "favicon.png"
@@ -137,10 +128,8 @@ def file_too_large(error):
 def word_to_pdf():
 
     if "file" not in request.files:
-
         return jsonify({
-            "error":
-            "No file uploaded."
+            "error": "No file uploaded."
         }), 400
 
 
@@ -148,10 +137,8 @@ def word_to_pdf():
 
 
     if uploaded_file.filename == "":
-
         return jsonify({
-            "error":
-            "No file selected."
+            "error": "No file selected."
         }), 400
 
 
@@ -163,7 +150,6 @@ def word_to_pdf():
     if not filename.lower().endswith(
         (".doc", ".docx")
     ):
-
         return jsonify({
             "error":
             "Please upload a DOC or DOCX file."
@@ -176,7 +162,6 @@ def word_to_pdf():
             temp_dir,
             filename
         )
-
 
         uploaded_file.save(
             input_path
@@ -203,7 +188,6 @@ def word_to_pdf():
 
 
             if result.stdout:
-
                 print(
                     "LibreOffice output:",
                     result.stdout
@@ -211,7 +195,6 @@ def word_to_pdf():
 
 
             if result.stderr:
-
                 print(
                     "LibreOffice warnings:",
                     result.stderr
@@ -222,17 +205,16 @@ def word_to_pdf():
 
             return jsonify({
                 "error":
-                "The conversion took too long. Please try again."
+                "The conversion took too long."
             }), 504
 
 
         except subprocess.CalledProcessError as error:
 
             print(
-                "LibreOffice conversion error:",
+                "LibreOffice error:",
                 error.stderr
             )
-
 
             return jsonify({
                 "error":
@@ -247,7 +229,6 @@ def word_to_pdf():
                 repr(error)
             )
 
-
             return jsonify({
                 "error":
                 "The Word document could not be converted."
@@ -255,9 +236,7 @@ def word_to_pdf():
 
 
         output_name = (
-            os.path.splitext(
-                filename
-            )[0]
+            os.path.splitext(filename)[0]
             + ".pdf"
         )
 
@@ -268,20 +247,14 @@ def word_to_pdf():
         )
 
 
-        if not os.path.exists(
-            output_path
-        ):
-
+        if not os.path.exists(output_path):
             return jsonify({
                 "error":
                 "The PDF could not be created."
             }), 500
 
 
-        if os.path.getsize(
-            output_path
-        ) == 0:
-
+        if os.path.getsize(output_path) == 0:
             return jsonify({
                 "error":
                 "The PDF was created but was empty."
@@ -298,7 +271,7 @@ def word_to_pdf():
 
 # =========================================
 # PDF TO WORD
-# USING LOCAL PDF2WORD CONVERTER
+# EXACTDOC
 # =========================================
 
 @app.route(
@@ -308,10 +281,8 @@ def word_to_pdf():
 def pdf_to_word():
 
     if "file" not in request.files:
-
         return jsonify({
-            "error":
-            "No file uploaded."
+            "error": "No file uploaded."
         }), 400
 
 
@@ -319,10 +290,8 @@ def pdf_to_word():
 
 
     if uploaded_file.filename == "":
-
         return jsonify({
-            "error":
-            "No file selected."
+            "error": "No file selected."
         }), 400
 
 
@@ -331,10 +300,7 @@ def pdf_to_word():
     )
 
 
-    if not filename.lower().endswith(
-        ".pdf"
-    ):
-
+    if not filename.lower().endswith(".pdf"):
         return jsonify({
             "error":
             "Please upload a PDF file."
@@ -347,7 +313,6 @@ def pdf_to_word():
             temp_dir,
             filename
         )
-
 
         uploaded_file.save(
             input_path
@@ -373,11 +338,17 @@ def pdf_to_word():
 
         try:
 
+            print(
+                "Starting ExactDoc conversion:",
+                filename
+            )
+
+
             result = subprocess.run(
                 [
-                    "pdf2word",
-                    "convert",
+                    "exactdoc",
                     input_path,
+                    "-o",
                     output_path
                 ],
                 check=True,
@@ -388,22 +359,24 @@ def pdf_to_word():
 
 
             if result.stdout:
-
                 print(
-                    "pdf2word output:",
+                    "ExactDoc output:",
                     result.stdout
                 )
 
 
             if result.stderr:
-
                 print(
-                    "pdf2word warnings:",
+                    "ExactDoc warnings:",
                     result.stderr
                 )
 
 
         except subprocess.TimeoutExpired:
+
+            print(
+                "ExactDoc conversion timed out."
+            )
 
             return jsonify({
                 "error":
@@ -414,24 +387,67 @@ def pdf_to_word():
         except subprocess.CalledProcessError as error:
 
             print(
-                "pdf2word error:",
+                "ExactDoc exit code:",
+                error.returncode
+            )
+
+            print(
+                "ExactDoc stdout:",
+                error.stdout
+            )
+
+            print(
+                "ExactDoc stderr:",
                 error.stderr
             )
+
+
+            # ExactDoc code 17 = OCR required
+            if error.returncode == 17:
+
+                return jsonify({
+                    "error":
+                    "This appears to be a scanned PDF. "
+                    "OCR support is required before it can "
+                    "be converted to editable Word."
+                }), 422
+
+
+            # ExactDoc code 19 = interactive form
+            if error.returncode == 19:
+
+                return jsonify({
+                    "error":
+                    "This PDF contains an interactive form "
+                    "that cannot currently be converted "
+                    "reliably to editable Word."
+                }), 422
 
 
             return jsonify({
                 "error":
                 "The PDF could not be converted to Word."
+            }), 500
+
+
+        except FileNotFoundError:
+
+            print(
+                "ExactDoc command was not found."
+            )
+
+            return jsonify({
+                "error":
+                "The PDF converter is not available on the server."
             }), 500
 
 
         except Exception as error:
 
             print(
-                "PDF to Word error:",
+                "ExactDoc unexpected error:",
                 repr(error)
             )
-
 
             return jsonify({
                 "error":
@@ -439,9 +455,15 @@ def pdf_to_word():
             }), 500
 
 
-        if not os.path.exists(
-            output_path
-        ):
+        # =================================
+        # VERIFY DOCX
+        # =================================
+
+        if not os.path.exists(output_path):
+
+            print(
+                "ExactDoc finished but no DOCX was created."
+            )
 
             return jsonify({
                 "error":
@@ -449,14 +471,18 @@ def pdf_to_word():
             }), 500
 
 
-        if os.path.getsize(
-            output_path
-        ) == 0:
+        if os.path.getsize(output_path) == 0:
 
             return jsonify({
                 "error":
                 "The Word document was created but was empty."
             }), 500
+
+
+        print(
+            "ExactDoc conversion complete:",
+            output_name
+        )
 
 
         return send_file(
