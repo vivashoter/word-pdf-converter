@@ -10,22 +10,20 @@ from werkzeug.utils import secure_filename
 
 from docx import Document
 from docx.shared import Pt
-from docx.enum.section import WD_SECTION
-from docx.oxml import parse_xml
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-
-from xml.sax.saxutils import escape
 
 import fitz
 import os
 import re
 import subprocess
 import tempfile
-import itertools
 
 
 # ============================================================
-# BASIC CONFIG
+# CONFIG
 # ============================================================
 
 BASE_DIR = os.path.dirname(
@@ -40,19 +38,11 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
 
 
 # ============================================================
-# DRAWING ID COUNTER
-# ============================================================
-
-DRAWING_ID_COUNTER = itertools.count(1000)
-
-
-# ============================================================
-# WEBSITE ROUTES
+# STATIC WEBSITE ROUTES
 # ============================================================
 
 @app.route("/")
 def home():
-
     return send_from_directory(
         BASE_DIR,
         "index.html"
@@ -61,7 +51,6 @@ def home():
 
 @app.route("/privacy.html")
 def privacy():
-
     return send_from_directory(
         BASE_DIR,
         "privacy.html"
@@ -70,7 +59,6 @@ def privacy():
 
 @app.route("/terms.html")
 def terms():
-
     return send_from_directory(
         BASE_DIR,
         "terms.html"
@@ -79,7 +67,6 @@ def terms():
 
 @app.route("/about.html")
 def about():
-
     return send_from_directory(
         BASE_DIR,
         "about.html"
@@ -88,7 +75,6 @@ def about():
 
 @app.route("/contact.html")
 def contact():
-
     return send_from_directory(
         BASE_DIR,
         "contact.html"
@@ -97,7 +83,6 @@ def contact():
 
 @app.route("/style.css")
 def styles():
-
     return send_from_directory(
         BASE_DIR,
         "style.css"
@@ -106,7 +91,6 @@ def styles():
 
 @app.route("/script.js")
 def scripts():
-
     return send_from_directory(
         BASE_DIR,
         "script.js"
@@ -115,7 +99,6 @@ def scripts():
 
 @app.route("/convertdocgoose-logo.png")
 def logo():
-
     return send_from_directory(
         BASE_DIR,
         "convertdocgoose-logo.png"
@@ -124,7 +107,6 @@ def logo():
 
 @app.route("/favicon.png")
 def favicon():
-
     return send_from_directory(
         BASE_DIR,
         "favicon.png"
@@ -132,7 +114,7 @@ def favicon():
 
 
 # ============================================================
-# FILE TOO LARGE
+# FILE SIZE ERROR
 # ============================================================
 
 @app.errorhandler(413)
@@ -162,9 +144,7 @@ def word_to_pdf():
         }), 400
 
 
-    uploaded_file = request.files[
-        "file"
-    ]
+    uploaded_file = request.files["file"]
 
 
     if uploaded_file.filename == "":
@@ -224,7 +204,7 @@ def word_to_pdf():
             if result.stdout:
 
                 print(
-                    "LibreOffice output:",
+                    "LibreOffice:",
                     result.stdout,
                     flush=True
                 )
@@ -276,9 +256,7 @@ def word_to_pdf():
 
 
         output_name = (
-            os.path.splitext(
-                filename
-            )[0]
+            os.path.splitext(filename)[0]
             + ".pdf"
         )
 
@@ -299,16 +277,6 @@ def word_to_pdf():
             }), 500
 
 
-        if os.path.getsize(
-            output_path
-        ) == 0:
-
-            return jsonify({
-                "error":
-                "The PDF was created but was empty."
-            }), 500
-
-
         return send_file(
             output_path,
             as_attachment=True,
@@ -319,7 +287,7 @@ def word_to_pdf():
 
 # ============================================================
 # EXACTDOC
-# NORMAL PDF CONVERSION
+# NORMAL PDF → WORD
 # ============================================================
 
 def run_exactdoc(
@@ -377,12 +345,12 @@ def pdf_has_interactive_form(
     input_path
 ):
 
-    document = None
+    pdf = None
 
 
     try:
 
-        document = fitz.open(
+        pdf = fitz.open(
             input_path
         )
 
@@ -390,7 +358,7 @@ def pdf_has_interactive_form(
         widget_count = 0
 
 
-        for page in document:
+        for page in pdf:
 
             widgets = page.widgets()
 
@@ -427,13 +395,243 @@ def pdf_has_interactive_form(
 
     finally:
 
-        if document is not None:
+        if pdf is not None:
 
-            document.close()
+            pdf.close()
 
 
 # ============================================================
-# FONT HELPERS
+# WORD XML HELPERS
+# ============================================================
+
+def set_cell_border(
+    cell,
+    top=None,
+    bottom=None,
+    left=None,
+    right=None
+):
+
+    tc = cell._tc
+
+    tcPr = tc.get_or_add_tcPr()
+
+
+    tcBorders = tcPr.first_child_found_in(
+        "w:tcBorders"
+    )
+
+
+    if tcBorders is None:
+
+        tcBorders = OxmlElement(
+            "w:tcBorders"
+        )
+
+        tcPr.append(
+            tcBorders
+        )
+
+
+    border_map = {
+        "top": top,
+        "bottom": bottom,
+        "left": left,
+        "right": right
+    }
+
+
+    for edge_name, edge in border_map.items():
+
+        if edge is None:
+
+            continue
+
+
+        tag = "w:" + edge_name
+
+        element = tcBorders.find(
+            qn(tag)
+        )
+
+
+        if element is None:
+
+            element = OxmlElement(
+                tag
+            )
+
+            tcBorders.append(
+                element
+            )
+
+
+        element.set(
+            qn("w:val"),
+            edge.get(
+                "val",
+                "single"
+            )
+        )
+
+        element.set(
+            qn("w:sz"),
+            str(
+                edge.get(
+                    "sz",
+                    6
+                )
+            )
+        )
+
+        element.set(
+            qn("w:color"),
+            edge.get(
+                "color",
+                "000000"
+            )
+        )
+
+
+def remove_all_cell_borders(
+    cell
+):
+
+    no_border = {
+        "val": "nil",
+        "sz": 0,
+        "color": "FFFFFF"
+    }
+
+
+    set_cell_border(
+        cell,
+        top=no_border,
+        bottom=no_border,
+        left=no_border,
+        right=no_border
+    )
+
+
+def set_cell_margins(
+    cell,
+    top=0,
+    start=40,
+    bottom=0,
+    end=40
+):
+
+    tc = cell._tc
+
+    tcPr = tc.get_or_add_tcPr()
+
+
+    tcMar = tcPr.first_child_found_in(
+        "w:tcMar"
+    )
+
+
+    if tcMar is None:
+
+        tcMar = OxmlElement(
+            "w:tcMar"
+        )
+
+        tcPr.append(
+            tcMar
+        )
+
+
+    values = {
+        "top": top,
+        "start": start,
+        "bottom": bottom,
+        "end": end
+    }
+
+
+    for margin_name, value in values.items():
+
+        node = tcMar.find(
+            qn(
+                "w:" + margin_name
+            )
+        )
+
+
+        if node is None:
+
+            node = OxmlElement(
+                "w:" + margin_name
+            )
+
+            tcMar.append(
+                node
+            )
+
+
+        node.set(
+            qn("w:w"),
+            str(value)
+        )
+
+        node.set(
+            qn("w:type"),
+            "dxa"
+        )
+
+
+def set_table_fixed_layout(
+    table
+):
+
+    tblPr = table._tbl.tblPr
+
+
+    tblLayout = tblPr.first_child_found_in(
+        "w:tblLayout"
+    )
+
+
+    if tblLayout is None:
+
+        tblLayout = OxmlElement(
+            "w:tblLayout"
+        )
+
+        tblPr.append(
+            tblLayout
+        )
+
+
+    tblLayout.set(
+        qn("w:type"),
+        "fixed"
+    )
+
+
+def set_repeat_table_header(
+    row
+):
+
+    trPr = row._tr.get_or_add_trPr()
+
+    tblHeader = OxmlElement(
+        "w:tblHeader"
+    )
+
+    tblHeader.set(
+        qn("w:val"),
+        "true"
+    )
+
+    trPr.append(
+        tblHeader
+    )
+
+
+# ============================================================
+# FONT NAME CLEANER
 # ============================================================
 
 def clean_font_name(
@@ -448,545 +646,48 @@ def clean_font_name(
     font_name = re.sub(
         r"^[A-Z]{6}\+",
         "",
-        font_name
+        str(font_name)
     )
 
 
-    lower_name = (
-        font_name.lower()
-    )
+    name_lower = font_name.lower()
 
 
-    if "helvetica" in lower_name:
+    if "helvetica" in name_lower:
 
         return "Arial"
 
 
-    if "times" in lower_name:
+    if "times" in name_lower:
 
         return "Times New Roman"
 
 
-    if "courier" in lower_name:
+    if "courier" in name_lower:
 
         return "Courier New"
-
-
-    if "arial" in lower_name:
-
-        return "Arial"
 
 
     return font_name
 
 
-def pdf_color_to_hex(
-    value
+# ============================================================
+# PDF TEXT EXTRACTION
+# ============================================================
+
+def extract_page_text_items(
+    page
 ):
 
-    try:
-
-        value = int(
-            value
-        )
-
-
-        red = (
-            value >> 16
-        ) & 255
-
-
-        green = (
-            value >> 8
-        ) & 255
-
-
-        blue = (
-            value
-        ) & 255
-
-
-        return (
-            f"{red:02X}"
-            f"{green:02X}"
-            f"{blue:02X}"
-        )
-
-
-    except Exception:
-
-        return "000000"
-
-
-# ============================================================
-# PT → EMU
-#
-# Word DrawingML positioning uses EMUs.
-#
-# 1 point = 12700 EMU
-# ============================================================
-
-def pt_to_emu(
-    value
-):
-
-    return int(
-        round(
-            float(value)
-            * 12700
-        )
+    data = page.get_text(
+        "dict"
     )
 
 
-# ============================================================
-# MODERN DRAWINGML EDITABLE TEXT BOX
-# ============================================================
+    items = []
 
-def add_drawingml_textbox(
-    paragraph,
-    text,
-    x,
-    y,
-    width,
-    height,
-    font_name="Arial",
-    font_size=10,
-    color="000000",
-    bold=False,
-    italic=False
-):
 
-    if text is None:
-
-        return
-
-
-    text = str(
-        text
-    )
-
-
-    if not text.strip():
-
-        return
-
-
-    drawing_id = next(
-        DRAWING_ID_COUNTER
-    )
-
-
-    x = max(
-        0,
-        float(x)
-    )
-
-
-    y = max(
-        0,
-        float(y)
-    )
-
-
-    width = max(
-        4,
-        float(width) + 2
-    )
-
-
-    height = max(
-        float(font_size) * 1.25,
-        float(height) + 1
-    )
-
-
-    x_emu = pt_to_emu(
-        x
-    )
-
-    y_emu = pt_to_emu(
-        y
-    )
-
-    width_emu = pt_to_emu(
-        width
-    )
-
-    height_emu = pt_to_emu(
-        height
-    )
-
-
-    safe_text = escape(
-        text
-    )
-
-
-    safe_font = escape(
-        clean_font_name(
-            font_name
-        ),
-        {
-            '"': "&quot;"
-        }
-    )
-
-
-    safe_color = re.sub(
-        r"[^0-9A-Fa-f]",
-        "",
-        str(color)
-    )
-
-
-    if len(
-        safe_color
-    ) != 6:
-
-        safe_color = "000000"
-
-
-    font_half_points = max(
-        2,
-        int(
-            round(
-                float(font_size)
-                * 2
-            )
-        )
-    )
-
-
-    bold_xml = (
-        "<w:b/>"
-        if bold
-        else ""
-    )
-
-
-    italic_xml = (
-        "<w:i/>"
-        if italic
-        else ""
-    )
-
-
-    # Modern Wordprocessing Shape.
-    #
-    # This uses:
-    # wp:anchor
-    # a:graphic
-    # wps:wsp
-    # wps:txbx
-    #
-    # instead of the older VML <w:pict>.
-    drawing_xml = f"""
-    <w:r
-        xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-        xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-        xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-        xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
-
-        <w:drawing>
-
-            <wp:anchor
-                distT="0"
-                distB="0"
-                distL="0"
-                distR="0"
-                simplePos="0"
-                relativeHeight="251700000"
-                behindDoc="0"
-                locked="0"
-                layoutInCell="1"
-                allowOverlap="1">
-
-                <wp:simplePos
-                    x="0"
-                    y="0"
-                />
-
-                <wp:positionH
-                    relativeFrom="page">
-
-                    <wp:posOffset>
-                        {x_emu}
-                    </wp:posOffset>
-
-                </wp:positionH>
-
-                <wp:positionV
-                    relativeFrom="page">
-
-                    <wp:posOffset>
-                        {y_emu}
-                    </wp:posOffset>
-
-                </wp:positionV>
-
-                <wp:extent
-                    cx="{width_emu}"
-                    cy="{height_emu}"
-                />
-
-                <wp:effectExtent
-                    l="0"
-                    t="0"
-                    r="0"
-                    b="0"
-                />
-
-                <wp:wrapNone/>
-
-                <wp:docPr
-                    id="{drawing_id}"
-                    name="Editable PDF Text {drawing_id}"
-                />
-
-                <wp:cNvGraphicFramePr>
-
-                    <a:graphicFrameLocks
-                        noChangeAspect="0"
-                    />
-
-                </wp:cNvGraphicFramePr>
-
-                <a:graphic>
-
-                    <a:graphicData
-                        uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
-
-                        <wps:wsp>
-
-                            <wps:cNvSpPr
-                                txBox="1"
-                            />
-
-                            <wps:spPr>
-
-                                <a:xfrm>
-
-                                    <a:off
-                                        x="0"
-                                        y="0"
-                                    />
-
-                                    <a:ext
-                                        cx="{width_emu}"
-                                        cy="{height_emu}"
-                                    />
-
-                                </a:xfrm>
-
-                                <a:prstGeom
-                                    prst="rect">
-
-                                    <a:avLst/>
-
-                                </a:prstGeom>
-
-                                <a:noFill/>
-
-                                <a:ln>
-
-                                    <a:noFill/>
-
-                                </a:ln>
-
-                            </wps:spPr>
-
-                            <wps:txbx>
-
-                                <w:txbxContent>
-
-                                    <w:p>
-
-                                        <w:pPr>
-
-                                            <w:spacing
-                                                w:before="0"
-                                                w:after="0"
-                                                w:line="200"
-                                                w:lineRule="auto"
-                                            />
-
-                                        </w:pPr>
-
-                                        <w:r>
-
-                                            <w:rPr>
-
-                                                <w:rFonts
-                                                    w:ascii="{safe_font}"
-                                                    w:hAnsi="{safe_font}"
-                                                    w:eastAsia="{safe_font}"
-                                                />
-
-                                                <w:sz
-                                                    w:val="{font_half_points}"
-                                                />
-
-                                                <w:szCs
-                                                    w:val="{font_half_points}"
-                                                />
-
-                                                <w:color
-                                                    w:val="{safe_color}"
-                                                />
-
-                                                {bold_xml}
-
-                                                {italic_xml}
-
-                                            </w:rPr>
-
-                                            <w:t
-                                                xml:space="preserve">{safe_text}</w:t>
-
-                                        </w:r>
-
-                                    </w:p>
-
-                                </w:txbxContent>
-
-                            </wps:txbx>
-
-                            <wps:bodyPr
-                                wrap="none"
-                                lIns="0"
-                                tIns="0"
-                                rIns="0"
-                                bIns="0"
-                                anchor="t">
-
-                                <a:spAutoFit/>
-
-                            </wps:bodyPr>
-
-                        </wps:wsp>
-
-                    </a:graphicData>
-
-                </a:graphic>
-
-            </wp:anchor>
-
-        </w:drawing>
-
-    </w:r>
-    """
-
-
-    drawing = parse_xml(
-        drawing_xml
-    )
-
-
-    paragraph._p.append(
-        drawing
-    )
-
-
-# ============================================================
-# CREATE FORM BACKGROUND
-# ============================================================
-
-def create_form_background(
-    document,
-    page_number,
-    temp_dir
-):
-
-    original_page = (
-        document.load_page(
-            page_number
-        )
-    )
-
-
-    page_width = float(
-        original_page.rect.width
-    )
-
-
-    page_height = float(
-        original_page.rect.height
-    )
-
-
-    # ========================================================
-    # RENDER ORIGINAL PAGE
-    #
-    # annots=True is important because it renders the visible
-    # PDF form widgets/check boxes.
-    # ========================================================
-
-    original_pixmap = (
-        original_page.get_pixmap(
-            matrix=fitz.Matrix(
-                2,
-                2
-            ),
-            alpha=False,
-            annots=True
-        )
-    )
-
-
-    original_image_path = os.path.join(
-        temp_dir,
-        f"form_original_{page_number}.png"
-    )
-
-
-    original_pixmap.save(
-        original_image_path
-    )
-
-
-    # ========================================================
-    # TEMPORARY PDF USED TO REMOVE STATIC TEXT
-    # ========================================================
-
-    background_pdf = fitz.open()
-
-
-    background_page = (
-        background_pdf.new_page(
-            width=page_width,
-            height=page_height
-        )
-    )
-
-
-    background_page.insert_image(
-        background_page.rect,
-        filename=original_image_path
-    )
-
-
-    # ========================================================
-    # EXTRACT PDF TEXT WITH GEOMETRY
-    # ========================================================
-
-    page_data = (
-        original_page.get_text(
-            "dict"
-        )
-    )
-
-
-    text_span_count = 0
-
-
-    # ========================================================
-    # REMOVE STATIC TEXT FROM BACKGROUND
-    #
-    # We retain the boxes, lines, checkboxes, shading, etc.
-    # Then DrawingML editable text goes back on top.
-    # ========================================================
-
-    for block in page_data.get(
+    for block in data.get(
         "blocks",
         []
     ):
@@ -1003,10 +704,13 @@ def create_form_background(
             []
         ):
 
-            for span in line.get(
+            line_spans = line.get(
                 "spans",
                 []
-            ):
+            )
+
+
+            for span in line_spans:
 
                 text = span.get(
                     "text",
@@ -1029,107 +733,296 @@ def create_form_background(
                     continue
 
 
-                rect = fitz.Rect(
-                    bbox
+                font_name = clean_font_name(
+                    span.get(
+                        "font",
+                        "Arial"
+                    )
                 )
 
 
-                # Small padding prevents remnants of
-                # anti-aliased PDF text from remaining.
-                rect.x0 -= 0.8
-                rect.x1 += 0.8
-                rect.y0 -= 0.5
-                rect.y1 += 0.5
+                raw_font = str(
+                    span.get(
+                        "font",
+                        ""
+                    )
+                ).lower()
 
 
-                # Keep rectangle inside page boundaries.
-                rect.x0 = max(
-                    0,
-                    rect.x0
-                )
+                items.append({
+                    "text":
+                        text,
 
-                rect.y0 = max(
-                    0,
-                    rect.y0
-                )
+                    "x0":
+                        float(
+                            bbox[0]
+                        ),
 
-                rect.x1 = min(
-                    page_width,
-                    rect.x1
-                )
+                    "y0":
+                        float(
+                            bbox[1]
+                        ),
 
-                rect.y1 = min(
-                    page_height,
-                    rect.y1
-                )
+                    "x1":
+                        float(
+                            bbox[2]
+                        ),
+
+                    "y1":
+                        float(
+                            bbox[3]
+                        ),
+
+                    "font_size":
+                        float(
+                            span.get(
+                                "size",
+                                9
+                            )
+                        ),
+
+                    "font_name":
+                        font_name,
+
+                    "bold":
+                        (
+                            "bold"
+                            in raw_font
+                            or
+                            "black"
+                            in raw_font
+                            or
+                            "heavy"
+                            in raw_font
+                        ),
+
+                    "italic":
+                        (
+                            "italic"
+                            in raw_font
+                            or
+                            "oblique"
+                            in raw_font
+                        )
+                })
 
 
-                background_page.draw_rect(
-                    rect,
-                    color=None,
-                    fill=(
-                        1,
-                        1,
-                        1
-                    ),
-                    overlay=True
-                )
+    return items
 
 
-                text_span_count += 1
+# ============================================================
+# GROUP TEXT INTO VISUAL ROWS
+# ============================================================
 
+def group_items_into_rows(
+    items,
+    tolerance=4.0
+):
 
-    print(
-        "Static PDF text areas removed:",
-        text_span_count,
-        flush=True
-    )
-
-
-    # ========================================================
-    # RENDER CLEAN BACKGROUND
-    # ========================================================
-
-    background_pixmap = (
-        background_page.get_pixmap(
-            matrix=fitz.Matrix(
-                2,
-                2
-            ),
-            alpha=False
+    items = sorted(
+        items,
+        key=lambda item: (
+            item["y0"],
+            item["x0"]
         )
     )
 
 
-    background_image_path = os.path.join(
-        temp_dir,
-        f"form_background_{page_number}.png"
-    )
+    rows = []
 
 
-    background_pixmap.save(
-        background_image_path
-    )
+    for item in items:
+
+        found_row = None
 
 
-    background_pdf.close()
+        for row in rows:
+
+            if abs(
+                row["y"] -
+                item["y0"]
+            ) <= tolerance:
+
+                found_row = row
+
+                break
 
 
-    return (
-        background_image_path,
-        page_width,
-        page_height,
-        page_data
+        if found_row is None:
+
+            found_row = {
+                "y":
+                    item["y0"],
+
+                "items":
+                    []
+            }
+
+            rows.append(
+                found_row
+            )
+
+
+        found_row[
+            "items"
+        ].append(
+            item
+        )
+
+
+    for row in rows:
+
+        row["items"] = sorted(
+            row["items"],
+            key=lambda item:
+                item["x0"]
+        )
+
+
+    return sorted(
+        rows,
+        key=lambda row:
+            row["y"]
     )
 
 
 # ============================================================
-# SET PARAGRAPH TO ZERO HEIGHT / ZERO SPACING
+# PDF FORM WIDGET EXTRACTION
 # ============================================================
 
-def configure_anchor_paragraph(
-    paragraph
+def extract_widget_items(
+    page
 ):
+
+    result = []
+
+
+    widgets = page.widgets()
+
+
+    if not widgets:
+
+        return result
+
+
+    for widget in widgets:
+
+        rect = widget.rect
+
+
+        field_type = (
+            widget.field_type_string
+            or
+            ""
+        ).lower()
+
+
+        value = (
+            widget.field_value
+            or
+            ""
+        )
+
+
+        item = {
+            "x0":
+                float(
+                    rect.x0
+                ),
+
+            "y0":
+                float(
+                    rect.y0
+                ),
+
+            "x1":
+                float(
+                    rect.x1
+                ),
+
+            "y1":
+                float(
+                    rect.y1
+                ),
+
+            "type":
+                field_type,
+
+            "value":
+                str(
+                    value
+                ),
+
+            "name":
+                str(
+                    widget.field_name
+                    or
+                    ""
+                )
+        }
+
+
+        result.append(
+            item
+        )
+
+
+    return result
+
+
+# ============================================================
+# DETERMINE COLUMN
+#
+# We use 3 main page regions for form-style PDFs.
+#
+# This works much better for structured court forms such
+# as LA-350 than trying to make floating Word text boxes.
+# ============================================================
+
+def determine_column(
+    x_center,
+    page_width
+):
+
+    first_boundary = (
+        page_width
+        * 0.34
+    )
+
+
+    second_boundary = (
+        page_width
+        * 0.67
+    )
+
+
+    if x_center < first_boundary:
+
+        return 0
+
+
+    if x_center < second_boundary:
+
+        return 1
+
+
+    return 2
+
+
+# ============================================================
+# ADD PDF TEXT INTO A NATIVE WORD CELL
+# ============================================================
+
+def add_text_item_to_cell(
+    cell,
+    item,
+    add_space=True
+):
+
+    paragraph = cell.paragraphs[
+        0
+    ]
+
 
     paragraph.paragraph_format.space_before = Pt(
         0
@@ -1139,55 +1032,559 @@ def configure_anchor_paragraph(
         0
     )
 
-    paragraph.paragraph_format.line_spacing = Pt(
-        1
+
+    if (
+        add_space
+        and
+        paragraph.text
+    ):
+
+        paragraph.add_run(
+            " "
+        )
+
+
+    run = paragraph.add_run(
+        item["text"]
     )
 
 
-    paragraph_xml = paragraph._p
+    run.font.name = item[
+        "font_name"
+    ]
 
 
-    ppr = paragraph_xml.get_or_add_pPr()
-
-
-    spacing = ppr.find(
-        qn(
-            "w:spacing"
+    run.font.size = Pt(
+        max(
+            6,
+            min(
+                item[
+                    "font_size"
+                ],
+                14
+            )
         )
     )
 
 
-    if spacing is None:
+    run.bold = item[
+        "bold"
+    ]
 
-        spacing_xml = parse_xml(
-            """
-            <w:spacing
-                xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-                w:before="0"
-                w:after="0"
-                w:line="20"
-                w:lineRule="exact"
-            />
-            """
-        )
 
-        ppr.append(
-            spacing_xml
-        )
+    run.italic = item[
+        "italic"
+    ]
 
 
 # ============================================================
-# INTERACTIVE FORM → EDITABLE DOCX
+# ADD CHECKBOX / FORM FIELD INTO CELL
+# ============================================================
+
+def add_widget_to_cell(
+    cell,
+    widget
+):
+
+    paragraph = cell.paragraphs[
+        0
+    ]
+
+
+    if paragraph.text:
+
+        paragraph.add_run(
+            " "
+        )
+
+
+    field_type = widget[
+        "type"
+    ]
+
+
+    value = widget[
+        "value"
+    ].strip()
+
+
+    # --------------------------------------
+    # Checkbox
+    # --------------------------------------
+
+    if "check" in field_type:
+
+        checked_values = {
+            "yes",
+            "on",
+            "1",
+            "true",
+            "checked"
+        }
+
+
+        checked = (
+            value.lower()
+            in checked_values
+        )
+
+
+        symbol = (
+            "☒"
+            if checked
+            else
+            "☐"
+        )
+
+
+        run = paragraph.add_run(
+            symbol
+        )
+
+        run.font.name = "Arial"
+
+        run.font.size = Pt(
+            9
+        )
+
+        return
+
+
+    # --------------------------------------
+    # Radio
+    # --------------------------------------
+
+    if "radio" in field_type:
+
+        selected = bool(
+            value
+            and
+            value.lower()
+            not in {
+                "off",
+                "0",
+                "false"
+            }
+        )
+
+
+        symbol = (
+            "●"
+            if selected
+            else
+            "○"
+        )
+
+
+        run = paragraph.add_run(
+            symbol
+        )
+
+        run.font.name = "Arial"
+
+        run.font.size = Pt(
+            8
+        )
+
+        return
+
+
+    # --------------------------------------
+    # Text / Combo / List
+    # --------------------------------------
+
+    if (
+        "text" in field_type
+        or
+        "combo" in field_type
+        or
+        "list" in field_type
+    ):
+
+        if value:
+
+            run = paragraph.add_run(
+                value
+            )
+
+            run.font.name = "Arial"
+
+            run.font.size = Pt(
+                9
+            )
+
+
+# ============================================================
+# BUILD PAGE AS NATIVE WORD TABLE
+# ============================================================
+
+def add_native_form_page(
+    document,
+    page,
+    page_number
+):
+
+    page_width = float(
+        page.rect.width
+    )
+
+
+    page_height = float(
+        page.rect.height
+    )
+
+
+    print(
+        f"Native form page {page_number + 1}: "
+        f"{page_width:.1f} x {page_height:.1f}",
+        flush=True
+    )
+
+
+    text_items = extract_page_text_items(
+        page
+    )
+
+
+    widgets = extract_widget_items(
+        page
+    )
+
+
+    print(
+        "Text items extracted:",
+        len(text_items),
+        flush=True
+    )
+
+
+    print(
+        "Widget items extracted:",
+        len(widgets),
+        flush=True
+    )
+
+
+    rows = group_items_into_rows(
+        text_items,
+        tolerance=4.0
+    )
+
+
+    # Add widget positions as row anchors too.
+    for widget in widgets:
+
+        target = None
+
+
+        for row in rows:
+
+            if abs(
+                row["y"] -
+                widget["y0"]
+            ) <= 5:
+
+                target = row
+
+                break
+
+
+        if target is None:
+
+            rows.append({
+                "y":
+                    widget[
+                        "y0"
+                    ],
+
+                "items":
+                    []
+            })
+
+
+    rows = sorted(
+        rows,
+        key=lambda row:
+            row["y"]
+    )
+
+
+    # Limit absurdly dense PDFs.
+    # The LA-350 form is comfortably below this.
+    if len(rows) > 120:
+
+        rows = rows[
+            :120
+        ]
+
+
+    if not rows:
+
+        paragraph = document.add_paragraph(
+            "No editable text could be extracted from this form."
+        )
+
+        return
+
+
+    # --------------------------------------------------------
+    # Three-column fixed native Word table.
+    # --------------------------------------------------------
+
+    table = document.add_table(
+        rows=len(rows),
+        cols=3
+    )
+
+
+    table.alignment = (
+        WD_TABLE_ALIGNMENT.CENTER
+    )
+
+
+    table.autofit = False
+
+
+    set_table_fixed_layout(
+        table
+    )
+
+
+    # Use available width slightly smaller than full page.
+    # Court forms typically use US Letter with margins.
+    usable_width = max(
+        400,
+        page_width - 52
+    )
+
+
+    column_widths = [
+        usable_width * 0.34,
+        usable_width * 0.33,
+        usable_width * 0.33
+    ]
+
+
+    for row in table.rows:
+
+        for column_index, cell in enumerate(
+            row.cells
+        ):
+
+            cell.width = Pt(
+                column_widths[
+                    column_index
+                ]
+            )
+
+
+            cell.vertical_alignment = (
+                WD_CELL_VERTICAL_ALIGNMENT.TOP
+            )
+
+
+            set_cell_margins(
+                cell,
+                top=0,
+                bottom=0,
+                start=30,
+                end=30
+            )
+
+
+            # Start borderless.
+            remove_all_cell_borders(
+                cell
+            )
+
+
+    # --------------------------------------------------------
+    # Build each visual row.
+    # --------------------------------------------------------
+
+    previous_y = rows[
+        0
+    ][
+        "y"
+    ]
+
+
+    for row_index, row_data in enumerate(
+        rows
+    ):
+
+        word_row = table.rows[
+            row_index
+        ]
+
+
+        current_y = row_data[
+            "y"
+        ]
+
+
+        gap = max(
+            7,
+            min(
+                28,
+                current_y -
+                previous_y
+            )
+        )
+
+
+        # Word row height
+        word_row.height = Pt(
+            gap
+        )
+
+
+        previous_y = current_y
+
+
+        # Native PDF text
+        for item in row_data[
+            "items"
+        ]:
+
+            center_x = (
+                item["x0"]
+                +
+                item["x1"]
+            ) / 2
+
+
+            column = determine_column(
+                center_x,
+                page_width
+            )
+
+
+            add_text_item_to_cell(
+                word_row.cells[
+                    column
+                ],
+                item
+            )
+
+
+        # Widgets belonging to same visual row
+        for widget in widgets:
+
+            if abs(
+                widget["y0"] -
+                current_y
+            ) > 5:
+
+                continue
+
+
+            center_x = (
+                widget["x0"]
+                +
+                widget["x1"]
+            ) / 2
+
+
+            column = determine_column(
+                center_x,
+                page_width
+            )
+
+
+            add_widget_to_cell(
+                word_row.cells[
+                    column
+                ],
+                widget
+            )
+
+
+    # --------------------------------------------------------
+    # Add borders around rows that look like major form bands.
+    #
+    # This uses real Word table borders.
+    # --------------------------------------------------------
+
+    for row_index, row_data in enumerate(
+        rows
+    ):
+
+        text = " ".join(
+            item["text"]
+            for item in row_data[
+                "items"
+            ]
+        ).lower()
+
+
+        major_sections = (
+            "services",
+            "languages",
+            "language assistance",
+            "service area",
+            "date",
+            "signature",
+            "name"
+        )
+
+
+        if any(
+            phrase in text
+            for phrase in major_sections
+        ):
+
+            for cell in table.rows[
+                row_index
+            ].cells:
+
+                border = {
+                    "val":
+                        "single",
+
+                    "sz":
+                        5,
+
+                    "color":
+                        "000000"
+                }
+
+
+                set_cell_border(
+                    cell,
+                    top=border,
+                    bottom=border,
+                    left=border,
+                    right=border
+                )
+
+
+    # --------------------------------------------------------
+    # Small spacing after form table.
+    # --------------------------------------------------------
+
+    paragraph = document.add_paragraph()
+
+    paragraph.paragraph_format.space_before = Pt(
+        0
+    )
+
+    paragraph.paragraph_format.space_after = Pt(
+        0
+    )
+
+
+# ============================================================
+# INTERACTIVE FORM → NATIVE WORD DOCX
 # ============================================================
 
 def convert_interactive_form_to_docx(
     input_path,
-    output_path,
-    temp_dir
+    output_path
 ):
 
     print(
-        "Starting DrawingML interactive-form conversion...",
+        "Starting native Word form reconstruction...",
         flush=True
     )
 
@@ -1197,108 +1594,50 @@ def convert_interactive_form_to_docx(
     )
 
 
-    word = Document()
+    document = Document()
 
 
-    print(
-        "PDF pages:",
-        pdf.page_count,
-        flush=True
-    )
+    # --------------------------------------------------------
+    # PAGE SETUP
+    # --------------------------------------------------------
+
+    if pdf.page_count > 0:
+
+        first_page = pdf[
+            0
+        ]
 
 
-    # Explicitly create first paragraph.
-    first_paragraph = (
-        word.add_paragraph()
-    )
-
-
-    for page_number in range(
-        pdf.page_count
-    ):
-
-        print(
-            "---------------------------------",
-            flush=True
-        )
-
-
-        print(
-            f"Building Word page "
-            f"{page_number + 1} "
-            f"of {pdf.page_count}",
-            flush=True
-        )
-
-
-        (
-            background_path,
-            page_width,
-            page_height,
-            page_data
-        ) = create_form_background(
-            pdf,
-            page_number,
-            temp_dir
-        )
-
-
-        print(
-            "Form background created.",
-            flush=True
-        )
-
-
-        # ====================================================
-        # PAGE / SECTION SETUP
-        # ====================================================
-
-        if page_number == 0:
-
-            section = (
-                word.sections[0]
-            )
-
-            paragraph = (
-                first_paragraph
-            )
-
-
-        else:
-
-            section = word.add_section(
-                WD_SECTION.NEW_PAGE
-            )
-
-            paragraph = (
-                word.add_paragraph()
-            )
+        section = document.sections[
+            0
+        ]
 
 
         section.page_width = Pt(
-            page_width
+            first_page.rect.width
         )
 
 
         section.page_height = Pt(
-            page_height
+            first_page.rect.height
         )
 
 
+        # Tight margins help us retain the form on one page.
         section.top_margin = Pt(
-            0
+            14
         )
 
         section.bottom_margin = Pt(
-            0
+            14
         )
 
         section.left_margin = Pt(
-            0
+            18
         )
 
         section.right_margin = Pt(
-            0
+            18
         )
 
 
@@ -1311,378 +1650,77 @@ def convert_interactive_form_to_docx(
         )
 
 
-        configure_anchor_paragraph(
-            paragraph
+    # --------------------------------------------------------
+    # REMOVE THE DEFAULT EMPTY PARAGRAPH WHEN POSSIBLE
+    # --------------------------------------------------------
+
+    if document.paragraphs:
+
+        paragraph = document.paragraphs[
+            0
+        ]
+
+        paragraph.paragraph_format.space_before = Pt(
+            0
+        )
+
+        paragraph.paragraph_format.space_after = Pt(
+            0
+        )
+
+        paragraph.paragraph_format.line_spacing = Pt(
+            1
         )
 
 
-        # ====================================================
-        # INSERT BACKGROUND PAGE IMAGE
-        # ====================================================
+    # --------------------------------------------------------
+    # BUILD PAGES
+    # --------------------------------------------------------
 
-        print(
-            "Adding form background...",
-            flush=True
-        )
+    for page_number in range(
+        pdf.page_count
+    ):
 
+        if page_number > 0:
 
-        background_run = (
-            paragraph.add_run()
-        )
+            document.add_page_break()
 
 
-        # Tiny reduction in height prevents Word from
-        # thinking the image extends onto another page.
-        background_run.add_picture(
-            background_path,
-            width=Pt(
-                page_width
-            ),
-            height=Pt(
-                max(
-                    1,
-                    page_height - 3
-                )
-            )
-        )
+        page = pdf[
+            page_number
+        ]
 
 
-        print(
-            "Form background inserted.",
-            flush=True
-        )
-
-
-        # ====================================================
-        # EDITABLE STATIC PDF TEXT
-        # ====================================================
-
-        static_text_count = 0
-
-
-        for block in page_data.get(
-            "blocks",
-            []
-        ):
-
-            if block.get(
-                "type"
-            ) != 0:
-
-                continue
-
-
-            for line in block.get(
-                "lines",
-                []
-            ):
-
-                for span in line.get(
-                    "spans",
-                    []
-                ):
-
-                    text = span.get(
-                        "text",
-                        ""
-                    )
-
-
-                    if not text.strip():
-
-                        continue
-
-
-                    bbox = span.get(
-                        "bbox"
-                    )
-
-
-                    if not bbox:
-
-                        continue
-
-
-                    x0 = float(
-                        bbox[0]
-                    )
-
-                    y0 = float(
-                        bbox[1]
-                    )
-
-                    x1 = float(
-                        bbox[2]
-                    )
-
-                    y1 = float(
-                        bbox[3]
-                    )
-
-
-                    width = max(
-                        2,
-                        x1 - x0
-                    )
-
-
-                    height = max(
-                        2,
-                        y1 - y0
-                    )
-
-
-                    font_size = float(
-                        span.get(
-                            "size",
-                            10
-                        )
-                    )
-
-
-                    raw_font = str(
-                        span.get(
-                            "font",
-                            "Arial"
-                        )
-                    )
-
-
-                    font_name = (
-                        clean_font_name(
-                            raw_font
-                        )
-                    )
-
-
-                    lower_font = (
-                        raw_font.lower()
-                    )
-
-
-                    bold = (
-                        "bold"
-                        in lower_font
-                        or
-                        "black"
-                        in lower_font
-                        or
-                        "heavy"
-                        in lower_font
-                    )
-
-
-                    italic = (
-                        "italic"
-                        in lower_font
-                        or
-                        "oblique"
-                        in lower_font
-                    )
-
-
-                    color = (
-                        pdf_color_to_hex(
-                            span.get(
-                                "color",
-                                0
-                            )
-                        )
-                    )
-
-
-                    # PDF baseline/Word textbox alignment
-                    # differs slightly. Small adjustment.
-                    adjusted_y = max(
-                        0,
-                        y0 - 0.8
-                    )
-
-
-                    add_drawingml_textbox(
-                        paragraph=paragraph,
-                        text=text,
-                        x=x0,
-                        y=adjusted_y,
-                        width=width,
-                        height=height,
-                        font_name=font_name,
-                        font_size=font_size,
-                        color=color,
-                        bold=bold,
-                        italic=italic
-                    )
-
-
-                    static_text_count += 1
-
-
-        print(
-            "DrawingML static text boxes added:",
-            static_text_count,
-            flush=True
-        )
-
-
-        # ====================================================
-        # FORM FIELD VALUES
-        # ====================================================
-
-        source_page = (
-            pdf.load_page(
-                page_number
-            )
-        )
-
-
-        widgets = (
-            source_page.widgets()
-        )
-
-
-        widget_count = 0
-
-        editable_field_count = 0
-
-
-        if widgets:
-
-            for widget in widgets:
-
-                widget_count += 1
-
-
-                field_type = (
-                    widget.field_type_string
-                    or
-                    ""
-                ).lower()
-
-
-                field_value = (
-                    widget.field_value
-                    or
-                    ""
-                )
-
-
-                field_rect = (
-                    widget.rect
-                )
-
-
-                # --------------------------------------------
-                # TEXT / COMBO / LIST FIELDS
-                # --------------------------------------------
-
-                if (
-                    (
-                        "text"
-                        in field_type
-                        or
-                        "combo"
-                        in field_type
-                        or
-                        "list"
-                        in field_type
-                    )
-                    and
-                    str(
-                        field_value
-                    ).strip()
-                ):
-
-                    field_height = max(
-                        8,
-                        float(
-                            field_rect.height
-                        )
-                    )
-
-
-                    field_font_size = max(
-                        7,
-                        min(
-                            11,
-                            field_height
-                            * 0.55
-                        )
-                    )
-
-
-                    add_drawingml_textbox(
-                        paragraph=paragraph,
-                        text=str(
-                            field_value
-                        ),
-                        x=float(
-                            field_rect.x0
-                        ) + 1.5,
-                        y=float(
-                            field_rect.y0
-                        ) + 0.5,
-                        width=max(
-                            6,
-                            float(
-                                field_rect.width
-                            ) - 3
-                        ),
-                        height=max(
-                            7,
-                            float(
-                                field_rect.height
-                            ) - 1
-                        ),
-                        font_name="Arial",
-                        font_size=field_font_size,
-                        color="000000"
-                    )
-
-
-                    editable_field_count += 1
-
-
-        print(
-            "PDF widgets processed:",
-            widget_count,
-            flush=True
-        )
-
-
-        print(
-            "Editable form values added:",
-            editable_field_count,
-            flush=True
+        add_native_form_page(
+            document,
+            page,
+            page_number
         )
 
 
     pdf.close()
 
 
-    # ========================================================
-    # SAVE DOCX
-    # ========================================================
-
     print(
-        "Saving DrawingML DOCX...",
+        "Saving native Word form...",
         flush=True
     )
 
 
-    word.save(
+    document.save(
         output_path
     )
 
 
     print(
-        "DrawingML interactive-form DOCX created:",
+        "Native form DOCX created:",
         output_path,
         flush=True
     )
 
 
 # ============================================================
-# PDF → WORD
+# PDF → WORD ROUTE
 # ============================================================
 
 @app.route(
@@ -1778,18 +1816,14 @@ def pdf_to_word():
             )
 
 
-            # =================================================
-            # INTERACTIVE FORM DETECTION
-            # =================================================
-
-            is_interactive_form = (
+            interactive = (
                 pdf_has_interactive_form(
                     input_path
                 )
             )
 
 
-            if is_interactive_form:
+            if interactive:
 
                 print(
                     "Interactive PDF detected.",
@@ -1798,16 +1832,14 @@ def pdf_to_word():
 
 
                 print(
-                    "Using modern DrawingML "
-                    "fixed-layout converter.",
+                    "Using native Word table/form reconstruction.",
                     flush=True
                 )
 
 
                 convert_interactive_form_to_docx(
                     input_path,
-                    output_path,
-                    temp_dir
+                    output_path
                 )
 
 
@@ -1889,9 +1921,9 @@ def pdf_to_word():
             }), 500
 
 
-        # =====================================================
-        # VERIFY OUTPUT
-        # =====================================================
+        # ----------------------------------------------------
+        # VERIFY DOCX
+        # ----------------------------------------------------
 
         if not os.path.exists(
             output_path
@@ -1959,6 +1991,6 @@ if __name__ == "__main__":
 
 
     app.run(
-        host="0.0.0.0",
+        host="0.0.0.0,
         port=port
     )
