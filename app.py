@@ -12,8 +12,6 @@ import os
 import subprocess
 import tempfile
 
-import pikepdf
-
 
 # =========================================
 # BASIC CONFIG
@@ -36,7 +34,6 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_FILE_SIZE
 
 @app.route("/")
 def home():
-
     return send_from_directory(
         BASE_DIR,
         "index.html"
@@ -45,7 +42,6 @@ def home():
 
 @app.route("/privacy.html")
 def privacy():
-
     return send_from_directory(
         BASE_DIR,
         "privacy.html"
@@ -54,7 +50,6 @@ def privacy():
 
 @app.route("/terms.html")
 def terms():
-
     return send_from_directory(
         BASE_DIR,
         "terms.html"
@@ -63,7 +58,6 @@ def terms():
 
 @app.route("/about.html")
 def about():
-
     return send_from_directory(
         BASE_DIR,
         "about.html"
@@ -72,7 +66,6 @@ def about():
 
 @app.route("/contact.html")
 def contact():
-
     return send_from_directory(
         BASE_DIR,
         "contact.html"
@@ -81,7 +74,6 @@ def contact():
 
 @app.route("/style.css")
 def styles():
-
     return send_from_directory(
         BASE_DIR,
         "style.css"
@@ -90,7 +82,6 @@ def styles():
 
 @app.route("/script.js")
 def scripts():
-
     return send_from_directory(
         BASE_DIR,
         "script.js"
@@ -99,7 +90,6 @@ def scripts():
 
 @app.route("/convertdocgoose-logo.png")
 def logo():
-
     return send_from_directory(
         BASE_DIR,
         "convertdocgoose-logo.png"
@@ -108,7 +98,6 @@ def logo():
 
 @app.route("/favicon.png")
 def favicon():
-
     return send_from_directory(
         BASE_DIR,
         "favicon.png"
@@ -258,7 +247,9 @@ def word_to_pdf():
 
 
         output_name = (
-            os.path.splitext(filename)[0]
+            os.path.splitext(
+                filename
+            )[0]
             + ".pdf"
         )
 
@@ -269,7 +260,9 @@ def word_to_pdf():
         )
 
 
-        if not os.path.exists(output_path):
+        if not os.path.exists(
+            output_path
+        ):
 
             return jsonify({
                 "error":
@@ -277,7 +270,9 @@ def word_to_pdf():
             }), 500
 
 
-        if os.path.getsize(output_path) == 0:
+        if os.path.getsize(
+            output_path
+        ) == 0:
 
             return jsonify({
                 "error":
@@ -294,7 +289,7 @@ def word_to_pdf():
 
 
 # =========================================
-# EXACTDOC HELPER
+# EXACTDOC
 # =========================================
 
 def run_exactdoc(
@@ -309,7 +304,7 @@ def run_exactdoc(
     )
 
 
-    return subprocess.run(
+    result = subprocess.run(
         [
             "exactdoc",
             input_path,
@@ -323,17 +318,38 @@ def run_exactdoc(
     )
 
 
+    if result.stdout:
+
+        print(
+            "ExactDoc output:",
+            result.stdout,
+            flush=True
+        )
+
+
+    if result.stderr:
+
+        print(
+            "ExactDoc warnings:",
+            result.stderr,
+            flush=True
+        )
+
+
+    return result
+
+
 # =========================================
-# OCR HELPER
+# FORCE OCR / FULL RASTERIZE
 # =========================================
 
-def create_ocr_pdf(
+def create_clean_ocr_pdf(
     input_path,
     output_path
 ):
 
     print(
-        "Running OCRmyPDF...",
+        "Creating completely flattened OCR version of PDF...",
         flush=True
     )
 
@@ -342,27 +358,37 @@ def create_ocr_pdf(
         [
             "ocrmypdf",
 
-            "--skip-text",
+            "--mode",
+            "force",
+
+            "--output-type",
+            "pdf",
+
+            "--optimize",
+            "0",
 
             "--rotate-pages",
 
             "--deskew",
 
-            "--optimize",
-            "0",
-
-            "--output-type",
-            "pdf",
+            "--oversample",
+            "300",
 
             "--language",
             "eng",
+
+            "--jobs",
+            "1",
+
+            "--tesseract-timeout",
+            "120",
 
             input_path,
 
             output_path
         ],
         check=True,
-        timeout=150,
+        timeout=240,
         capture_output=True,
         text=True
     )
@@ -386,100 +412,91 @@ def create_ocr_pdf(
         )
 
 
-    return (
-        os.path.exists(output_path)
-        and
-        os.path.getsize(output_path) > 0
-    )
-
-
-# =========================================
-# FLATTEN INTERACTIVE PDF
-# USING PIKEPDF
-# =========================================
-
-def flatten_pdf_form(
-    input_path,
-    output_path
-):
-
-    print(
-        "Flattening PDF form with pikepdf...",
-        flush=True
-    )
-
-
-    try:
-
-        with pikepdf.Pdf.open(
-            input_path
-        ) as pdf:
-
-            # Create appearance streams for fields
-            # so their visible values remain on the page.
-            pdf.generate_appearance_streams()
-
-
-            # Burn annotations/form appearances
-            # into normal PDF page content.
-            pdf.flatten_annotations(
-                "all"
-            )
-
-
-            pdf.save(
-                output_path
-            )
-
-
-        if not os.path.exists(
-            output_path
-        ):
-
-            print(
-                "pikepdf did not create output.",
-                flush=True
-            )
-
-            return False
-
-
-        if os.path.getsize(
-            output_path
-        ) == 0:
-
-            print(
-                "pikepdf output is empty.",
-                flush=True
-            )
-
-            return False
-
+    if not os.path.exists(
+        output_path
+    ):
 
         print(
-            "pikepdf form flatten complete.",
+            "OCRmyPDF did not create output.",
             flush=True
         )
-
-
-        return True
-
-
-    except Exception as error:
-
-        print(
-            "pikepdf flatten error:",
-            repr(error),
-            flush=True
-        )
-
 
         return False
 
 
+    if os.path.getsize(
+        output_path
+    ) == 0:
+
+        print(
+            "OCRmyPDF output is empty.",
+            flush=True
+        )
+
+        return False
+
+
+    print(
+        "Clean OCR PDF created.",
+        flush=True
+    )
+
+
+    return True
+
+
+# =========================================
+# CONVERT AFTER OCR
+# =========================================
+
+def convert_after_ocr(
+    input_path,
+    output_path,
+    clean_pdf_path
+):
+
+    print(
+        "Rasterizing PDF and rebuilding text layer...",
+        flush=True
+    )
+
+
+    clean_success = create_clean_ocr_pdf(
+        input_path,
+        clean_pdf_path
+    )
+
+
+    if not clean_success:
+
+        raise RuntimeError(
+            "OCRmyPDF did not create a usable clean PDF."
+        )
+
+
+    if os.path.exists(
+        output_path
+    ):
+
+        os.remove(
+            output_path
+        )
+
+
+    print(
+        "Sending clean OCR PDF to ExactDoc...",
+        flush=True
+    )
+
+
+    return run_exactdoc(
+        clean_pdf_path,
+        output_path
+    )
+
+
 # =========================================
 # PDF TO WORD
-# EXACTDOC + PIKEPDF + OCR FALLBACKS
 # =========================================
 
 @app.route(
@@ -541,8 +558,8 @@ def pdf_to_word():
 
 
         output_name = (
-            base_name +
-            ".docx"
+            base_name
+            + ".docx"
         )
 
 
@@ -552,67 +569,43 @@ def pdf_to_word():
         )
 
 
-        flattened_path = os.path.join(
+        clean_pdf_path = os.path.join(
             temp_dir,
-            base_name +
-            "_flattened.pdf"
+            base_name
+            + "_clean_ocr.pdf"
         )
 
 
-        ocr_path = os.path.join(
-            temp_dir,
-            base_name +
-            "_ocr.pdf"
+        print(
+            "=================================",
+            flush=True
+        )
+
+        print(
+            "PDF TO WORD START:",
+            filename,
+            flush=True
+        )
+
+        print(
+            "=================================",
+            flush=True
         )
 
 
         try:
 
-            print(
-                "=================================",
-                flush=True
-            )
-
-            print(
-                "Starting PDF to Word:",
-                filename,
-                flush=True
-            )
-
-            print(
-                "=================================",
-                flush=True
-            )
-
-
             # =================================
-            # FIRST EXACTDOC ATTEMPT
+            # FIRST ATTEMPT:
+            # ORIGINAL PDF THROUGH EXACTDOC
             # =================================
 
             try:
 
-                result = run_exactdoc(
+                run_exactdoc(
                     input_path,
                     output_path
                 )
-
-
-                if result.stdout:
-
-                    print(
-                        "ExactDoc output:",
-                        result.stdout,
-                        flush=True
-                    )
-
-
-                if result.stderr:
-
-                    print(
-                        "ExactDoc warnings:",
-                        result.stderr,
-                        flush=True
-                    )
 
 
             except subprocess.CalledProcessError as first_error:
@@ -623,11 +616,13 @@ def pdf_to_word():
                     flush=True
                 )
 
+
                 print(
                     "ExactDoc first attempt stdout:",
                     first_error.stdout,
                     flush=True
                 )
+
 
                 print(
                     "ExactDoc first attempt stderr:",
@@ -637,223 +632,80 @@ def pdf_to_word():
 
 
                 # =================================
+                # EXACTDOC 17:
+                # OCR REQUIRED
+                #
+                # EXACTDOC 19:
                 # INTERACTIVE FORM
                 # =================================
 
-                if first_error.returncode == 19:
+                if first_error.returncode in (
+                    17,
+                    19
+                ):
 
-                    print(
-                        "Interactive PDF detected.",
-                        flush=True
-                    )
-
-                    print(
-                        "Flattening with pikepdf "
-                        "and retrying ExactDoc.",
-                        flush=True
-                    )
-
-
-                    flatten_success = flatten_pdf_form(
-                        input_path,
-                        flattened_path
-                    )
-
-
-                    if not flatten_success:
-
-                        return jsonify({
-                            "error":
-                            "The interactive PDF could not "
-                            "be prepared for Word conversion."
-                        }), 500
-
-
-                    if os.path.exists(
-                        output_path
+                    if (
+                        first_error.returncode
+                        == 19
                     ):
 
-                        os.remove(
-                            output_path
+                        print(
+                            "Interactive PDF form detected.",
+                            flush=True
                         )
+
+                    else:
+
+                        print(
+                            "Scanned PDF detected.",
+                            flush=True
+                        )
+
+
+                    print(
+                        "Switching to FORCE OCR conversion pipeline.",
+                        flush=True
+                    )
 
 
                     try:
 
-                        retry_result = run_exactdoc(
-                            flattened_path,
-                            output_path
+                        convert_after_ocr(
+                            input_path,
+                            output_path,
+                            clean_pdf_path
                         )
 
 
-                        if retry_result.stdout:
-
-                            print(
-                                "ExactDoc flattened retry output:",
-                                retry_result.stdout,
-                                flush=True
-                            )
-
-
-                        if retry_result.stderr:
-
-                            print(
-                                "ExactDoc flattened retry warnings:",
-                                retry_result.stderr,
-                                flush=True
-                            )
-
-
-                    except subprocess.CalledProcessError as retry_error:
+                    except subprocess.CalledProcessError as second_error:
 
                         print(
-                            "Flattened ExactDoc exit code:",
-                            retry_error.returncode,
-                            flush=True
-                        )
-
-                        print(
-                            "Flattened ExactDoc stdout:",
-                            retry_error.stdout,
-                            flush=True
-                        )
-
-                        print(
-                            "Flattened ExactDoc stderr:",
-                            retry_error.stderr,
+                            "ExactDoc after OCR exit code:",
+                            second_error.returncode,
                             flush=True
                         )
 
 
-                        if retry_error.returncode == 17:
-
-                            print(
-                                "Flattened PDF requires OCR.",
-                                flush=True
-                            )
-
-
-                            ocr_success = create_ocr_pdf(
-                                flattened_path,
-                                ocr_path
-                            )
+                        print(
+                            "ExactDoc after OCR stdout:",
+                            second_error.stdout,
+                            flush=True
+                        )
 
 
-                            if not ocr_success:
+                        print(
+                            "ExactDoc after OCR stderr:",
+                            second_error.stderr,
+                            flush=True
+                        )
 
-                                return jsonify({
-                                    "error":
-                                    "OCR could not prepare this PDF "
-                                    "for Word conversion."
-                                }), 500
-
-
-                            if os.path.exists(
-                                output_path
-                            ):
-
-                                os.remove(
-                                    output_path
-                                )
-
-
-                            final_result = run_exactdoc(
-                                ocr_path,
-                                output_path
-                            )
-
-
-                            if final_result.stdout:
-
-                                print(
-                                    "OCR ExactDoc output:",
-                                    final_result.stdout,
-                                    flush=True
-                                )
-
-
-                            if final_result.stderr:
-
-                                print(
-                                    "OCR ExactDoc warnings:",
-                                    final_result.stderr,
-                                    flush=True
-                                )
-
-
-                        elif retry_error.returncode == 19:
-
-                            return jsonify({
-                                "error":
-                                "This PDF still contains form "
-                                "structures that ExactDoc cannot "
-                                "convert reliably."
-                            }), 422
-
-
-                        else:
-
-                            raise retry_error
-
-
-                # =================================
-                # OCR REQUIRED
-                # =================================
-
-                elif first_error.returncode == 17:
-
-                    print(
-                        "PDF requires OCR.",
-                        flush=True
-                    )
-
-
-                    ocr_success = create_ocr_pdf(
-                        input_path,
-                        ocr_path
-                    )
-
-
-                    if not ocr_success:
 
                         return jsonify({
                             "error":
-                            "OCR could not prepare this PDF "
-                            "for Word conversion."
-                        }), 500
-
-
-                    if os.path.exists(
-                        output_path
-                    ):
-
-                        os.remove(
-                            output_path
-                        )
-
-
-                    ocr_result = run_exactdoc(
-                        ocr_path,
-                        output_path
-                    )
-
-
-                    if ocr_result.stdout:
-
-                        print(
-                            "OCR ExactDoc output:",
-                            ocr_result.stdout,
-                            flush=True
-                        )
-
-
-                    if ocr_result.stderr:
-
-                        print(
-                            "OCR ExactDoc warnings:",
-                            ocr_result.stderr,
-                            flush=True
-                        )
+                            "The PDF was cleaned successfully, "
+                            "but its layout could not be converted "
+                            "reliably to editable Word."
+                        }), 422
 
 
                 else:
@@ -868,6 +720,7 @@ def pdf_to_word():
                 flush=True
             )
 
+
             return jsonify({
                 "error":
                 "The PDF conversion took too long."
@@ -877,19 +730,27 @@ def pdf_to_word():
         except subprocess.CalledProcessError as error:
 
             print(
-                "Final conversion exit code:",
+                "PDF conversion command failed.",
+                flush=True
+            )
+
+
+            print(
+                "Exit code:",
                 error.returncode,
                 flush=True
             )
 
+
             print(
-                "Final conversion stdout:",
+                "STDOUT:",
                 error.stdout,
                 flush=True
             )
 
+
             print(
-                "Final conversion stderr:",
+                "STDERR:",
                 error.stderr,
                 flush=True
             )
@@ -904,25 +765,42 @@ def pdf_to_word():
         except FileNotFoundError as error:
 
             print(
-                "Missing server command:",
+                "Required conversion command missing:",
                 repr(error),
                 flush=True
             )
 
+
             return jsonify({
                 "error":
-                "The PDF conversion tool is not "
-                "available on the server."
+                "A required PDF conversion tool "
+                "is unavailable on the server."
+            }), 500
+
+
+        except RuntimeError as error:
+
+            print(
+                "PDF conversion runtime error:",
+                repr(error),
+                flush=True
+            )
+
+
+            return jsonify({
+                "error":
+                str(error)
             }), 500
 
 
         except Exception as error:
 
             print(
-                "PDF to Word unexpected error:",
+                "Unexpected PDF to Word error:",
                 repr(error),
                 flush=True
             )
+
 
             return jsonify({
                 "error":
@@ -939,9 +817,10 @@ def pdf_to_word():
         ):
 
             print(
-                "No DOCX output was created.",
+                "No DOCX file was produced.",
                 flush=True
             )
+
 
             return jsonify({
                 "error":
@@ -954,9 +833,10 @@ def pdf_to_word():
         ) == 0:
 
             print(
-                "DOCX output was empty.",
+                "DOCX file is empty.",
                 flush=True
             )
+
 
             return jsonify({
                 "error":
@@ -966,8 +846,18 @@ def pdf_to_word():
 
 
         print(
-            "PDF to Word conversion complete:",
+            "=================================",
+            flush=True
+        )
+
+        print(
+            "PDF TO WORD SUCCESS:",
             output_name,
+            flush=True
+        )
+
+        print(
+            "=================================",
             flush=True
         )
 
