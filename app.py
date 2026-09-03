@@ -143,9 +143,7 @@ def word_to_pdf():
             "No file uploaded."
         }), 400
 
-
     uploaded_file = request.files["file"]
-
 
     if uploaded_file.filename == "":
 
@@ -154,11 +152,9 @@ def word_to_pdf():
             "No file selected."
         }), 400
 
-
     filename = secure_filename(
         uploaded_file.filename
     )
-
 
     if not filename.lower().endswith(
         (".doc", ".docx")
@@ -168,7 +164,6 @@ def word_to_pdf():
             "error":
             "Please upload a DOC or DOCX file."
         }), 400
-
 
     with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -180,7 +175,6 @@ def word_to_pdf():
         uploaded_file.save(
             input_path
         )
-
 
         try:
 
@@ -200,7 +194,6 @@ def word_to_pdf():
                 text=True
             )
 
-
             if result.stdout:
 
                 print(
@@ -208,7 +201,6 @@ def word_to_pdf():
                     result.stdout,
                     flush=True
                 )
-
 
             if result.stderr:
 
@@ -218,14 +210,12 @@ def word_to_pdf():
                     flush=True
                 )
 
-
         except subprocess.TimeoutExpired:
 
             return jsonify({
                 "error":
                 "The conversion took too long."
             }), 504
-
 
         except subprocess.CalledProcessError as error:
 
@@ -240,7 +230,6 @@ def word_to_pdf():
                 "The Word document could not be converted."
             }), 500
 
-
         except Exception as error:
 
             print(
@@ -254,18 +243,15 @@ def word_to_pdf():
                 "The Word document could not be converted."
             }), 500
 
-
         output_name = (
             os.path.splitext(filename)[0]
             + ".pdf"
         )
 
-
         output_path = os.path.join(
             temp_dir,
             output_name
         )
-
 
         if not os.path.exists(output_path):
 
@@ -274,14 +260,12 @@ def word_to_pdf():
                 "The PDF could not be created."
             }), 500
 
-
         if os.path.getsize(output_path) == 0:
 
             return jsonify({
                 "error":
                 "The PDF was created but was empty."
             }), 500
-
 
         return send_file(
             output_path,
@@ -307,7 +291,6 @@ def run_exactdoc(
         flush=True
     )
 
-
     result = subprocess.run(
         [
             "exactdoc",
@@ -321,7 +304,6 @@ def run_exactdoc(
         text=True
     )
 
-
     if result.stdout:
 
         print(
@@ -330,7 +312,6 @@ def run_exactdoc(
             flush=True
         )
 
-
     if result.stderr:
 
         print(
@@ -338,7 +319,6 @@ def run_exactdoc(
             result.stderr,
             flush=True
         )
-
 
     return result
 
@@ -353,21 +333,17 @@ def pdf_has_interactive_form(
 
     document = None
 
-
     try:
 
         document = fitz.open(
             input_path
         )
 
-
         widget_count = 0
-
 
         for page in document:
 
             widgets = page.widgets()
-
 
             if widgets:
 
@@ -375,18 +351,15 @@ def pdf_has_interactive_form(
                     list(widgets)
                 )
 
-
         print(
             "Interactive widget count:",
             widget_count,
             flush=True
         )
 
-
         return (
             widget_count > 0
         )
-
 
     except Exception as error:
 
@@ -397,7 +370,6 @@ def pdf_has_interactive_form(
         )
 
         return False
-
 
     finally:
 
@@ -418,33 +390,27 @@ def clean_font_name(
 
         return "Arial"
 
-
     font_name = re.sub(
         r"^[A-Z]{6}\+",
         "",
         font_name
     )
 
-
     lower_name = (
         font_name.lower()
     )
-
 
     if "helvetica" in lower_name:
 
         return "Arial"
 
-
     if "times" in lower_name:
 
         return "Times New Roman"
 
-
     if "courier" in lower_name:
 
         return "Courier New"
-
 
     return font_name
 
@@ -459,30 +425,25 @@ def pdf_color_to_hex(
             value
         )
 
-
         red = (
             value >>
             16
         ) & 255
-
 
         green = (
             value >>
             8
         ) & 255
 
-
         blue = (
             value
         ) & 255
-
 
         return (
             f"{red:02X}"
             f"{green:02X}"
             f"{blue:02X}"
         )
-
 
     except Exception:
 
@@ -511,30 +472,24 @@ def add_editable_textbox(
 
         return
 
-
     text = str(
         text
     )
-
 
     if not text.strip():
 
         return
 
-
     safe_text = escape(
         text
     )
 
-
     safe_font = escape(
         str(font_name),
         {
-            '"':
-                "&quot;"
+            '"': "&quot;"
         }
     )
-
 
     safe_color = (
         str(color)
@@ -544,18 +499,15 @@ def add_editable_textbox(
         )
     )
 
-
     width = max(
         float(width) + 3,
         5
     )
 
-
     height = max(
         float(height) + 2,
         float(font_size) * 1.25
     )
-
 
     font_half_points = max(
         2,
@@ -565,20 +517,17 @@ def add_editable_textbox(
         )
     )
 
-
     bold_xml = (
         "<w:b/>"
         if bold
         else ""
     )
 
-
     italic_xml = (
         "<w:i/>"
         if italic
         else ""
     )
-
 
     textbox_xml = f"""
     <w:pict
@@ -650,8 +599,7 @@ def add_editable_textbox(
 
                             </w:rPr>
 
-                            <w:t
-                                xml:space="preserve">{safe_text}</w:t>
+                            <w:t xml:space="preserve">{safe_text}</w:t>
 
                         </w:r>
 
@@ -666,11 +614,9 @@ def add_editable_textbox(
     </w:pict>
     """
 
-
     pict = parse_xml(
         textbox_xml
     )
-
 
     paragraph._p.append(
         pict
@@ -693,23 +639,15 @@ def create_form_background(
         )
     )
 
-
     page_width = (
         original_page.rect.width
     )
-
 
     page_height = (
         original_page.rect.height
     )
 
-
-    # =====================================
-    # STEP 1:
-    # RENDER THE ORIGINAL PAGE EXACTLY
-    # INCLUDING FORM FIELD APPEARANCES
-    # =====================================
-
+    # Render the page including form fields.
     original_pixmap = (
         original_page.get_pixmap(
             matrix=fitz.Matrix(
@@ -721,7 +659,6 @@ def create_form_background(
         )
     )
 
-
     original_image_path = (
         os.path.join(
             temp_dir,
@@ -729,20 +666,12 @@ def create_form_background(
         )
     )
 
-
     original_pixmap.save(
         original_image_path
     )
 
-
-    # =====================================
-    # STEP 2:
-    # PUT THE EXACT RENDER BACK ONTO A
-    # TEMPORARY PDF PAGE
-    # =====================================
-
+    # Put rendered page into temporary PDF.
     background_pdf = fitz.open()
-
 
     background_page = (
         background_pdf.new_page(
@@ -751,26 +680,19 @@ def create_form_background(
         )
     )
 
-
     background_page.insert_image(
         background_page.rect,
         filename=original_image_path
     )
 
-
-    # =====================================
-    # STEP 3:
-    # COVER STATIC TEXT WITH WHITE
-    # SO EDITABLE WORD TEXT CAN REPLACE IT
-    # =====================================
-
+    # Extract static PDF text.
     page_data = (
         original_page.get_text(
             "dict"
         )
     )
 
-
+    # Cover original static text with white.
     for block in page_data.get(
         "blocks",
         []
@@ -781,7 +703,6 @@ def create_form_background(
         ) != 0:
 
             continue
-
 
         for line in block.get(
             "lines",
@@ -798,34 +719,27 @@ def create_form_background(
                     ""
                 )
 
-
                 if not text.strip():
 
                     continue
-
 
                 bbox = span.get(
                     "bbox"
                 )
 
-
                 if not bbox:
 
                     continue
-
 
                 rect = fitz.Rect(
                     bbox
                 )
 
-
-                # Slight padding around text.
                 rect.x0 -= 0.5
                 rect.x1 += 0.5
 
                 rect.y0 -= 0.5
                 rect.y1 += 0.5
-
 
                 background_page.draw_rect(
                     rect,
@@ -838,12 +752,7 @@ def create_form_background(
                     overlay=True
                 )
 
-
-    # =====================================
-    # STEP 4:
-    # RENDER CLEAN FORM BACKGROUND
-    # =====================================
-
+    # Render cleaned visual background.
     background_pixmap = (
         background_page.get_pixmap(
             matrix=fitz.Matrix(
@@ -854,7 +763,6 @@ def create_form_background(
         )
     )
 
-
     background_image_path = (
         os.path.join(
             temp_dir,
@@ -862,14 +770,11 @@ def create_form_background(
         )
     )
 
-
     background_pixmap.save(
         background_image_path
     )
 
-
     background_pdf.close()
-
 
     return (
         background_image_path,
@@ -895,25 +800,41 @@ def convert_interactive_form_to_docx(
         flush=True
     )
 
-
     pdf = fitz.open(
         input_path
     )
 
-
     word = Document()
 
+    # =====================================
+    # IMPORTANT FIX:
+    #
+    # A new python-docx Document can contain
+    # ZERO paragraphs.
+    #
+    # We create one explicitly instead of
+    # trying word.paragraphs[0].
+    # =====================================
 
-    # Remove the default Word paragraph
-    # later by reusing it for page 1.
     first_paragraph = (
-        word.paragraphs[0]
+        word.add_paragraph()
     )
 
+    print(
+        "Word document initialized.",
+        flush=True
+    )
 
     for page_number in range(
         pdf.page_count
     ):
+
+        print(
+            f"Building Word page "
+            f"{page_number + 1} "
+            f"of {pdf.page_count}...",
+            flush=True
+        )
 
         (
             background_path,
@@ -926,6 +847,10 @@ def convert_interactive_form_to_docx(
             temp_dir
         )
 
+        print(
+            "Form background created.",
+            flush=True
+        )
 
         # =================================
         # PAGE SECTION
@@ -937,7 +862,6 @@ def convert_interactive_form_to_docx(
                 word.sections[0]
             )
 
-
             paragraph = (
                 first_paragraph
             )
@@ -948,44 +872,37 @@ def convert_interactive_form_to_docx(
                 WD_SECTION.NEW_PAGE
             )
 
-
             paragraph = (
                 word.add_paragraph()
             )
-
 
         section.page_width = Pt(
             page_width
         )
 
-
         section.page_height = Pt(
             page_height
         )
 
-
         section.top_margin = Pt(0)
-
         section.bottom_margin = Pt(0)
-
         section.left_margin = Pt(0)
-
         section.right_margin = Pt(0)
 
         section.header_distance = Pt(0)
-
         section.footer_distance = Pt(0)
-
 
         paragraph.paragraph_format.space_before = (
             Pt(0)
         )
 
-
         paragraph.paragraph_format.space_after = (
             Pt(0)
         )
 
+        paragraph.paragraph_format.line_spacing = (
+            Pt(1)
+        )
 
         # =================================
         # FORM BACKGROUND
@@ -995,7 +912,6 @@ def convert_interactive_form_to_docx(
             paragraph.add_run()
         )
 
-
         background_run.add_picture(
             background_path,
             width=Pt(
@@ -1004,15 +920,21 @@ def convert_interactive_form_to_docx(
             height=Pt(
                 max(
                     1,
-                    page_height - 1
+                    page_height - 2
                 )
             )
         )
 
+        print(
+            "Form background inserted into Word.",
+            flush=True
+        )
 
         # =================================
         # EDITABLE STATIC PDF TEXT
         # =================================
+
+        text_span_count = 0
 
         for block in page_data.get(
             "blocks",
@@ -1024,7 +946,6 @@ def convert_interactive_form_to_docx(
             ) != 0:
 
                 continue
-
 
             for line in block.get(
                 "lines",
@@ -1041,53 +962,43 @@ def convert_interactive_form_to_docx(
                         ""
                     )
 
-
                     if not text.strip():
 
                         continue
-
 
                     bbox = span.get(
                         "bbox"
                     )
 
-
                     if not bbox:
 
                         continue
-
 
                     x0 = float(
                         bbox[0]
                     )
 
-
                     y0 = float(
                         bbox[1]
                     )
-
 
                     x1 = float(
                         bbox[2]
                     )
 
-
                     y1 = float(
                         bbox[3]
                     )
-
 
                     width = max(
                         1,
                         x1 - x0
                     )
 
-
                     height = max(
                         1,
                         y1 - y0
                     )
-
 
                     font_size = float(
                         span.get(
@@ -1096,7 +1007,6 @@ def convert_interactive_form_to_docx(
                         )
                     )
 
-
                     raw_font = str(
                         span.get(
                             "font",
@@ -1104,24 +1014,20 @@ def convert_interactive_form_to_docx(
                         )
                     )
 
-
                     font_name = (
                         clean_font_name(
                             raw_font
                         )
                     )
 
-
                     lower_font = (
                         raw_font.lower()
                     )
-
 
                     bold = (
                         "bold"
                         in lower_font
                     )
-
 
                     italic = (
                         "italic"
@@ -1131,7 +1037,6 @@ def convert_interactive_form_to_docx(
                         in lower_font
                     )
 
-
                     color = (
                         pdf_color_to_hex(
                             span.get(
@@ -1140,7 +1045,6 @@ def convert_interactive_form_to_docx(
                             )
                         )
                     )
-
 
                     add_editable_textbox(
                         paragraph=paragraph,
@@ -1159,9 +1063,16 @@ def convert_interactive_form_to_docx(
                         italic=italic
                     )
 
+                    text_span_count += 1
+
+        print(
+            "Editable static text spans added:",
+            text_span_count,
+            flush=True
+        )
 
         # =================================
-        # EDITABLE FORM FIELD VALUES
+        # FORM FIELD VALUES
         # =================================
 
         source_page = (
@@ -1170,15 +1081,17 @@ def convert_interactive_form_to_docx(
             )
         )
 
-
         widgets = (
             source_page.widgets()
         )
 
+        field_count = 0
 
         if widgets:
 
             for widget in widgets:
+
+                field_count += 1
 
                 field_type = (
                     widget.field_type_string
@@ -1186,25 +1099,23 @@ def convert_interactive_form_to_docx(
                     ""
                 ).lower()
 
-
                 field_value = (
                     widget.field_value
                     or
                     ""
                 )
 
-
                 field_rect = (
                     widget.rect
                 )
 
-
-                # Text fields
                 if (
                     "text"
                     in field_type
                     and
-                    str(field_value).strip()
+                    str(
+                        field_value
+                    ).strip()
                 ):
 
                     add_editable_textbox(
@@ -1227,28 +1138,29 @@ def convert_interactive_form_to_docx(
                             8,
                             min(
                                 11,
-                                field_rect.height * 0.60
+                                field_rect.height *
+                                0.60
                             )
                         ),
                         color="000000"
                     )
 
-
-                # We intentionally leave checkboxes,
-                # radio buttons and signatures as part
-                # of the preserved visual background.
-                # Their appearance remains correct even
-                # when Word cannot represent the original
-                # PDF field object directly.
-
+        print(
+            "PDF form fields processed:",
+            field_count,
+            flush=True
+        )
 
     pdf.close()
 
+    print(
+        "Saving interactive-form DOCX...",
+        flush=True
+    )
 
     word.save(
         output_path
     )
-
 
     print(
         "Interactive form DOCX created:",
@@ -1258,7 +1170,7 @@ def convert_interactive_form_to_docx(
 
 
 # =========================================
-# PDF TO WORD ROUTE
+# PDF TO WORD
 # =========================================
 
 @app.route(
@@ -1274,9 +1186,9 @@ def pdf_to_word():
             "No file uploaded."
         }), 400
 
-
-    uploaded_file = request.files["file"]
-
+    uploaded_file = request.files[
+        "file"
+    ]
 
     if uploaded_file.filename == "":
 
@@ -1285,11 +1197,9 @@ def pdf_to_word():
             "No file selected."
         }), 400
 
-
     filename = secure_filename(
         uploaded_file.filename
     )
-
 
     if not filename.lower().endswith(
         ".pdf"
@@ -1300,7 +1210,6 @@ def pdf_to_word():
             "Please upload a PDF file."
         }), 400
 
-
     with tempfile.TemporaryDirectory() as temp_dir:
 
         input_path = os.path.join(
@@ -1308,16 +1217,13 @@ def pdf_to_word():
             filename
         )
 
-
         uploaded_file.save(
             input_path
         )
 
-
         base_name = os.path.splitext(
             filename
         )[0]
-
 
         output_name = (
             base_name
@@ -1325,12 +1231,10 @@ def pdf_to_word():
             ".docx"
         )
 
-
         output_path = os.path.join(
             temp_dir,
             output_name
         )
-
 
         try:
 
@@ -1339,30 +1243,22 @@ def pdf_to_word():
                 flush=True
             )
 
-
             print(
                 "PDF TO WORD START:",
                 filename,
                 flush=True
             )
 
-
             print(
                 "=================================",
                 flush=True
             )
-
-
-            # =================================
-            # DETECT INTERACTIVE FORM FIRST
-            # =================================
 
             is_interactive_form = (
                 pdf_has_interactive_form(
                     input_path
                 )
             )
-
 
             if is_interactive_form:
 
@@ -1371,20 +1267,17 @@ def pdf_to_word():
                     flush=True
                 )
 
-
                 print(
                     "Using dedicated fixed-layout "
                     "form converter.",
                     flush=True
                 )
 
-
                 convert_interactive_form_to_docx(
                     input_path,
                     output_path,
                     temp_dir
                 )
-
 
             else:
 
@@ -1393,18 +1286,15 @@ def pdf_to_word():
                     flush=True
                 )
 
-
                 print(
                     "Using ExactDoc.",
                     flush=True
                 )
 
-
                 run_exactdoc(
                     input_path,
                     output_path
                 )
-
 
         except subprocess.TimeoutExpired:
 
@@ -1413,12 +1303,10 @@ def pdf_to_word():
                 flush=True
             )
 
-
             return jsonify({
                 "error":
                 "The PDF conversion took too long."
             }), 504
-
 
         except subprocess.CalledProcessError as error:
 
@@ -1428,13 +1316,11 @@ def pdf_to_word():
                 flush=True
             )
 
-
             print(
                 "PDF converter stdout:",
                 error.stdout,
                 flush=True
             )
-
 
             print(
                 "PDF converter stderr:",
@@ -1442,12 +1328,10 @@ def pdf_to_word():
                 flush=True
             )
 
-
             return jsonify({
                 "error":
                 "The PDF could not be converted to Word."
             }), 500
-
 
         except Exception as error:
 
@@ -1457,16 +1341,10 @@ def pdf_to_word():
                 flush=True
             )
 
-
             return jsonify({
                 "error":
                 "The PDF could not be converted to Word."
             }), 500
-
-
-        # =================================
-        # VERIFY OUTPUT
-        # =================================
 
         if not os.path.exists(
             output_path
@@ -1477,7 +1355,6 @@ def pdf_to_word():
                 "The Word document could not be created."
             }), 500
 
-
         if os.path.getsize(
             output_path
         ) == 0:
@@ -1487,12 +1364,10 @@ def pdf_to_word():
                 "The Word document was created but was empty."
             }), 500
 
-
         print(
             "=================================",
             flush=True
         )
-
 
         print(
             "PDF TO WORD SUCCESS:",
@@ -1500,12 +1375,10 @@ def pdf_to_word():
             flush=True
         )
 
-
         print(
             "=================================",
             flush=True
         )
-
 
         return send_file(
             output_path,
@@ -1531,7 +1404,6 @@ if __name__ == "__main__":
             10000
         )
     )
-
 
     app.run(
         host="0.0.0.0",
