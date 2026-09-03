@@ -312,7 +312,7 @@ def run_exactdoc(
             output_path
         ],
         check=True,
-        timeout=180,
+        timeout=300,
         capture_output=True,
         text=True
     )
