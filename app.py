@@ -164,7 +164,8 @@ def word_to_pdf():
             )
 
             return jsonify({
-                "error": "The Word document could not be converted."
+                "error":
+                "The Word document could not be converted."
             }), 500
 
         except Exception as error:
@@ -176,7 +177,8 @@ def word_to_pdf():
             )
 
             return jsonify({
-                "error": "The Word document could not be converted."
+                "error":
+                "The Word document could not be converted."
             }), 500
 
         output_name = (
@@ -378,21 +380,33 @@ def set_cell_border(
         if element is None:
 
             element = OxmlElement(tag)
+
             tcBorders.append(element)
 
         element.set(
             qn("w:val"),
-            edge.get("val", "single")
+            edge.get(
+                "val",
+                "single"
+            )
         )
 
         element.set(
             qn("w:sz"),
-            str(edge.get("sz", 6))
+            str(
+                edge.get(
+                    "sz",
+                    6
+                )
+            )
         )
 
         element.set(
             qn("w:color"),
-            edge.get("color", "000000")
+            edge.get(
+                "color",
+                "000000"
+            )
         )
 
 
@@ -470,9 +484,14 @@ def set_table_fixed_layout(table):
     )
 
 
-def set_cell_width(cell, width_inches):
+def set_cell_width(
+    cell,
+    width_inches
+):
 
-    cell.width = Inches(width_inches)
+    cell.width = Inches(
+        width_inches
+    )
 
     tcPr = cell._tc.get_or_add_tcPr()
 
@@ -490,7 +509,12 @@ def set_cell_width(cell, width_inches):
 
     tcW.set(
         qn("w:w"),
-        str(int(width_inches * 1440))
+        str(
+            int(
+                width_inches
+                * 1440
+            )
+        )
     )
 
     tcW.set(
@@ -499,7 +523,10 @@ def set_cell_width(cell, width_inches):
     )
 
 
-def set_table_column_widths(table, widths):
+def set_table_column_widths(
+    table,
+    widths
+):
 
     grid = table._tbl.tblGrid
 
@@ -507,20 +534,33 @@ def set_table_column_widths(table, widths):
         qn("w:gridCol")
     )
 
-    for index, width in enumerate(widths):
+    for index, width in enumerate(
+        widths
+    ):
 
-        if index < len(grid_cols):
+        if index < len(
+            grid_cols
+        ):
 
             grid_cols[index].set(
                 qn("w:w"),
-                str(int(width * 1440))
+                str(
+                    int(
+                        width
+                        * 1440
+                    )
+                )
             )
 
     for row in table.rows:
 
-        for index, width in enumerate(widths):
+        for index, width in enumerate(
+            widths
+        ):
 
-            if index < len(row.cells):
+            if index < len(
+                row.cells
+            ):
 
                 set_cell_width(
                     row.cells[index],
@@ -542,15 +582,26 @@ def set_row_height(
 
     trHeight.set(
         qn("w:val"),
-        str(int(points * 20))
+        str(
+            int(
+                points
+                * 20
+            )
+        )
     )
 
     trHeight.set(
         qn("w:hRule"),
-        "exact" if exact else "atLeast"
+        (
+            "exact"
+            if exact
+            else "atLeast"
+        )
     )
 
-    trPr.append(trHeight)
+    trPr.append(
+        trHeight
+    )
 
 
 def keep_table_row_together(row):
@@ -568,7 +619,10 @@ def keep_table_row_together(row):
         )
 
 
-def set_cell_shading(cell, fill):
+def set_cell_shading(
+    cell,
+    fill
+):
 
     tcPr = cell._tc.get_or_add_tcPr()
 
@@ -676,7 +730,9 @@ def add_run(
     color=None
 ):
 
-    run = paragraph.add_run(text)
+    run = paragraph.add_run(
+        text
+    )
 
     set_run_font(
         run,
@@ -687,8 +743,10 @@ def add_run(
 
     if color:
 
-        run.font.color.rgb = RGBColor(
-            *color
+        run.font.color.rgb = (
+            RGBColor(
+                *color
+            )
         )
 
     return run
@@ -707,9 +765,13 @@ def clear_cell(cell):
     return paragraph
 
 
-def set_normal_document_defaults(document):
+def set_normal_document_defaults(
+    document
+):
 
-    normal = document.styles["Normal"]
+    normal = document.styles[
+        "Normal"
+    ]
 
     normal.font.name = "Arial"
     normal.font.size = Pt(7.3)
@@ -719,13 +781,15 @@ def set_normal_document_defaults(document):
     normal.paragraph_format.line_spacing = 1.0
 
 
-def add_vertical_spacer(document, points):
+def add_vertical_spacer(
+    document,
+    points
+):
 
     paragraph = document.add_paragraph()
 
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
-
     paragraph.paragraph_format.line_spacing = Pt(points)
 
     run = paragraph.add_run("")
@@ -739,7 +803,9 @@ def add_vertical_spacer(document, points):
 # LA-350 FIELD EXTRACTION
 # ============================================================
 
-def widget_short_name(full_name):
+def widget_short_name(
+    full_name
+):
 
     if not full_name:
         return ""
@@ -753,12 +819,16 @@ def widget_short_name(full_name):
     )
 
 
-def checkbox_is_checked(value):
+def checkbox_is_checked(
+    value
+):
 
     if value is None:
         return False
 
-    return str(value).strip().lower() not in {
+    return str(
+        value
+    ).strip().lower() not in {
         "",
         "off",
         "0",
@@ -769,7 +839,9 @@ def checkbox_is_checked(value):
     }
 
 
-def extract_la350_values(input_path):
+def extract_la350_values(
+    input_path
+):
 
     values = {
         "date": "",
@@ -792,14 +864,17 @@ def extract_la350_values(input_path):
         "assistance": [False] * 5,
     }
 
-    pdf = fitz.open(input_path)
+    pdf = fitz.open(
+        input_path
+    )
 
     try:
 
         page = pdf[0]
 
         widgets = list(
-            page.widgets() or []
+            page.widgets()
+            or []
         )
 
         text_map = {
@@ -839,24 +914,29 @@ def extract_la350_values(input_path):
 
                 values[
                     text_map[short]
-                ] = str(value).strip()
+                ] = str(
+                    value
+                ).strip()
 
                 continue
 
             if short == "CheckBox29":
 
-                values["narrative"] = (
-                    checkbox_is_checked(
-                        value
-                    )
+                values[
+                    "narrative"
+                ] = checkbox_is_checked(
+                    value
                 )
 
                 continue
 
             if (
-                "Table1" in full_name
+                "Table1"
+                in full_name
                 and
-                short.startswith("CheckBox")
+                short.startswith(
+                    "CheckBox"
+                )
             ):
 
                 match = re.search(
@@ -889,18 +969,23 @@ def extract_la350_values(input_path):
 
                     if index is not None:
 
-                        values["services"][index] = (
-                            checkbox_is_checked(
-                                value
-                            )
+                        values[
+                            "services"
+                        ][
+                            index
+                        ] = checkbox_is_checked(
+                            value
                         )
 
                 continue
 
             if (
-                "Table2" in full_name
+                "Table2"
+                in full_name
                 and
-                short.startswith("CheckBox")
+                short.startswith(
+                    "CheckBox"
+                )
             ):
 
                 match = re.search(
@@ -916,7 +1001,9 @@ def extract_la350_values(input_path):
 
                     if 11 <= number <= 22:
 
-                        values["languages"][
+                        values[
+                            "languages"
+                        ][
                             number - 11
                         ] = checkbox_is_checked(
                             value
@@ -925,9 +1012,12 @@ def extract_la350_values(input_path):
                 continue
 
             if (
-                "Table3" in full_name
+                "Table3"
+                in full_name
                 and
-                short.startswith("CheckBox")
+                short.startswith(
+                    "CheckBox"
+                )
             ):
 
                 match = re.search(
@@ -943,7 +1033,9 @@ def extract_la350_values(input_path):
 
                     if 23 <= number <= 27:
 
-                        values["assistance"][
+                        values[
+                            "assistance"
+                        ][
                             number - 23
                         ] = checkbox_is_checked(
                             value
@@ -962,7 +1054,9 @@ def extract_la350_values(input_path):
 # LA-350 FORM HELPERS
 # ============================================================
 
-def checkbox_symbol(checked):
+def checkbox_symbol(
+    checked
+):
 
     return (
         "☒"
@@ -987,7 +1081,8 @@ def add_form_line(
 
     add_run(
         paragraph,
-        " " + (
+        " "
+        + (
             value
             if value
             else "_" * width_chars
@@ -1003,11 +1098,16 @@ def add_checkbox_line(
     size=6.9
 ):
 
-    paragraph = clear_cell(cell)
+    paragraph = clear_cell(
+        cell
+    )
 
     add_run(
         paragraph,
-        checkbox_symbol(checked) + " ",
+        checkbox_symbol(
+            checked
+        )
+        + " ",
         size=size
     )
 
@@ -1020,70 +1120,165 @@ def add_checkbox_line(
     return paragraph
 
 
-# ============================================================
-# LA-350 HEADER
-# ============================================================
+def add_section_number(
+    paragraph,
+    number
+):
 
-def add_la350_header(document):
-
-    table = document.add_table(
-        rows=1,
-        cols=3
+    add_run(
+        paragraph,
+        f"⓵ " if number == 1
+        else f"⓶ " if number == 2
+        else f"⓷ ",
+        size=11.0,
+        bold=True
     )
 
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = False
 
-    set_table_fixed_layout(table)
+# ============================================================
+# LA-350 TOP AREA
+#
+# Original PDF structure:
+#
+# LEFT:
+# LA-350 + title
+# instructions
+# section 1
+# section 2
+#
+# RIGHT:
+# tall clerk stamp box
+# court information box
+#
+# ============================================================
+
+def add_la350_top(
+    document,
+    values
+):
+
+    outer = document.add_table(
+        rows=1,
+        cols=2
+    )
+
+    outer.alignment = (
+        WD_TABLE_ALIGNMENT.CENTER
+    )
+
+    outer.autofit = False
+
+    set_table_fixed_layout(
+        outer
+    )
 
     widths = [
-        2.30,
-        2.80,
-        2.40
+        4.85,
+        2.45
     ]
 
     set_table_column_widths(
-        table,
+        outer,
         widths
     )
 
-    for index, width in enumerate(widths):
+    left = outer.cell(
+        0,
+        0
+    )
 
-        cell = table.cell(
-            0,
-            index
-        )
+    right = outer.cell(
+        0,
+        1
+    )
 
-        set_cell_width(
-            cell,
-            width
-        )
+    remove_cell_borders(
+        left
+    )
 
-        set_cell_margins(
-            cell,
-            top=10,
-            bottom=8,
-            start=28,
-            end=28
-        )
+    remove_cell_borders(
+        right
+    )
 
-    # --------------------------------------------------------
-    # BLACK LA-350 BLOCK
-    # --------------------------------------------------------
+    set_cell_margins(
+        left,
+        top=0,
+        bottom=0,
+        start=0,
+        end=10
+    )
 
-    left = table.cell(
+    set_cell_margins(
+        right,
+        top=0,
+        bottom=0,
+        start=0,
+        end=0
+    )
+
+    left.vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.TOP
+    )
+
+    right.vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.TOP
+    )
+
+    clear_cell(left)
+    clear_cell(right)
+
+    # ========================================================
+    # LEFT HEADER
+    # ========================================================
+
+    header = left.add_table(
+        rows=1,
+        cols=2
+    )
+
+    header.autofit = False
+
+    set_table_fixed_layout(
+        header
+    )
+
+    header_widths = [
+        1.45,
+        3.30
+    ]
+
+    set_table_column_widths(
+        header,
+        header_widths
+    )
+
+    # LA-350 BLACK BOX
+
+    black = header.cell(
         0,
         0
     )
 
     set_cell_shading(
-        left,
+        black,
         "000000"
     )
 
-    remove_cell_borders(left)
+    remove_cell_borders(
+        black
+    )
 
-    paragraph = clear_cell(left)
+    set_cell_margins(
+        black,
+        top=10,
+        bottom=10,
+        start=10,
+        end=10
+    )
+
+    paragraph = clear_cell(
+        black
+    )
 
     paragraph.alignment = (
         WD_ALIGN_PARAGRAPH.CENTER
@@ -1092,7 +1287,7 @@ def add_la350_header(document):
     add_run(
         paragraph,
         "LA-350",
-        size=14.0,
+        size=14.5,
         bold=True,
         color=(
             255,
@@ -1101,46 +1296,512 @@ def add_la350_header(document):
         )
     )
 
-    # --------------------------------------------------------
     # TITLE
-    # --------------------------------------------------------
 
-    middle = table.cell(
+    title = header.cell(
         0,
         1
     )
 
-    remove_cell_borders(middle)
+    remove_cell_borders(
+        title
+    )
+
+    set_cell_margins(
+        title,
+        top=3,
+        bottom=1,
+        start=10,
+        end=0
+    )
 
     paragraph = clear_cell(
-        middle
+        title
     )
 
     add_run(
         paragraph,
         "Notice of Available Language\n"
         "Assistance—Service Provider",
-        size=11.8,
+        size=13.0,
         bold=True
     )
 
-    # --------------------------------------------------------
-    # CLERK BOX
-    # --------------------------------------------------------
+    set_row_height(
+        header.rows[0],
+        42,
+        exact=True
+    )
 
-    right = table.cell(
+    # BLACK LINE UNDER HEADER
+
+    line_table = left.add_table(
+        rows=1,
+        cols=1
+    )
+
+    line_cell = line_table.cell(
         0,
+        0
+    )
+
+    remove_cell_borders(
+        line_cell
+    )
+
+    set_cell_margins(
+        line_cell,
+        top=0,
+        bottom=0,
+        start=0,
+        end=0
+    )
+
+    paragraph = clear_cell(
+        line_cell
+    )
+
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(0)
+
+    run = paragraph.add_run(
+        " "
+    )
+
+    run.font.size = Pt(1)
+
+    border = {
+        "val": "single",
+        "sz": 14,
+        "color": "000000"
+    }
+
+    set_cell_border(
+        line_cell,
+        bottom=border
+    )
+
+    set_row_height(
+        line_table.rows[0],
+        3,
+        exact=True
+    )
+
+    # ========================================================
+    # INSTRUCTIONS
+    # ========================================================
+
+    instruction_table = left.add_table(
+        rows=1,
+        cols=1
+    )
+
+    instruction_cell = instruction_table.cell(
+        0,
+        0
+    )
+
+    remove_cell_borders(
+        instruction_cell
+    )
+
+    set_cell_margins(
+        instruction_cell,
+        top=2,
+        bottom=1,
+        start=0,
+        end=5
+    )
+
+    paragraph = clear_cell(
+        instruction_cell
+    )
+
+    add_run(
+        paragraph,
+        "Use this form to:",
+        size=7.4,
+        bold=True
+    )
+
+    paragraph = instruction_cell.add_paragraph()
+
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(0)
+    paragraph.paragraph_format.line_spacing = 0.92
+
+    add_run(
+        paragraph,
+        "• Tell the court that you are a service provider, "
+        "program, or professional offering language assistance "
+        "with services that may be ordered by a court; and",
+        size=6.8
+    )
+
+    paragraph = instruction_cell.add_paragraph()
+
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(0)
+    paragraph.paragraph_format.line_spacing = 0.92
+
+    add_run(
+        paragraph,
+        "• Provide information about the services you provide, "
+        "the languages and types of language assistance available, "
+        "and your service area.",
+        size=6.8
+    )
+
+    set_row_height(
+        instruction_table.rows[0],
+        54,
+        exact=True
+    )
+
+    # ========================================================
+    # SECTION 1
+    # ========================================================
+
+    section1 = left.add_table(
+        rows=1,
+        cols=2
+    )
+
+    section1.autofit = False
+
+    set_table_fixed_layout(
+        section1
+    )
+
+    section_widths = [
+        0.36,
+        4.39
+    ]
+
+    set_table_column_widths(
+        section1,
+        section_widths
+    )
+
+    number_cell = section1.cell(
+        0,
+        0
+    )
+
+    content_cell = section1.cell(
+        0,
+        1
+    )
+
+    remove_cell_borders(
+        number_cell
+    )
+
+    remove_cell_borders(
+        content_cell
+    )
+
+    set_cell_margins(
+        number_cell,
+        top=1,
+        bottom=0,
+        start=0,
+        end=0
+    )
+
+    set_cell_margins(
+        content_cell,
+        top=1,
+        bottom=0,
+        start=0,
+        end=2
+    )
+
+    paragraph = clear_cell(
+        number_cell
+    )
+
+    add_section_number(
+        paragraph,
+        1
+    )
+
+    paragraph = clear_cell(
+        content_cell
+    )
+
+    add_run(
+        paragraph,
+        "This form should be filed with the court by January 31 "
+        "of each year to indicate services that will be provided "
+        "during the calendar year. You may also submit this form "
+        "to let the court know your services have changed.",
+        size=6.8
+    )
+
+    paragraph = content_cell.add_paragraph()
+
+    paragraph.paragraph_format.space_before = Pt(1)
+    paragraph.paragraph_format.space_after = Pt(0)
+    paragraph.paragraph_format.line_spacing = 0.95
+
+    add_run(
+        paragraph,
+        "The information in this form describes services "
+        "available during calendar year: ",
+        size=6.8
+    )
+
+    add_run(
+        paragraph,
+        (
+            values["calendar_year"]
+            if values["calendar_year"]
+            else "____________________________"
+        ),
+        size=6.8
+    )
+
+    set_row_height(
+        section1.rows[0],
+        70,
+        exact=True
+    )
+
+    keep_table_row_together(
+        section1.rows[0]
+    )
+
+    # ========================================================
+    # SECTION 2
+    # ========================================================
+
+    section2 = left.add_table(
+        rows=4,
+        cols=2
+    )
+
+    section2.autofit = False
+
+    set_table_fixed_layout(
+        section2
+    )
+
+    set_table_column_widths(
+        section2,
+        section_widths
+    )
+
+    for row_index in range(
+        4
+    ):
+
+        remove_cell_borders(
+            section2.cell(
+                row_index,
+                0
+            )
+        )
+
+        remove_cell_borders(
+            section2.cell(
+                row_index,
+                1
+            )
+        )
+
+        set_cell_margins(
+            section2.cell(
+                row_index,
+                0
+            ),
+            top=0,
+            bottom=0,
+            start=0,
+            end=0
+        )
+
+        set_cell_margins(
+            section2.cell(
+                row_index,
+                1
+            ),
+            top=0,
+            bottom=0,
+            start=0,
+            end=2
+        )
+
+    paragraph = clear_cell(
+        section2.cell(
+            0,
+            0
+        )
+    )
+
+    add_section_number(
+        paragraph,
         2
     )
 
     paragraph = clear_cell(
-        right
+        section2.cell(
+            0,
+            1
+        )
+    )
+
+    add_form_line(
+        paragraph,
+        "Name of service provider:",
+        values["provider"],
+        width_chars=46,
+        size=6.9
+    )
+
+    paragraph = clear_cell(
+        section2.cell(
+            1,
+            1
+        )
+    )
+
+    add_form_line(
+        paragraph,
+        "Address:",
+        values["address"],
+        width_chars=65,
+        size=6.9
+    )
+
+    paragraph = clear_cell(
+        section2.cell(
+            2,
+            1
+        )
+    )
+
+    add_form_line(
+        paragraph,
+        "Telephone:",
+        values["telephone"],
+        width_chars=18,
+        size=6.9
+    )
+
+    add_run(
+        paragraph,
+        "   ",
+        size=6.9
+    )
+
+    add_form_line(
+        paragraph,
+        "Web address:",
+        values["web"],
+        width_chars=29,
+        size=6.9
+    )
+
+    paragraph = clear_cell(
+        section2.cell(
+            3,
+            1
+        )
+    )
+
+    add_form_line(
+        paragraph,
+        "Contact name:",
+        values["contact_name"],
+        width_chars=25,
+        size=6.9
+    )
+
+    add_run(
+        paragraph,
+        "   ",
+        size=6.9
+    )
+
+    add_form_line(
+        paragraph,
+        "E-mail:",
+        values["email"],
+        width_chars=29,
+        size=6.9
+    )
+
+    for row_index, height in enumerate(
+        [
+            21,
+            21,
+            21,
+            21
+        ]
+    ):
+
+        set_row_height(
+            section2.rows[
+                row_index
+            ],
+            height,
+            exact=True
+        )
+
+        keep_table_row_together(
+            section2.rows[
+                row_index
+            ]
+        )
+
+    # ========================================================
+    # RIGHT SIDE
+    # ========================================================
+
+    right_table = right.add_table(
+        rows=2,
+        cols=1
+    )
+
+    right_table.autofit = False
+
+    set_table_fixed_layout(
+        right_table
+    )
+
+    set_table_column_widths(
+        right_table,
+        [
+            2.45
+        ]
+    )
+
+    # --------------------------------------------------------
+    # CLERK STAMP BOX
+    # --------------------------------------------------------
+
+    clerk = right_table.cell(
+        0,
+        0
+    )
+
+    set_cell_margins(
+        clerk,
+        top=4,
+        bottom=4,
+        start=8,
+        end=8
+    )
+
+    paragraph = clear_cell(
+        clerk
     )
 
     add_run(
         paragraph,
         "Clerk stamps date here when form is received.",
-        size=5.7,
+        size=5.6,
         italic=True
     )
 
@@ -1151,7 +1812,7 @@ def add_la350_header(document):
     }
 
     set_cell_border(
-        right,
+        clerk,
         top=border,
         bottom=border,
         left=border,
@@ -1159,157 +1820,26 @@ def add_la350_header(document):
     )
 
     set_row_height(
-        table.rows[0],
-        48,
+        right_table.rows[0],
+        139,
         exact=True
     )
 
-    keep_table_row_together(
-        table.rows[0]
-    )
-
-    return table
-
-
-# ============================================================
-# INTRO + COURT + SECTION 1
-#
-# IMPORTANT CHANGE:
-#
-# Test (16) had the court cell merged vertically through
-# Section 1. That forced the right-hand court box to become
-# much taller than the original PDF.
-#
-# This version:
-#
-# ROW 0
-#   Instructions | Court box
-#
-# ROW 1
-#   Section 1 spans the entire page width
-#
-# ============================================================
-
-def add_la350_intro(
-    document,
-    values
-):
-
-    table = document.add_table(
-        rows=2,
-        cols=2
-    )
-
-    table.alignment = (
-        WD_TABLE_ALIGNMENT.CENTER
-    )
-
-    table.autofit = False
-
-    set_table_fixed_layout(
-        table
-    )
-
-    widths = [
-        4.90,
-        2.60
-    ]
-
-    set_table_column_widths(
-        table,
-        widths
-    )
-
     # --------------------------------------------------------
-    # ROW 0
-    # Instructions left / Court right
+    # COURT INFORMATION BOX
     # --------------------------------------------------------
 
-    instructions = table.cell(
-        0,
+    court = right_table.cell(
+        1,
         0
     )
 
-    court = table.cell(
-        0,
-        1
-    )
-
-    set_cell_width(
-        instructions,
-        4.90
-    )
-
-    set_cell_width(
-        court,
-        2.60
-    )
-
-    remove_cell_borders(
-        instructions
-    )
-
-    set_cell_margins(
-        instructions,
-        top=2,
-        bottom=1,
-        start=18,
-        end=24
-    )
-
-    # --------------------------------------------------------
-    # INSTRUCTIONS
-    # --------------------------------------------------------
-
-    paragraph = clear_cell(
-        instructions
-    )
-
-    add_run(
-        paragraph,
-        "Use this form to:",
-        size=7.0,
-        bold=True
-    )
-
-    paragraph = instructions.add_paragraph()
-
-    paragraph.paragraph_format.space_before = Pt(0)
-    paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.90
-
-    add_run(
-        paragraph,
-        "• Tell the court that you are a service provider, "
-        "program, or professional offering language assistance "
-        "with services that may be ordered by a court; and",
-        size=6.7
-    )
-
-    paragraph = instructions.add_paragraph()
-
-    paragraph.paragraph_format.space_before = Pt(0)
-    paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.90
-
-    add_run(
-        paragraph,
-        "• Provide information about the services you provide, "
-        "the languages and types of language assistance available, "
-        "and your service area.",
-        size=6.7
-    )
-
-    # --------------------------------------------------------
-    # COURT BOX
-    # --------------------------------------------------------
-
     set_cell_margins(
         court,
-        top=4,
-        bottom=2,
-        start=18,
-        end=18
+        top=3,
+        bottom=4,
+        start=8,
+        end=8
     )
 
     paragraph = clear_cell(
@@ -1319,7 +1849,7 @@ def add_la350_intro(
     add_run(
         paragraph,
         "Fill in court name and address:",
-        size=5.7,
+        size=5.6,
         italic=True
     )
 
@@ -1331,13 +1861,13 @@ def add_la350_intro(
     add_run(
         paragraph,
         "Superior Court of California, County of",
-        size=6.6,
+        size=6.4,
         bold=True
     )
 
     paragraph = court.add_paragraph()
 
-    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_before = Pt(1)
     paragraph.paragraph_format.space_after = Pt(0)
 
     add_run(
@@ -1350,12 +1880,6 @@ def add_la350_intro(
         size=6.7
     )
 
-    border = {
-        "val": "single",
-        "sz": 6,
-        "color": "000000"
-    }
-
     set_cell_border(
         court,
         top=border,
@@ -1364,313 +1888,17 @@ def add_la350_intro(
         right=border
     )
 
-    # The court box now ends here.
-    # It no longer extends down through Section 1.
-
     set_row_height(
-        table.rows[0],
-        72,
+        right_table.rows[1],
+        91,
         exact=True
     )
 
     keep_table_row_together(
-        table.rows[0]
+        outer.rows[0]
     )
 
-    # --------------------------------------------------------
-    # ROW 1
-    # SECTION 1 ACROSS FULL WIDTH
-    # --------------------------------------------------------
-
-    section1 = table.cell(
-        1,
-        0
-    ).merge(
-        table.cell(
-            1,
-            1
-        )
-    )
-
-    remove_cell_borders(
-        section1
-    )
-
-    set_cell_margins(
-        section1,
-        top=2,
-        bottom=1,
-        start=18,
-        end=18
-    )
-
-    paragraph = clear_cell(
-        section1
-    )
-
-    add_run(
-        paragraph,
-        "1  ",
-        size=7.3,
-        bold=True
-    )
-
-    add_run(
-        paragraph,
-        "This form should be filed with the court by January 31 "
-        "of each year to indicate services that will be provided "
-        "during the calendar year. You may also submit this form "
-        "to let the court know your services have changed.",
-        size=6.6
-    )
-
-    paragraph = section1.add_paragraph()
-
-    paragraph.paragraph_format.space_before = Pt(0)
-    paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.92
-
-    add_run(
-        paragraph,
-        "    The information in this form describes services "
-        "available during calendar year: ",
-        size=6.6
-    )
-
-    add_run(
-        paragraph,
-        (
-            values["calendar_year"]
-            if values["calendar_year"]
-            else "____________"
-        ),
-        size=6.6
-    )
-
-    set_row_height(
-        table.rows[1],
-        43,
-        exact=True
-    )
-
-    keep_table_row_together(
-        table.rows[1]
-    )
-
-    return table
-
-
-# ============================================================
-# PROVIDER SECTION
-# ============================================================
-
-def add_la350_provider_section(
-    document,
-    values
-):
-
-    table = document.add_table(
-        rows=4,
-        cols=2
-    )
-
-    table.alignment = (
-        WD_TABLE_ALIGNMENT.CENTER
-    )
-
-    table.autofit = False
-
-    set_table_fixed_layout(
-        table
-    )
-
-    widths = [
-        0.33,
-        7.17
-    ]
-
-    set_table_column_widths(
-        table,
-        widths
-    )
-
-    for row_index in range(4):
-
-        set_cell_width(
-            table.cell(
-                row_index,
-                0
-            ),
-            widths[0]
-        )
-
-        set_cell_width(
-            table.cell(
-                row_index,
-                1
-            ),
-            widths[1]
-        )
-
-        remove_cell_borders(
-            table.cell(
-                row_index,
-                0
-            )
-        )
-
-        remove_cell_borders(
-            table.cell(
-                row_index,
-                1
-            )
-        )
-
-        set_cell_margins(
-            table.cell(
-                row_index,
-                0
-            ),
-            top=0,
-            bottom=0,
-            start=0,
-            end=0
-        )
-
-        set_cell_margins(
-            table.cell(
-                row_index,
-                1
-            ),
-            top=0,
-            bottom=0,
-            start=8,
-            end=8
-        )
-
-    paragraph = clear_cell(
-        table.cell(
-            0,
-            0
-        )
-    )
-
-    add_run(
-        paragraph,
-        "2",
-        size=7.5,
-        bold=True
-    )
-
-    paragraph = clear_cell(
-        table.cell(
-            0,
-            1
-        )
-    )
-
-    add_form_line(
-        paragraph,
-        "Name of service provider:",
-        values["provider"],
-        width_chars=46,
-        size=6.8
-    )
-
-    paragraph = clear_cell(
-        table.cell(
-            1,
-            1
-        )
-    )
-
-    add_form_line(
-        paragraph,
-        "Address:",
-        values["address"],
-        width_chars=78,
-        size=6.8
-    )
-
-    paragraph = clear_cell(
-        table.cell(
-            2,
-            1
-        )
-    )
-
-    add_form_line(
-        paragraph,
-        "Telephone:",
-        values["telephone"],
-        width_chars=18,
-        size=6.8
-    )
-
-    add_run(
-        paragraph,
-        "      ",
-        size=6.8
-    )
-
-    add_form_line(
-        paragraph,
-        "Web address:",
-        values["web"],
-        width_chars=28,
-        size=6.8
-    )
-
-    paragraph = clear_cell(
-        table.cell(
-            3,
-            1
-        )
-    )
-
-    add_form_line(
-        paragraph,
-        "Contact name:",
-        values["contact_name"],
-        width_chars=25,
-        size=6.8
-    )
-
-    add_run(
-        paragraph,
-        "      ",
-        size=6.8
-    )
-
-    add_form_line(
-        paragraph,
-        "E-mail:",
-        values["email"],
-        width_chars=30,
-        size=6.8
-    )
-
-    # Keep Section 2 compact.
-    for row_index, height in enumerate(
-        [
-            15,
-            15,
-            15,
-            15
-        ]
-    ):
-
-        set_row_height(
-            table.rows[row_index],
-            height,
-            exact=True
-        )
-
-        keep_table_row_together(
-            table.rows[row_index]
-        )
-
-    return table
+    return outer
 
 
 # ============================================================
@@ -1718,9 +1946,7 @@ def add_option_table(
         size=4
     )
 
-    # --------------------------------------------------------
     # HEADER
-    # --------------------------------------------------------
 
     header = table.cell(
         0,
@@ -1772,11 +1998,11 @@ def add_option_table(
         exact=True
     )
 
-    # --------------------------------------------------------
     # OPTIONS
-    # --------------------------------------------------------
 
-    for index, label in enumerate(labels):
+    for index, label in enumerate(
+        labels
+    ):
 
         cell = table.cell(
             index + 1,
@@ -1786,7 +2012,9 @@ def add_option_table(
         add_checkbox_line(
             cell,
             label,
-            checked_values[index],
+            checked_values[
+                index
+            ],
             size=6.4
         )
 
@@ -1821,9 +2049,7 @@ def add_option_table(
             ]
         )
 
-    # --------------------------------------------------------
     # SPECIFY
-    # --------------------------------------------------------
 
     specify_row = (
         1
@@ -1863,9 +2089,7 @@ def add_option_table(
         exact=True
     )
 
-    # --------------------------------------------------------
     # SERVICE AREA
-    # --------------------------------------------------------
 
     if include_service_area:
 
@@ -1933,7 +2157,9 @@ def add_option_table(
         )
 
         set_row_height(
-            table.rows[index],
+            table.rows[
+                index
+            ],
             96,
             exact=True
         )
@@ -1942,10 +2168,7 @@ def add_option_table(
 
 
 # ============================================================
-# SECTION 3 / THREE LOWER TABLES
-#
-# KEEPING TEST (16) FIVE-COLUMN DESIGN.
-# The spacer columns worked and should not be removed.
+# SECTION 3
 # ============================================================
 
 def add_la350_services_section(
@@ -1955,7 +2178,7 @@ def add_la350_services_section(
 
     heading = document.add_table(
         rows=1,
-        cols=2
+        cols=3
     )
 
     heading.alignment = (
@@ -1969,8 +2192,9 @@ def add_la350_services_section(
     )
 
     heading_widths = [
-        3.15,
-        4.35
+        0.36,
+        2.70,
+        4.44
     ]
 
     set_table_column_widths(
@@ -1978,19 +2202,9 @@ def add_la350_services_section(
         heading_widths
     )
 
-    for index, width in enumerate(
-        heading_widths
-    ):
-
-        set_cell_width(
-            heading.cell(
-                0,
-                index
-            ),
-            width
-        )
-
-    for cell in heading.rows[0].cells:
+    for cell in heading.rows[
+        0
+    ].cells:
 
         remove_cell_borders(
             cell
@@ -2000,9 +2214,11 @@ def add_la350_services_section(
             cell,
             top=0,
             bottom=0,
-            start=4,
-            end=4
+            start=0,
+            end=2
         )
+
+    # CIRCLED 3
 
     paragraph = clear_cell(
         heading.cell(
@@ -2011,11 +2227,12 @@ def add_la350_services_section(
         )
     )
 
-    add_run(
+    add_section_number(
         paragraph,
-        "3  Information about the services provided:",
-        size=6.8
+        3
     )
+
+    # SECTION TITLE
 
     paragraph = clear_cell(
         heading.cell(
@@ -2026,9 +2243,27 @@ def add_la350_services_section(
 
     add_run(
         paragraph,
+        "Information about the services provided:",
+        size=6.8
+    )
+
+    # NARRATIVE CHECKBOX
+
+    paragraph = clear_cell(
+        heading.cell(
+            0,
+            2
+        )
+    )
+
+    add_run(
+        paragraph,
         checkbox_symbol(
-            values["narrative"]
-        ) + " ",
+            values[
+                "narrative"
+            ]
+        )
+        + " ",
         size=6.7
     )
 
@@ -2041,7 +2276,7 @@ def add_la350_services_section(
 
     set_row_height(
         heading.rows[0],
-        20,
+        22,
         exact=True
     )
 
@@ -2049,11 +2284,13 @@ def add_la350_services_section(
         heading.rows[0]
     )
 
-    # --------------------------------------------------------
-    # FIVE COLUMN WRAPPER
+    # ========================================================
+    # THREE LOWER TABLES
+    #
+    # Keep the successful five-column design from test (17):
     #
     # TABLE | GAP | TABLE | GAP | TABLE
-    # --------------------------------------------------------
+    # ========================================================
 
     outer = document.add_table(
         rows=1,
@@ -2113,7 +2350,9 @@ def add_la350_services_section(
             WD_CELL_VERTICAL_ALIGNMENT.TOP
         )
 
-        clear_cell(cell)
+        clear_cell(
+            cell
+        )
 
     service_labels = [
         "Mediation",
@@ -2158,7 +2397,9 @@ def add_la350_services_section(
         ),
         "Services",
         service_labels,
-        values["services"],
+        values[
+            "services"
+        ],
         specify_value=values[
             "service_specify"
         ]
@@ -2171,7 +2412,9 @@ def add_la350_services_section(
         ),
         "Languages Available",
         language_labels,
-        values["languages"],
+        values[
+            "languages"
+        ],
         specify_value=values[
             "language_specify"
         ]
@@ -2184,7 +2427,9 @@ def add_la350_services_section(
         ),
         "Types of Language\nAssistance",
         assistance_labels,
-        values["assistance"],
+        values[
+            "assistance"
+        ],
         specify_value=values[
             "assistance_specify"
         ],
@@ -2210,40 +2455,38 @@ def add_la350_signature_and_footer(
     values
 ):
 
-    # A controlled spacer pushes the signature/footer down
-    # without changing the lower option-table geometry.
-    add_vertical_spacer(
-        document,
-        11
-    )
+    # DATE
 
     paragraph = document.add_paragraph()
 
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.9
 
     add_form_line(
         paragraph,
         "Date:",
-        values["date"],
-        width_chars=20,
+        values[
+            "date"
+        ],
+        width_chars=22,
         size=6.6
     )
 
-    table = document.add_table(
+    # SIGNATURE LINES
+
+    signature = document.add_table(
         rows=2,
         cols=2
     )
 
-    table.alignment = (
+    signature.alignment = (
         WD_TABLE_ALIGNMENT.CENTER
     )
 
-    table.autofit = False
+    signature.autofit = False
 
     set_table_fixed_layout(
-        table
+        signature
     )
 
     signature_widths = [
@@ -2252,34 +2495,29 @@ def add_la350_signature_and_footer(
     ]
 
     set_table_column_widths(
-        table,
+        signature,
         signature_widths
     )
 
-    for row_index in range(2):
+    for row_index in range(
+        2
+    ):
 
-        for col_index in range(2):
+        for col_index in range(
+            2
+        ):
 
-            set_cell_width(
-                table.cell(
-                    row_index,
-                    col_index
-                ),
-                3.75
+            cell = signature.cell(
+                row_index,
+                col_index
             )
 
             remove_cell_borders(
-                table.cell(
-                    row_index,
-                    col_index
-                )
+                cell
             )
 
             set_cell_margins(
-                table.cell(
-                    row_index,
-                    col_index
-                ),
+                cell,
                 top=0,
                 bottom=0,
                 start=0,
@@ -2287,7 +2525,7 @@ def add_la350_signature_and_footer(
             )
 
     paragraph = clear_cell(
-        table.cell(
+        signature.cell(
             0,
             0
         )
@@ -2296,8 +2534,12 @@ def add_la350_signature_and_footer(
     add_run(
         paragraph,
         (
-            values["typed_name"]
-            if values["typed_name"]
+            values[
+                "typed_name"
+            ]
+            if values[
+                "typed_name"
+            ]
             else
             "________________________________________"
         ),
@@ -2305,7 +2547,7 @@ def add_la350_signature_and_footer(
     )
 
     paragraph = clear_cell(
-        table.cell(
+        signature.cell(
             0,
             1
         )
@@ -2318,7 +2560,7 @@ def add_la350_signature_and_footer(
     )
 
     paragraph = clear_cell(
-        table.cell(
+        signature.cell(
             1,
             0
         )
@@ -2332,7 +2574,7 @@ def add_la350_signature_and_footer(
     )
 
     paragraph = clear_cell(
-        table.cell(
+        signature.cell(
             1,
             1
         )
@@ -2346,28 +2588,20 @@ def add_la350_signature_and_footer(
     )
 
     set_row_height(
-        table.rows[0],
-        9,
+        signature.rows[0],
+        10,
         exact=True
     )
 
     set_row_height(
-        table.rows[1],
-        8,
+        signature.rows[1],
+        9,
         exact=True
     )
 
-    keep_table_row_together(
-        table.rows[0]
-    )
-
-    keep_table_row_together(
-        table.rows[1]
-    )
-
-    # --------------------------------------------------------
+    # ========================================================
     # FOOTER
-    # --------------------------------------------------------
+    # ========================================================
 
     footer = document.add_table(
         rows=1,
@@ -2385,9 +2619,9 @@ def add_la350_signature_and_footer(
     )
 
     widths = [
-        2.35,
-        3.50,
-        1.65
+        2.20,
+        3.75,
+        1.55
     ]
 
     set_table_column_widths(
@@ -2399,31 +2633,29 @@ def add_la350_signature_and_footer(
         widths
     ):
 
+        cell = footer.cell(
+            0,
+            index
+        )
+
         set_cell_width(
-            footer.cell(
-                0,
-                index
-            ),
+            cell,
             width
         )
 
         remove_cell_borders(
-            footer.cell(
-                0,
-                index
-            )
+            cell
         )
 
         set_cell_margins(
-            footer.cell(
-                0,
-                index
-            ),
-            top=0,
+            cell,
+            top=1,
             bottom=0,
             start=0,
             end=0
         )
+
+    # LEFT LEGAL TEXT
 
     paragraph = clear_cell(
         footer.cell(
@@ -2437,8 +2669,10 @@ def add_la350_signature_and_footer(
         "Judicial Council of California, www.courts.ca.gov\n"
         "New September 1, 2019, Optional Form\n"
         "Cal. Rules of Court, rule 1.300",
-        size=4.6
+        size=4.5
     )
+
+    # CENTER TITLE
 
     paragraph = clear_cell(
         footer.cell(
@@ -2455,9 +2689,11 @@ def add_la350_signature_and_footer(
         paragraph,
         "Notice of Available Language\n"
         "Assistance—Service Provider",
-        size=8.5,
+        size=8.7,
         bold=True
     )
+
+    # RIGHT PAGE NUMBER
 
     paragraph = clear_cell(
         footer.cell(
@@ -2479,12 +2715,8 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         footer.rows[0],
-        30,
+        32,
         exact=True
-    )
-
-    keep_table_row_together(
-        footer.rows[0]
     )
 
 
@@ -2517,25 +2749,56 @@ def convert_la350_to_docx(
         document
     )
 
-    section = document.sections[0]
+    section = document.sections[
+        0
+    ]
 
-    section.page_width = Inches(8.5)
-    section.page_height = Inches(11)
+    section.page_width = Inches(
+        8.5
+    )
 
-    section.top_margin = Inches(0.08)
-    section.bottom_margin = Inches(0.08)
-    section.left_margin = Inches(0.15)
-    section.right_margin = Inches(0.15)
+    section.page_height = Inches(
+        11
+    )
 
-    section.header_distance = Inches(0)
-    section.footer_distance = Inches(0)
+    section.top_margin = Inches(
+        0.08
+    )
+
+    section.bottom_margin = Inches(
+        0.08
+    )
+
+    section.left_margin = Inches(
+        0.15
+    )
+
+    section.right_margin = Inches(
+        0.15
+    )
+
+    section.header_distance = Inches(
+        0
+    )
+
+    section.footer_distance = Inches(
+        0
+    )
 
     if document.paragraphs:
 
-        first = document.paragraphs[0]
+        first = document.paragraphs[
+            0
+        ]
 
-        first.paragraph_format.space_before = Pt(0)
-        first.paragraph_format.space_after = Pt(0)
+        first.paragraph_format.space_before = Pt(
+            0
+        )
+
+        first.paragraph_format.space_after = Pt(
+            0
+        )
+
         first.paragraph_format.line_spacing = 0.1
 
         add_run(
@@ -2544,33 +2807,19 @@ def convert_la350_to_docx(
             size=1
         )
 
-    add_la350_header(
-        document
-    )
-
-    add_la350_intro(
+    # ORIGINAL-PDF STYLE TOP
+    add_la350_top(
         document,
         values
     )
 
-    add_la350_provider_section(
-        document,
-        values
-    )
-
-    # Small controlled gap before Section 3.
-    # This uses some of the vertical room recovered by
-    # shortening the oversized court area.
-    add_vertical_spacer(
-        document,
-        5
-    )
-
+    # SECTION 3
     add_la350_services_section(
         document,
         values
     )
 
+    # SIGNATURE + FOOTER
     add_la350_signature_and_footer(
         document,
         values
@@ -2627,9 +2876,12 @@ def convert_interactive_form_image_fallback(
             ]
 
             if page_index > 0:
+
                 document.add_page_break()
 
-            section = document.sections[-1]
+            section = document.sections[
+                -1
+            ]
 
             section.page_width = Pt(
                 page.rect.width
@@ -2639,13 +2891,29 @@ def convert_interactive_form_image_fallback(
                 page.rect.height
             )
 
-            section.top_margin = Pt(6)
-            section.bottom_margin = Pt(6)
-            section.left_margin = Pt(6)
-            section.right_margin = Pt(6)
+            section.top_margin = Pt(
+                6
+            )
 
-            section.header_distance = Pt(0)
-            section.footer_distance = Pt(0)
+            section.bottom_margin = Pt(
+                6
+            )
+
+            section.left_margin = Pt(
+                6
+            )
+
+            section.right_margin = Pt(
+                6
+            )
+
+            section.header_distance = Pt(
+                0
+            )
+
+            section.footer_distance = Pt(
+                0
+            )
 
             pix = page.get_pixmap(
                 matrix=fitz.Matrix(
@@ -2670,10 +2938,17 @@ def convert_interactive_form_image_fallback(
                 image_path
             )
 
-            paragraph = document.add_paragraph()
+            paragraph = (
+                document.add_paragraph()
+            )
 
-            paragraph.paragraph_format.space_before = Pt(0)
-            paragraph.paragraph_format.space_after = Pt(0)
+            paragraph.paragraph_format.space_before = Pt(
+                0
+            )
+
+            paragraph.paragraph_format.space_after = Pt(
+                0
+            )
 
             paragraph.alignment = (
                 WD_ALIGN_PARAGRAPH.CENTER
@@ -2685,7 +2960,8 @@ def convert_interactive_form_image_fallback(
                 image_path,
                 width=Pt(
                     max(
-                        page.rect.width - 12,
+                        page.rect.width
+                        - 12,
                         72
                     )
                 )
@@ -2719,17 +2995,19 @@ def pdf_to_word():
     if "file" not in request.files:
 
         return jsonify({
-            "error": "No file uploaded."
+            "error":
+            "No file uploaded."
         }), 400
 
-    uploaded_file = request.files[
-        "file"
-    ]
+    uploaded_file = (
+        request.files["file"]
+    )
 
     if uploaded_file.filename == "":
 
         return jsonify({
-            "error": "No file selected."
+            "error":
+            "No file selected."
         }), 400
 
     filename = secure_filename(
@@ -2741,7 +3019,8 @@ def pdf_to_word():
     ):
 
         return jsonify({
-            "error": "Please upload a PDF file."
+            "error":
+            "Please upload a PDF file."
         }), 400
 
     with tempfile.TemporaryDirectory() as temp_dir:
