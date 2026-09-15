@@ -109,7 +109,6 @@ def word_to_pdf():
         uploaded_file.save(input_path)
 
         try:
-
             result = subprocess.run(
                 [
                     "libreoffice",
@@ -133,13 +132,11 @@ def word_to_pdf():
                 print("LibreOffice warnings:", result.stderr, flush=True)
 
         except subprocess.TimeoutExpired:
-
             return jsonify({
                 "error": "The conversion took too long."
             }), 504
 
         except subprocess.CalledProcessError as error:
-
             print("LibreOffice error:", error.stderr, flush=True)
 
             return jsonify({
@@ -147,7 +144,6 @@ def word_to_pdf():
             }), 500
 
         except Exception as error:
-
             print("Word to PDF error:", repr(error), flush=True)
 
             return jsonify({
@@ -158,7 +154,6 @@ def word_to_pdf():
         output_path = os.path.join(temp_dir, output_name)
 
         if not os.path.exists(output_path):
-
             return jsonify({
                 "error": "The PDF could not be created."
             }), 500
@@ -210,12 +205,10 @@ def pdf_widget_count(input_path):
     pdf = None
 
     try:
-
         pdf = fitz.open(input_path)
         count = 0
 
         for page in pdf:
-
             widgets = page.widgets()
 
             if widgets:
@@ -226,12 +219,10 @@ def pdf_widget_count(input_path):
         return count
 
     except Exception as error:
-
         print("Form detection error:", repr(error), flush=True)
         return 0
 
     finally:
-
         if pdf is not None:
             pdf.close()
 
@@ -241,7 +232,6 @@ def is_la350_form(input_path):
     pdf = None
 
     try:
-
         pdf = fitz.open(input_path)
 
         if pdf.page_count != 1:
@@ -252,19 +242,15 @@ def is_la350_form(input_path):
 
         return (
             "la-350" in normalized
-            and
-            "notice of available language" in normalized
-            and
-            "service provider" in normalized
+            and "notice of available language" in normalized
+            and "service provider" in normalized
         )
 
     except Exception as error:
-
         print("LA-350 detection error:", repr(error), flush=True)
         return False
 
     finally:
-
         if pdf is not None:
             pdf.close()
 
@@ -287,7 +273,6 @@ def set_cell_border(
     tcBorders = tcPr.first_child_found_in("w:tcBorders")
 
     if tcBorders is None:
-
         tcBorders = OxmlElement("w:tcBorders")
         tcPr.append(tcBorders)
 
@@ -305,7 +290,6 @@ def set_cell_border(
         element = tcBorders.find(qn(tag))
 
         if element is None:
-
             element = OxmlElement(tag)
             tcBorders.append(element)
 
@@ -327,7 +311,6 @@ def set_cell_margins(
     tcMar = tcPr.first_child_found_in("w:tcMar")
 
     if tcMar is None:
-
         tcMar = OxmlElement("w:tcMar")
         tcPr.append(tcMar)
 
@@ -341,7 +324,6 @@ def set_cell_margins(
         node = tcMar.find(qn("w:" + name))
 
         if node is None:
-
             node = OxmlElement("w:" + name)
             tcMar.append(node)
 
@@ -352,11 +334,9 @@ def set_cell_margins(
 def set_table_fixed_layout(table):
 
     tblPr = table._tbl.tblPr
-
     tblLayout = tblPr.first_child_found_in("w:tblLayout")
 
     if tblLayout is None:
-
         tblLayout = OxmlElement("w:tblLayout")
         tblPr.append(tblLayout)
 
@@ -371,7 +351,6 @@ def set_cell_width(cell, width_inches):
     tcW = tcPr.first_child_found_in("w:tcW")
 
     if tcW is None:
-
         tcW = OxmlElement("w:tcW")
         tcPr.append(tcW)
 
@@ -385,18 +364,14 @@ def set_table_column_widths(table, widths):
     grid_cols = grid.findall(qn("w:gridCol"))
 
     for index, width in enumerate(widths):
-
         if index < len(grid_cols):
-
             grid_cols[index].set(
                 qn("w:w"),
                 str(int(width * 1440))
             )
 
     for row in table.rows:
-
         for index, width in enumerate(widths):
-
             if index < len(row.cells):
                 set_cell_width(row.cells[index], width)
 
@@ -435,7 +410,6 @@ def set_cell_shading(cell, fill):
     shd = tcPr.find(qn("w:shd"))
 
     if shd is None:
-
         shd = OxmlElement("w:shd")
         tcPr.append(shd)
 
@@ -451,9 +425,7 @@ def set_table_borders(table, size=5):
     }
 
     for row in table.rows:
-
         for cell in row.cells:
-
             set_cell_border(
                 cell,
                 top=border,
@@ -497,7 +469,6 @@ def set_run_font(
     rFonts = rPr.rFonts
 
     if rFonts is None:
-
         rFonts = OxmlElement("w:rFonts")
         rPr.append(rFonts)
 
@@ -526,7 +497,6 @@ def add_run(
     )
 
     if color:
-
         run.font.color.rgb = RGBColor(*color)
 
     return run
@@ -677,10 +647,7 @@ def extract_la350_values(input_path):
                     index = mapping.get(number)
 
                     if index is not None:
-
-                        values["services"][index] = (
-                            checkbox_is_checked(value)
-                        )
+                        values["services"][index] = checkbox_is_checked(value)
 
                 continue
 
@@ -696,7 +663,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 11 <= number <= 22:
-
                         values["languages"][number - 11] = (
                             checkbox_is_checked(value)
                         )
@@ -715,7 +681,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 23 <= number <= 27:
-
                         values["assistance"][number - 23] = (
                             checkbox_is_checked(value)
                         )
@@ -723,7 +688,6 @@ def extract_la350_values(input_path):
         return values
 
     finally:
-
         pdf.close()
 
 
@@ -786,176 +750,15 @@ def add_checkbox_line(
 
 
 # ============================================================
-# DRAWINGML SECTION CIRCLE
+# TRUE SECTION MARKER
 #
-# Actual editable Word oval with centered text.
-# This replaces Unicode circles and the square-cell experiment.
+# This avoids Unicode circled-number glyphs.
+# It uses a tiny bordered Word table cell with a plain number.
 # ============================================================
 
-def add_section_circle(paragraph, number):
-
-    run = paragraph.add_run()
-
-    drawing = OxmlElement("w:drawing")
-
-    inline = OxmlElement("wp:inline")
-    inline.set("distT", "0")
-    inline.set("distB", "0")
-    inline.set("distL", "0")
-    inline.set("distR", "0")
-
-    extent = OxmlElement("wp:extent")
-
-    # Approx. 0.14 inch x 0.14 inch
-    circle_emu = 128000
-
-    extent.set("cx", str(circle_emu))
-    extent.set("cy", str(circle_emu))
-
-    inline.append(extent)
-
-    effect_extent = OxmlElement("wp:effectExtent")
-    effect_extent.set("l", "0")
-    effect_extent.set("t", "0")
-    effect_extent.set("r", "0")
-    effect_extent.set("b", "0")
-
-    inline.append(effect_extent)
-
-    doc_pr = OxmlElement("wp:docPr")
-    doc_pr.set("id", str(100 + int(number)))
-    doc_pr.set("name", f"LA350 Section {number}")
-
-    inline.append(doc_pr)
-
-    graphic = OxmlElement("a:graphic")
-
-    graphic_data = OxmlElement("a:graphicData")
-    graphic_data.set(
-        "uri",
-        "http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-    )
-
-    wsp = OxmlElement("wps:wsp")
-
-    c_nv_sp_pr = OxmlElement("wps:cNvSpPr")
-    c_nv_sp_pr.set("txBox", "0")
-    wsp.append(c_nv_sp_pr)
-
-    sp_pr = OxmlElement("wps:spPr")
-
-    xfrm = OxmlElement("a:xfrm")
-
-    off = OxmlElement("a:off")
-    off.set("x", "0")
-    off.set("y", "0")
-
-    ext = OxmlElement("a:ext")
-    ext.set("cx", str(circle_emu))
-    ext.set("cy", str(circle_emu))
-
-    xfrm.append(off)
-    xfrm.append(ext)
-
-    sp_pr.append(xfrm)
-
-    geometry = OxmlElement("a:prstGeom")
-    geometry.set("prst", "ellipse")
-
-    av_lst = OxmlElement("a:avLst")
-    geometry.append(av_lst)
-
-    sp_pr.append(geometry)
-
-    no_fill = OxmlElement("a:noFill")
-    sp_pr.append(no_fill)
-
-    line = OxmlElement("a:ln")
-    line.set("w", "9000")
-
-    solid_fill = OxmlElement("a:solidFill")
-
-    srgb = OxmlElement("a:srgbClr")
-    srgb.set("val", "000000")
-
-    solid_fill.append(srgb)
-    line.append(solid_fill)
-
-    sp_pr.append(line)
-
-    wsp.append(sp_pr)
-
-    txbx = OxmlElement("wps:txbx")
-
-    txbx_content = OxmlElement("w:txbxContent")
-
-    p = OxmlElement("w:p")
-
-    p_pr = OxmlElement("w:pPr")
-
-    jc = OxmlElement("w:jc")
-    jc.set(qn("w:val"), "center")
-
-    spacing = OxmlElement("w:spacing")
-    spacing.set(qn("w:before"), "0")
-    spacing.set(qn("w:after"), "0")
-    spacing.set(qn("w:line"), "120")
-    spacing.set(qn("w:lineRule"), "exact")
-
-    p_pr.append(jc)
-    p_pr.append(spacing)
-
-    p.append(p_pr)
-
-    text_run = OxmlElement("w:r")
-
-    r_pr = OxmlElement("w:rPr")
-
-    r_fonts = OxmlElement("w:rFonts")
-    r_fonts.set(qn("w:ascii"), "Arial")
-    r_fonts.set(qn("w:hAnsi"), "Arial")
-
-    sz = OxmlElement("w:sz")
-    sz.set(qn("w:val"), "11")
-
-    sz_cs = OxmlElement("w:szCs")
-    sz_cs.set(qn("w:val"), "11")
-
-    r_pr.append(r_fonts)
-    r_pr.append(sz)
-    r_pr.append(sz_cs)
-
-    text_run.append(r_pr)
-
-    text = OxmlElement("w:t")
-    text.text = str(number)
-
-    text_run.append(text)
-    p.append(text_run)
-
-    txbx_content.append(p)
-    txbx.append(txbx_content)
-
-    wsp.append(txbx)
-
-    body_pr = OxmlElement("wps:bodyPr")
-    body_pr.set("lIns", "0")
-    body_pr.set("tIns", "0")
-    body_pr.set("rIns", "0")
-    body_pr.set("bIns", "0")
-    body_pr.set("anchor", "ctr")
-
-    wsp.append(body_pr)
-
-    graphic_data.append(wsp)
-    graphic.append(graphic_data)
-    inline.append(graphic)
-    drawing.append(inline)
-
-    run._r.append(drawing)
-
-
 def add_section_marker(parent_cell, number):
+
+    parent_cell.text = ""
 
     remove_cell_borders(parent_cell)
 
@@ -963,20 +766,66 @@ def add_section_marker(parent_cell, number):
         parent_cell,
         top=0,
         bottom=0,
-        start=0,
-        end=2
+        start=1,
+        end=4
     )
 
-    paragraph = clear_cell(parent_cell)
+    marker_table = parent_cell.add_table(
+        rows=1,
+        cols=1
+    )
 
+    marker_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    marker_table.autofit = False
+
+    set_table_fixed_layout(marker_table)
+    set_table_column_widths(marker_table, [0.17])
+
+    marker_cell = marker_table.cell(0, 0)
+
+    set_cell_width(marker_cell, 0.17)
+
+    set_cell_margins(
+        marker_cell,
+        top=0,
+        bottom=0,
+        start=0,
+        end=0
+    )
+
+    thin = {
+        "val": "single",
+        "sz": 5,
+        "color": "000000"
+    }
+
+    set_cell_border(
+        marker_cell,
+        top=thin,
+        bottom=thin,
+        left=thin,
+        right=thin
+    )
+
+    marker_cell.vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    )
+
+    paragraph = clear_cell(marker_cell)
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    paragraph.paragraph_format.space_before = Pt(0)
-    paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.8
+    paragraph.paragraph_format.line_spacing = 0.75
 
-    add_section_circle(
+    add_run(
         paragraph,
-        number
+        str(number),
+        size=5.9,
+        bold=False
+    )
+
+    set_row_height(
+        marker_table.rows[0],
+        10.5,
+        exact=True
     )
 
 
@@ -1030,7 +879,7 @@ def add_la350_top(document, values):
     clear_cell(right)
 
     # ========================================================
-    # HEADER
+    # LA-350 + TITLE
     # ========================================================
 
     header = left.add_table(
@@ -1039,7 +888,6 @@ def add_la350_top(document, values):
     )
 
     header.autofit = False
-
     set_table_fixed_layout(header)
 
     set_table_column_widths(
@@ -1065,7 +913,6 @@ def add_la350_top(document, values):
     )
 
     paragraph = clear_cell(black)
-
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     add_run(
@@ -1104,12 +951,10 @@ def add_la350_top(document, values):
         exact=True
     )
 
-    keep_table_row_together(
-        header.rows[0]
-    )
+    keep_table_row_together(header.rows[0])
 
     # ========================================================
-    # BLACK LINE
+    # LINE
     # ========================================================
 
     line_table = left.add_table(
@@ -1182,7 +1027,6 @@ def add_la350_top(document, values):
     )
 
     paragraph = instruction_cell.add_paragraph()
-
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
     paragraph.paragraph_format.line_spacing = 0.88
@@ -1196,7 +1040,6 @@ def add_la350_top(document, values):
     )
 
     paragraph = instruction_cell.add_paragraph()
-
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
     paragraph.paragraph_format.line_spacing = 0.88
@@ -1211,7 +1054,7 @@ def add_la350_top(document, values):
 
     set_row_height(
         instruction_table.rows[0],
-        43,
+        44,
         exact=True
     )
 
@@ -1234,10 +1077,7 @@ def add_la350_top(document, values):
     )
 
     section1.autofit = False
-
-    set_table_fixed_layout(
-        section1
-    )
+    set_table_fixed_layout(section1)
 
     set_table_column_widths(
         section1,
@@ -1262,10 +1102,7 @@ def add_la350_top(document, values):
         1
     )
 
-    paragraph = clear_cell(
-        content_cell
-    )
-
+    paragraph = clear_cell(content_cell)
     paragraph.paragraph_format.line_spacing = 0.92
 
     add_run(
@@ -1278,7 +1115,6 @@ def add_la350_top(document, values):
     )
 
     paragraph = content_cell.add_paragraph()
-
     paragraph.paragraph_format.space_before = Pt(1)
     paragraph.paragraph_format.space_after = Pt(0)
     paragraph.paragraph_format.line_spacing = 0.92
@@ -1302,7 +1138,7 @@ def add_la350_top(document, values):
 
     set_row_height(
         section1.rows[0],
-        53,
+        55,
         exact=True
     )
 
@@ -1320,10 +1156,7 @@ def add_la350_top(document, values):
     )
 
     section2.autofit = False
-
-    set_table_fixed_layout(
-        section2
-    )
+    set_table_fixed_layout(section2)
 
     set_table_column_widths(
         section2,
@@ -1333,17 +1166,11 @@ def add_la350_top(document, values):
     for row_index in range(4):
 
         remove_cell_borders(
-            section2.cell(
-                row_index,
-                1
-            )
+            section2.cell(row_index, 1)
         )
 
         set_cell_margins(
-            section2.cell(
-                row_index,
-                1
-            ),
+            section2.cell(row_index, 1),
             top=0,
             bottom=0,
             start=0,
@@ -1351,12 +1178,8 @@ def add_la350_top(document, values):
         )
 
         if row_index > 0:
-
             remove_cell_borders(
-                section2.cell(
-                    row_index,
-                    0
-                )
+                section2.cell(row_index, 0)
             )
 
     add_section_marker(
@@ -1444,7 +1267,7 @@ def add_la350_top(document, values):
 
         set_row_height(
             section2.rows[row_index],
-            17.5,
+            18,
             exact=True
         )
 
@@ -1462,10 +1285,7 @@ def add_la350_top(document, values):
     )
 
     right_table.autofit = False
-
-    set_table_fixed_layout(
-        right_table
-    )
+    set_table_fixed_layout(right_table)
 
     set_table_column_widths(
         right_table,
@@ -1535,7 +1355,6 @@ def add_la350_top(document, values):
     )
 
     paragraph = court.add_paragraph()
-
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
 
@@ -1547,17 +1366,12 @@ def add_la350_top(document, values):
     )
 
     paragraph = court.add_paragraph()
-
     paragraph.paragraph_format.space_before = Pt(1)
     paragraph.paragraph_format.space_after = Pt(0)
 
     add_run(
         paragraph,
-        (
-            values["court"]
-            if values["court"]
-            else " "
-        ),
+        values["court"] if values["court"] else " ",
         size=6.5
     )
 
@@ -1602,11 +1416,7 @@ def add_option_table(
         1
         + len(labels)
         + 1
-        + (
-            1
-            if include_service_area
-            else 0
-        )
+        + (1 if include_service_area else 0)
     )
 
     table = parent_cell.add_table(
@@ -1637,7 +1447,6 @@ def add_option_table(
     )
 
     paragraph2 = header.add_paragraph()
-
     paragraph2.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph2.paragraph_format.space_before = Pt(0)
     paragraph2.paragraph_format.space_after = Pt(0)
@@ -1694,11 +1503,8 @@ def add_option_table(
         )
 
         if row_heights and index < len(row_heights):
-
             height = row_heights[index]
-
         else:
-
             height = 23
 
         set_row_height(
@@ -1742,7 +1548,7 @@ def add_option_table(
 
     set_row_height(
         table.rows[specify_row],
-        21,
+        22,
         exact=True
     )
 
@@ -1764,7 +1570,6 @@ def add_option_table(
         )
 
         paragraph = clear_cell(cell)
-
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         add_run(
@@ -1775,7 +1580,6 @@ def add_option_table(
         )
 
         paragraph2 = cell.add_paragraph()
-
         paragraph2.alignment = WD_ALIGN_PARAGRAPH.CENTER
         paragraph2.paragraph_format.space_before = Pt(0)
         paragraph2.paragraph_format.space_after = Pt(0)
@@ -1787,7 +1591,6 @@ def add_option_table(
         )
 
         paragraph3 = cell.add_paragraph()
-
         paragraph3.alignment = WD_ALIGN_PARAGRAPH.CENTER
         paragraph3.paragraph_format.space_before = Pt(5)
         paragraph3.paragraph_format.space_after = Pt(0)
@@ -1810,9 +1613,10 @@ def add_option_table(
             end=15
         )
 
+        # Between test 19 (too tall) and test 20 (too short)
         set_row_height(
             table.rows[index],
-            74,
+            79,
             exact=True
         )
 
@@ -1824,13 +1628,25 @@ def add_option_table(
 
 
 # ============================================================
-# SECTION 3 + LOWER TABLES
+# SECTION 3
 # ============================================================
 
 def add_la350_services_section(
     document,
     values
 ):
+
+    # Small controlled gap before section 3
+    spacer = document.add_paragraph()
+    spacer.paragraph_format.space_before = Pt(0)
+    spacer.paragraph_format.space_after = Pt(0)
+    spacer.paragraph_format.line_spacing = 0.25
+
+    add_run(
+        spacer,
+        "",
+        size=2
+    )
 
     heading = document.add_table(
         rows=1,
@@ -1840,9 +1656,7 @@ def add_la350_services_section(
     heading.alignment = WD_TABLE_ALIGNMENT.CENTER
     heading.autofit = False
 
-    set_table_fixed_layout(
-        heading
-    )
+    set_table_fixed_layout(heading)
 
     set_table_column_widths(
         heading,
@@ -1899,7 +1713,7 @@ def add_la350_services_section(
 
     set_row_height(
         heading.rows[0],
-        23,
+        22,
         exact=True
     )
 
@@ -1908,7 +1722,15 @@ def add_la350_services_section(
     )
 
     # ========================================================
-    # THREE TABLES
+    # LOWER TABLE WRAPPER
+    #
+    # Test 20:
+    #   2.70 / 2.15 / 2.35
+    #
+    # Test 21:
+    #   Services slightly narrower
+    #   Languages wider
+    #   Assistance slightly wider
     # ========================================================
 
     outer = document.add_table(
@@ -1919,17 +1741,14 @@ def add_la350_services_section(
     outer.alignment = WD_TABLE_ALIGNMENT.CENTER
     outer.autofit = False
 
-    set_table_fixed_layout(
-        outer
-    )
+    set_table_fixed_layout(outer)
 
-    # Balanced against original PDF.
     widths = [
-        2.56,
-        0.15,
-        2.23,
-        0.15,
-        2.41
+        2.58,
+        0.14,
+        2.25,
+        0.14,
+        2.39
     ]
 
     set_table_column_widths(
@@ -1939,19 +1758,14 @@ def add_la350_services_section(
 
     for index, width in enumerate(widths):
 
-        cell = outer.cell(
-            0,
-            index
-        )
+        cell = outer.cell(0, index)
 
         set_cell_width(
             cell,
             width
         )
 
-        remove_cell_borders(
-            cell
-        )
+        remove_cell_borders(cell)
 
         set_cell_margins(
             cell,
@@ -1965,9 +1779,7 @@ def add_la350_services_section(
             WD_CELL_VERTICAL_ALIGNMENT.TOP
         )
 
-        clear_cell(
-            cell
-        )
+        clear_cell(cell)
 
     service_labels = [
         "Mediation",
@@ -2015,18 +1827,18 @@ def add_la350_services_section(
         service_labels,
         values["services"],
         specify_value=values["service_specify"],
-        header_height=31,
+        header_height=32,
         row_heights=[
-            24,
+            25,
+            31,
+            31,
+            25,
+            25,
+            25,
+            25,
+            25,
             29,
-            29,
-            24,
-            24,
-            24,
-            24,
-            24,
-            27,
-            24,
+            25,
         ]
     )
 
@@ -2040,20 +1852,20 @@ def add_la350_services_section(
         language_labels,
         values["languages"],
         specify_value=values["language_specify"],
-        header_height=31,
+        header_height=32,
         row_heights=[
-            23,
-            26,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
+            24,
+            27,
+            24,
+            24,
+            24,
+            24,
+            24,
+            24,
+            24,
+            24,
+            24,
+            24,
         ]
     )
 
@@ -2069,13 +1881,13 @@ def add_la350_services_section(
         specify_value=values["assistance_specify"],
         include_service_area=True,
         service_area_value=values["service_area"],
-        header_height=33,
+        header_height=34,
         row_heights=[
-            32,
-            26,
-            26,
-            26,
-            26,
+            34,
+            27,
+            27,
+            27,
+            27,
         ]
     )
 
@@ -2146,7 +1958,7 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         date_table.rows[0],
-        13,
+        12,
         exact=True
     )
 
@@ -2169,14 +1981,13 @@ def add_la350_signature_and_footer(
     set_table_column_widths(
         signature,
         [
-            3.15,
+            3.10,
             0.75,
-            3.60
+            3.65
         ]
     )
 
     for row in signature.rows:
-
         for cell in row.cells:
 
             remove_cell_borders(cell)
@@ -2188,6 +1999,8 @@ def add_la350_signature_and_footer(
                 start=0,
                 end=0
             )
+
+    # Left typed-name line
 
     paragraph = clear_cell(
         signature.cell(0, 0)
@@ -2203,9 +2016,13 @@ def add_la350_signature_and_footer(
         size=6.3
     )
 
+    # Middle gap
+
     clear_cell(
         signature.cell(0, 1)
     )
+
+    # Right signature line
 
     paragraph = clear_cell(
         signature.cell(0, 2)
@@ -2213,9 +2030,11 @@ def add_la350_signature_and_footer(
 
     add_run(
         paragraph,
-        "______________________________________",
+        "________________________________________",
         size=6.3
     )
+
+    # Labels
 
     paragraph = clear_cell(
         signature.cell(1, 0)
@@ -2256,6 +2075,22 @@ def add_la350_signature_and_footer(
     )
 
     # ========================================================
+    # SMALL SPACE BEFORE FOOTER
+    # ========================================================
+
+    spacer = document.add_paragraph()
+
+    spacer.paragraph_format.space_before = Pt(0)
+    spacer.paragraph_format.space_after = Pt(0)
+    spacer.paragraph_format.line_spacing = 0.2
+
+    add_run(
+        spacer,
+        "",
+        size=1
+    )
+
+    # ========================================================
     # FOOTER
     # ========================================================
 
@@ -2284,19 +2119,14 @@ def add_la350_signature_and_footer(
 
     for index, width in enumerate(widths):
 
-        cell = footer.cell(
-            0,
-            index
-        )
+        cell = footer.cell(0, index)
 
         set_cell_width(
             cell,
             width
         )
 
-        remove_cell_borders(
-            cell
-        )
+        remove_cell_borders(cell)
 
         set_cell_margins(
             cell,
@@ -2351,7 +2181,7 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         footer.rows[0],
-        29,
+        28,
         exact=True
     )
 
@@ -2458,9 +2288,7 @@ def convert_interactive_form_image_fallback(
         flush=True
     )
 
-    pdf = fitz.open(
-        input_path
-    )
+    pdf = fitz.open(input_path)
 
     document = Document()
 
@@ -2474,9 +2302,7 @@ def convert_interactive_form_image_fallback(
             pdf.page_count
         ):
 
-            page = pdf[
-                page_index
-            ]
+            page = pdf[page_index]
 
             if page_index > 0:
                 document.add_page_break()
@@ -2509,18 +2335,11 @@ def convert_interactive_form_image_fallback(
             )
 
             image_path = os.path.join(
-                os.path.dirname(
-                    output_path
-                ),
-                (
-                    f"interactive_page_"
-                    f"{page_index + 1}.png"
-                )
+                os.path.dirname(output_path),
+                f"interactive_page_{page_index + 1}.png"
             )
 
-            pix.save(
-                image_path
-            )
+            pix.save(image_path)
 
             paragraph = document.add_paragraph()
 
@@ -2548,7 +2367,6 @@ def convert_interactive_form_image_fallback(
         )
 
     finally:
-
         pdf.close()
 
     print(
@@ -2569,17 +2387,13 @@ def convert_interactive_form_image_fallback(
 def pdf_to_word():
 
     if "file" not in request.files:
-
         return jsonify({
             "error": "No file uploaded."
         }), 400
 
-    uploaded_file = request.files[
-        "file"
-    ]
+    uploaded_file = request.files["file"]
 
     if uploaded_file.filename == "":
-
         return jsonify({
             "error": "No file selected."
         }), 400
@@ -2588,10 +2402,7 @@ def pdf_to_word():
         uploaded_file.filename
     )
 
-    if not filename.lower().endswith(
-        ".pdf"
-    ):
-
+    if not filename.lower().endswith(".pdf"):
         return jsonify({
             "error": "Please upload a PDF file."
         }), 400
@@ -2608,9 +2419,7 @@ def pdf_to_word():
         )
 
         output_name = (
-            os.path.splitext(
-                filename
-            )[0]
+            os.path.splitext(filename)[0]
             + ".docx"
         )
 
@@ -2723,17 +2532,13 @@ def pdf_to_word():
                 "error": "The PDF could not be converted to Word."
             }), 500
 
-        if not os.path.exists(
-            output_path
-        ):
+        if not os.path.exists(output_path):
 
             return jsonify({
                 "error": "The Word document could not be created."
             }), 500
 
-        if os.path.getsize(
-            output_path
-        ) == 0:
+        if os.path.getsize(output_path) == 0:
 
             return jsonify({
                 "error": "The Word document was created but was empty."
