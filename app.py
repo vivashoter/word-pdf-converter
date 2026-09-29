@@ -252,10 +252,8 @@ def is_la350_form(input_path):
 
         return (
             "la-350" in normalized
-            and
-            "notice of available language" in normalized
-            and
-            "service provider" in normalized
+            and "notice of available language" in normalized
+            and "service provider" in normalized
         )
 
     except Exception as error:
@@ -281,22 +279,22 @@ def set_cell_border(
     right=None
 ):
 
-    tc = cell._tc
-    tcPr = tc.get_or_add_tcPr()
+    tcPr = cell._tc.get_or_add_tcPr()
 
     tcBorders = tcPr.first_child_found_in("w:tcBorders")
 
     if tcBorders is None:
-
         tcBorders = OxmlElement("w:tcBorders")
         tcPr.append(tcBorders)
 
-    for edge_name, edge in {
+    edges = {
         "top": top,
         "bottom": bottom,
         "left": left,
         "right": right,
-    }.items():
+    }
+
+    for edge_name, edge in edges.items():
 
         if edge is None:
             continue
@@ -305,7 +303,6 @@ def set_cell_border(
         element = tcBorders.find(qn(tag))
 
         if element is None:
-
             element = OxmlElement(tag)
             tcBorders.append(element)
 
@@ -327,21 +324,21 @@ def set_cell_margins(
     tcMar = tcPr.first_child_found_in("w:tcMar")
 
     if tcMar is None:
-
         tcMar = OxmlElement("w:tcMar")
         tcPr.append(tcMar)
 
-    for name, value in {
+    values = {
         "top": top,
         "start": start,
         "bottom": bottom,
         "end": end,
-    }.items():
+    }
+
+    for name, value in values.items():
 
         node = tcMar.find(qn("w:" + name))
 
         if node is None:
-
             node = OxmlElement("w:" + name)
             tcMar.append(node)
 
@@ -356,7 +353,6 @@ def set_table_fixed_layout(table):
     tblLayout = tblPr.first_child_found_in("w:tblLayout")
 
     if tblLayout is None:
-
         tblLayout = OxmlElement("w:tblLayout")
         tblPr.append(tblLayout)
 
@@ -368,10 +364,10 @@ def set_cell_width(cell, width_inches):
     cell.width = Inches(width_inches)
 
     tcPr = cell._tc.get_or_add_tcPr()
+
     tcW = tcPr.first_child_found_in("w:tcW")
 
     if tcW is None:
-
         tcW = OxmlElement("w:tcW")
         tcPr.append(tcW)
 
@@ -387,7 +383,6 @@ def set_table_column_widths(table, widths):
     for index, width in enumerate(widths):
 
         if index < len(grid_cols):
-
             grid_cols[index].set(
                 qn("w:w"),
                 str(int(width * 1440))
@@ -435,7 +430,6 @@ def set_cell_shading(cell, fill):
     shd = tcPr.find(qn("w:shd"))
 
     if shd is None:
-
         shd = OxmlElement("w:shd")
         tcPr.append(shd)
 
@@ -494,6 +488,7 @@ def set_run_font(
     run.italic = italic
 
     rPr = run._element.get_or_add_rPr()
+
     rFonts = rPr.rFonts
 
     if rFonts is None:
@@ -526,7 +521,6 @@ def add_run(
     )
 
     if color:
-
         run.font.color.rgb = RGBColor(*color)
 
     return run
@@ -677,10 +671,7 @@ def extract_la350_values(input_path):
                     index = mapping.get(number)
 
                     if index is not None:
-
-                        values["services"][index] = (
-                            checkbox_is_checked(value)
-                        )
+                        values["services"][index] = checkbox_is_checked(value)
 
                 continue
 
@@ -696,7 +687,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 11 <= number <= 22:
-
                         values["languages"][number - 11] = (
                             checkbox_is_checked(value)
                         )
@@ -715,7 +705,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 23 <= number <= 27:
-
                         values["assistance"][number - 23] = (
                             checkbox_is_checked(value)
                         )
@@ -723,7 +712,6 @@ def extract_la350_values(input_path):
         return values
 
     finally:
-
         pdf.close()
 
 
@@ -786,176 +774,105 @@ def add_checkbox_line(
 
 
 # ============================================================
-# DRAWINGML SECTION CIRCLE
+# TEST 23
+# SECTION NUMBER MARKERS
 #
-# Actual editable Word oval with centered text.
-# This replaces Unicode circles and the square-cell experiment.
+# Word did not consistently render the DrawingML ellipse in
+# test 22. This version creates a real rasterized circle from
+# PyMuPDF and inserts it inline.
+#
+# PyMuPDF is already part of this project, so NO new package
+# is required.
 # ============================================================
 
-def add_section_circle(paragraph, number):
+def create_section_marker_image(number, temp_dir):
 
-    run = paragraph.add_run()
-
-    drawing = OxmlElement("w:drawing")
-
-    inline = OxmlElement("wp:inline")
-    inline.set("distT", "0")
-    inline.set("distB", "0")
-    inline.set("distL", "0")
-    inline.set("distR", "0")
-
-    extent = OxmlElement("wp:extent")
-
-    # Approx. 0.14 inch x 0.14 inch
-    circle_emu = 128000
-
-    extent.set("cx", str(circle_emu))
-    extent.set("cy", str(circle_emu))
-
-    inline.append(extent)
-
-    effect_extent = OxmlElement("wp:effectExtent")
-    effect_extent.set("l", "0")
-    effect_extent.set("t", "0")
-    effect_extent.set("r", "0")
-    effect_extent.set("b", "0")
-
-    inline.append(effect_extent)
-
-    doc_pr = OxmlElement("wp:docPr")
-    doc_pr.set("id", str(100 + int(number)))
-    doc_pr.set("name", f"LA350 Section {number}")
-
-    inline.append(doc_pr)
-
-    graphic = OxmlElement("a:graphic")
-
-    graphic_data = OxmlElement("a:graphicData")
-    graphic_data.set(
-        "uri",
-        "http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+    marker_path = os.path.join(
+        temp_dir,
+        f"la350_section_{number}.png"
     )
 
-    wsp = OxmlElement("wps:wsp")
+    # Large temporary canvas for clean down-scaling in Word.
+    size = 120
 
-    c_nv_sp_pr = OxmlElement("wps:cNvSpPr")
-    c_nv_sp_pr.set("txBox", "0")
-    wsp.append(c_nv_sp_pr)
+    marker_pdf = fitz.open()
 
-    sp_pr = OxmlElement("wps:spPr")
+    page = marker_pdf.new_page(
+        width=size,
+        height=size
+    )
 
-    xfrm = OxmlElement("a:xfrm")
+    # White page/background.
+    page.draw_rect(
+        fitz.Rect(0, 0, size, size),
+        color=(1, 1, 1),
+        fill=(1, 1, 1),
+        width=0
+    )
 
-    off = OxmlElement("a:off")
-    off.set("x", "0")
-    off.set("y", "0")
+    # Circle closely matching the thin ring used by the PDF.
+    circle_rect = fitz.Rect(
+        8,
+        8,
+        size - 8,
+        size - 8
+    )
 
-    ext = OxmlElement("a:ext")
-    ext.set("cx", str(circle_emu))
-    ext.set("cy", str(circle_emu))
+    shape = page.new_shape()
 
-    xfrm.append(off)
-    xfrm.append(ext)
+    shape.draw_oval(circle_rect)
 
-    sp_pr.append(xfrm)
+    shape.finish(
+        color=(0, 0, 0),
+        fill=None,
+        width=4
+    )
 
-    geometry = OxmlElement("a:prstGeom")
-    geometry.set("prst", "ellipse")
+    shape.commit()
 
-    av_lst = OxmlElement("a:avLst")
-    geometry.append(av_lst)
+    # Center the number manually.
+    # Using Helvetica keeps the marker simple and close to
+    # the Judicial Council form.
+    number_text = str(number)
 
-    sp_pr.append(geometry)
+    font_size = 54
 
-    no_fill = OxmlElement("a:noFill")
-    sp_pr.append(no_fill)
+    text_width = fitz.get_text_length(
+        number_text,
+        fontname="helv",
+        fontsize=font_size
+    )
 
-    line = OxmlElement("a:ln")
-    line.set("w", "9000")
+    x = (size - text_width) / 2
 
-    solid_fill = OxmlElement("a:solidFill")
+    # Baseline adjusted for visual vertical centering.
+    y = 79
 
-    srgb = OxmlElement("a:srgbClr")
-    srgb.set("val", "000000")
+    page.insert_text(
+        fitz.Point(x, y),
+        number_text,
+        fontname="helv",
+        fontsize=font_size,
+        color=(0, 0, 0)
+    )
 
-    solid_fill.append(srgb)
-    line.append(solid_fill)
+    pix = page.get_pixmap(
+        matrix=fitz.Matrix(2, 2),
+        alpha=False
+    )
 
-    sp_pr.append(line)
+    pix.save(marker_path)
 
-    wsp.append(sp_pr)
+    marker_pdf.close()
 
-    txbx = OxmlElement("wps:txbx")
-
-    txbx_content = OxmlElement("w:txbxContent")
-
-    p = OxmlElement("w:p")
-
-    p_pr = OxmlElement("w:pPr")
-
-    jc = OxmlElement("w:jc")
-    jc.set(qn("w:val"), "center")
-
-    spacing = OxmlElement("w:spacing")
-    spacing.set(qn("w:before"), "0")
-    spacing.set(qn("w:after"), "0")
-    spacing.set(qn("w:line"), "120")
-    spacing.set(qn("w:lineRule"), "exact")
-
-    p_pr.append(jc)
-    p_pr.append(spacing)
-
-    p.append(p_pr)
-
-    text_run = OxmlElement("w:r")
-
-    r_pr = OxmlElement("w:rPr")
-
-    r_fonts = OxmlElement("w:rFonts")
-    r_fonts.set(qn("w:ascii"), "Arial")
-    r_fonts.set(qn("w:hAnsi"), "Arial")
-
-    sz = OxmlElement("w:sz")
-    sz.set(qn("w:val"), "11")
-
-    sz_cs = OxmlElement("w:szCs")
-    sz_cs.set(qn("w:val"), "11")
-
-    r_pr.append(r_fonts)
-    r_pr.append(sz)
-    r_pr.append(sz_cs)
-
-    text_run.append(r_pr)
-
-    text = OxmlElement("w:t")
-    text.text = str(number)
-
-    text_run.append(text)
-    p.append(text_run)
-
-    txbx_content.append(p)
-    txbx.append(txbx_content)
-
-    wsp.append(txbx)
-
-    body_pr = OxmlElement("wps:bodyPr")
-    body_pr.set("lIns", "0")
-    body_pr.set("tIns", "0")
-    body_pr.set("rIns", "0")
-    body_pr.set("bIns", "0")
-    body_pr.set("anchor", "ctr")
-
-    wsp.append(body_pr)
-
-    graphic_data.append(wsp)
-    graphic.append(graphic_data)
-    inline.append(graphic)
-    drawing.append(inline)
-
-    run._r.append(drawing)
+    return marker_path
 
 
-def add_section_marker(parent_cell, number):
+def add_section_marker(
+    parent_cell,
+    number,
+    marker_paths
+):
 
     remove_cell_borders(parent_cell)
 
@@ -964,19 +881,23 @@ def add_section_marker(parent_cell, number):
         top=0,
         bottom=0,
         start=0,
-        end=2
+        end=3
     )
 
     paragraph = clear_cell(parent_cell)
 
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
-    paragraph.paragraph_format.line_spacing = 0.8
+    paragraph.paragraph_format.line_spacing = 1.0
 
-    add_section_circle(
-        paragraph,
-        number
+    run = paragraph.add_run()
+
+    run.add_picture(
+        marker_paths[number],
+        width=Inches(0.145),
+        height=Inches(0.145)
     )
 
 
@@ -984,7 +905,11 @@ def add_section_marker(parent_cell, number):
 # LA-350 TOP
 # ============================================================
 
-def add_la350_top(document, values):
+def add_la350_top(
+    document,
+    values,
+    marker_paths
+):
 
     outer = document.add_table(
         rows=1,
@@ -1109,7 +1034,7 @@ def add_la350_top(document, values):
     )
 
     # ========================================================
-    # BLACK LINE
+    # HORIZONTAL BLACK LINE
     # ========================================================
 
     line_table = left.add_table(
@@ -1221,11 +1146,14 @@ def add_la350_top(document, values):
 
     # ========================================================
     # SECTION 1
+    #
+    # Marker column reduced from test 22 so the text begins
+    # closer to the marker, like the original PDF.
     # ========================================================
 
     section_widths = [
-        0.30,
-        4.45
+        0.26,
+        4.49
     ]
 
     section1 = left.add_table(
@@ -1235,9 +1163,7 @@ def add_la350_top(document, values):
 
     section1.autofit = False
 
-    set_table_fixed_layout(
-        section1
-    )
+    set_table_fixed_layout(section1)
 
     set_table_column_widths(
         section1,
@@ -1247,11 +1173,19 @@ def add_la350_top(document, values):
     number_cell = section1.cell(0, 0)
     content_cell = section1.cell(0, 1)
 
+    number_cell.vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.TOP
+    )
+
+    content_cell.vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.TOP
+    )
+
     remove_cell_borders(content_cell)
 
     set_cell_margins(
         content_cell,
-        top=2,
+        top=0,
         bottom=0,
         start=0,
         end=2
@@ -1259,12 +1193,11 @@ def add_la350_top(document, values):
 
     add_section_marker(
         number_cell,
-        1
+        1,
+        marker_paths
     )
 
-    paragraph = clear_cell(
-        content_cell
-    )
+    paragraph = clear_cell(content_cell)
 
     paragraph.paragraph_format.line_spacing = 0.92
 
@@ -1300,9 +1233,10 @@ def add_la350_top(document, values):
         size=6.5
     )
 
+    # Test 22 had more empty vertical space than the source.
     set_row_height(
         section1.rows[0],
-        53,
+        48,
         exact=True
     )
 
@@ -1321,9 +1255,7 @@ def add_la350_top(document, values):
 
     section2.autofit = False
 
-    set_table_fixed_layout(
-        section2
-    )
+    set_table_fixed_layout(section2)
 
     set_table_column_widths(
         section2,
@@ -1333,17 +1265,11 @@ def add_la350_top(document, values):
     for row_index in range(4):
 
         remove_cell_borders(
-            section2.cell(
-                row_index,
-                1
-            )
+            section2.cell(row_index, 1)
         )
 
         set_cell_margins(
-            section2.cell(
-                row_index,
-                1
-            ),
+            section2.cell(row_index, 1),
             top=0,
             bottom=0,
             start=0,
@@ -1353,15 +1279,17 @@ def add_la350_top(document, values):
         if row_index > 0:
 
             remove_cell_borders(
-                section2.cell(
-                    row_index,
-                    0
-                )
+                section2.cell(row_index, 0)
             )
+
+    section2.cell(0, 0).vertical_alignment = (
+        WD_CELL_VERTICAL_ALIGNMENT.TOP
+    )
 
     add_section_marker(
         section2.cell(0, 0),
-        2
+        2,
+        marker_paths
     )
 
     paragraph = clear_cell(
@@ -1444,7 +1372,7 @@ def add_la350_top(document, values):
 
         set_row_height(
             section2.rows[row_index],
-            17.5,
+            17,
             exact=True
         )
 
@@ -1463,9 +1391,7 @@ def add_la350_top(document, values):
 
     right_table.autofit = False
 
-    set_table_fixed_layout(
-        right_table
-    )
+    set_table_fixed_layout(right_table)
 
     set_table_column_widths(
         right_table,
@@ -1620,9 +1546,7 @@ def add_option_table(
     set_table_fixed_layout(table)
     set_table_borders(table, size=4)
 
-    # ========================================================
     # HEADER
-    # ========================================================
 
     header = table.cell(0, 0)
 
@@ -1667,9 +1591,7 @@ def add_option_table(
         table.rows[0]
     )
 
-    # ========================================================
     # OPTIONS
-    # ========================================================
 
     for index, label in enumerate(labels):
 
@@ -1694,11 +1616,8 @@ def add_option_table(
         )
 
         if row_heights and index < len(row_heights):
-
             height = row_heights[index]
-
         else:
-
             height = 23
 
         set_row_height(
@@ -1711,9 +1630,7 @@ def add_option_table(
             table.rows[index + 1]
         )
 
-    # ========================================================
     # SPECIFY
-    # ========================================================
 
     specify_row = 1 + len(labels)
 
@@ -1750,9 +1667,7 @@ def add_option_table(
         table.rows[specify_row]
     )
 
-    # ========================================================
     # SERVICE AREA
-    # ========================================================
 
     if include_service_area:
 
@@ -1764,7 +1679,6 @@ def add_option_table(
         )
 
         paragraph = clear_cell(cell)
-
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         add_run(
@@ -1829,7 +1743,8 @@ def add_option_table(
 
 def add_la350_services_section(
     document,
-    values
+    values,
+    marker_paths
 ):
 
     heading = document.add_table(
@@ -1844,11 +1759,13 @@ def add_la350_services_section(
         heading
     )
 
+    # Narrower number column gives the same left relationship
+    # as Sections 1 and 2.
     set_table_column_widths(
         heading,
         [
-            0.30,
-            2.72,
+            0.26,
+            2.76,
             4.48
         ]
     )
@@ -1865,9 +1782,14 @@ def add_la350_services_section(
             end=2
         )
 
+        cell.vertical_alignment = (
+            WD_CELL_VERTICAL_ALIGNMENT.TOP
+        )
+
     add_section_marker(
         heading.cell(0, 0),
-        3
+        3,
+        marker_paths
     )
 
     paragraph = clear_cell(
@@ -1899,7 +1821,7 @@ def add_la350_services_section(
 
     set_row_height(
         heading.rows[0],
-        23,
+        22,
         exact=True
     )
 
@@ -1908,7 +1830,11 @@ def add_la350_services_section(
     )
 
     # ========================================================
-    # THREE TABLES
+    # THREE LOWER TABLES
+    #
+    # These are intentionally kept very close to test 22,
+    # because test 22's lower-table proportions were already
+    # one of the strongest parts of the reconstruction.
     # ========================================================
 
     outer = document.add_table(
@@ -1923,7 +1849,6 @@ def add_la350_services_section(
         outer
     )
 
-    # Balanced against original PDF.
     widths = [
         2.56,
         0.15,
@@ -2005,10 +1930,6 @@ def add_la350_services_section(
         "Other",
     ]
 
-    # ========================================================
-    # SERVICES
-    # ========================================================
-
     add_option_table(
         outer.cell(0, 0),
         "Services",
@@ -2029,10 +1950,6 @@ def add_la350_services_section(
             24,
         ]
     )
-
-    # ========================================================
-    # LANGUAGES
-    # ========================================================
 
     add_option_table(
         outer.cell(0, 2),
@@ -2056,10 +1973,6 @@ def add_la350_services_section(
             23,
         ]
     )
-
-    # ========================================================
-    # ASSISTANCE
-    # ========================================================
 
     add_option_table(
         outer.cell(0, 4),
@@ -2094,10 +2007,6 @@ def add_la350_signature_and_footer(
     document,
     values
 ):
-
-    # ========================================================
-    # DATE
-    # ========================================================
 
     date_table = document.add_table(
         rows=1,
@@ -2151,7 +2060,7 @@ def add_la350_signature_and_footer(
     )
 
     # ========================================================
-    # SIGNATURE LINES
+    # SIGNATURE
     # ========================================================
 
     signature = document.add_table(
@@ -2399,6 +2308,29 @@ def convert_la350_to_docx(
     section.header_distance = Inches(0)
     section.footer_distance = Inches(0)
 
+    # ========================================================
+    # CREATE THE THREE REAL CIRCLE MARKERS
+    # ========================================================
+
+    marker_dir = os.path.dirname(
+        output_path
+    )
+
+    marker_paths = {
+        1: create_section_marker_image(
+            1,
+            marker_dir
+        ),
+        2: create_section_marker_image(
+            2,
+            marker_dir
+        ),
+        3: create_section_marker_image(
+            3,
+            marker_dir
+        ),
+    }
+
     if document.paragraphs:
 
         first = document.paragraphs[0]
@@ -2415,12 +2347,14 @@ def convert_la350_to_docx(
 
     add_la350_top(
         document,
-        values
+        values,
+        marker_paths
     )
 
     add_la350_services_section(
         document,
-        values
+        values,
+        marker_paths
     )
 
     add_la350_signature_and_footer(
