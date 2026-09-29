@@ -383,6 +383,7 @@ def set_table_column_widths(table, widths):
     for index, width in enumerate(widths):
 
         if index < len(grid_cols):
+
             grid_cols[index].set(
                 qn("w:w"),
                 str(int(width * 1440))
@@ -671,7 +672,10 @@ def extract_la350_values(input_path):
                     index = mapping.get(number)
 
                     if index is not None:
-                        values["services"][index] = checkbox_is_checked(value)
+
+                        values["services"][index] = (
+                            checkbox_is_checked(value)
+                        )
 
                 continue
 
@@ -687,6 +691,7 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 11 <= number <= 22:
+
                         values["languages"][number - 11] = (
                             checkbox_is_checked(value)
                         )
@@ -705,6 +710,7 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 23 <= number <= 27:
+
                         values["assistance"][number - 23] = (
                             checkbox_is_checked(value)
                         )
@@ -774,15 +780,7 @@ def add_checkbox_line(
 
 
 # ============================================================
-# TEST 23
-# SECTION NUMBER MARKERS
-#
-# Word did not consistently render the DrawingML ellipse in
-# test 22. This version creates a real rasterized circle from
-# PyMuPDF and inserts it inline.
-#
-# PyMuPDF is already part of this project, so NO new package
-# is required.
+# SECTION CIRCLE IMAGES
 # ============================================================
 
 def create_section_marker_image(number, temp_dir):
@@ -792,7 +790,6 @@ def create_section_marker_image(number, temp_dir):
         f"la350_section_{number}.png"
     )
 
-    # Large temporary canvas for clean down-scaling in Word.
     size = 120
 
     marker_pdf = fitz.open()
@@ -802,7 +799,6 @@ def create_section_marker_image(number, temp_dir):
         height=size
     )
 
-    # White page/background.
     page.draw_rect(
         fitz.Rect(0, 0, size, size),
         color=(1, 1, 1),
@@ -810,7 +806,6 @@ def create_section_marker_image(number, temp_dir):
         width=0
     )
 
-    # Circle closely matching the thin ring used by the PDF.
     circle_rect = fitz.Rect(
         8,
         8,
@@ -830,9 +825,6 @@ def create_section_marker_image(number, temp_dir):
 
     shape.commit()
 
-    # Center the number manually.
-    # Using Helvetica keeps the marker simple and close to
-    # the Judicial Council form.
     number_text = str(number)
 
     font_size = 54
@@ -845,7 +837,6 @@ def create_section_marker_image(number, temp_dir):
 
     x = (size - text_width) / 2
 
-    # Baseline adjusted for visual vertical centering.
     y = 79
 
     page.insert_text(
@@ -1034,7 +1025,7 @@ def add_la350_top(
     )
 
     # ========================================================
-    # HORIZONTAL BLACK LINE
+    # HORIZONTAL LINE
     # ========================================================
 
     line_table = left.add_table(
@@ -1146,9 +1137,6 @@ def add_la350_top(
 
     # ========================================================
     # SECTION 1
-    #
-    # Marker column reduced from test 22 so the text begins
-    # closer to the marker, like the original PDF.
     # ========================================================
 
     section_widths = [
@@ -1233,10 +1221,10 @@ def add_la350_top(
         size=6.5
     )
 
-    # Test 22 had more empty vertical space than the source.
+    # Slightly more room than test 23.
     set_row_height(
         section1.rows[0],
-        48,
+        50,
         exact=True
     )
 
@@ -1372,7 +1360,7 @@ def add_la350_top(
 
         set_row_height(
             section2.rows[row_index],
-            17,
+            17.5,
             exact=True
         )
 
@@ -1521,7 +1509,7 @@ def add_option_table(
     include_service_area=False,
     service_area_value="",
     row_heights=None,
-    header_height=31
+    header_height=29
 ):
 
     rows_needed = (
@@ -1546,7 +1534,9 @@ def add_option_table(
     set_table_fixed_layout(table)
     set_table_borders(table, size=4)
 
+    # ========================================================
     # HEADER
+    # ========================================================
 
     header = table.cell(0, 0)
 
@@ -1575,8 +1565,8 @@ def add_option_table(
 
     set_cell_margins(
         header,
-        top=5,
-        bottom=4,
+        top=4,
+        bottom=3,
         start=15,
         end=15
     )
@@ -1591,7 +1581,9 @@ def add_option_table(
         table.rows[0]
     )
 
-    # OPTIONS
+    # ========================================================
+    # OPTION ROWS
+    # ========================================================
 
     for index, label in enumerate(labels):
 
@@ -1604,21 +1596,24 @@ def add_option_table(
             cell,
             label,
             checked_values[index],
-            size=6.15
+            size=6.05
         )
 
         set_cell_margins(
             cell,
             top=1,
             bottom=1,
-            start=12,
-            end=10
+            start=10,
+            end=8
         )
 
         if row_heights and index < len(row_heights):
+
             height = row_heights[index]
+
         else:
-            height = 23
+
+            height = 21
 
         set_row_height(
             table.rows[index + 1],
@@ -1630,7 +1625,9 @@ def add_option_table(
             table.rows[index + 1]
         )
 
+    # ========================================================
     # SPECIFY
+    # ========================================================
 
     specify_row = 1 + len(labels)
 
@@ -1646,20 +1643,20 @@ def add_option_table(
         "Specify:",
         specify_value,
         width_chars=15,
-        size=6.15
+        size=6.05
     )
 
     set_cell_margins(
         cell,
         top=1,
         bottom=1,
-        start=12,
-        end=10
+        start=10,
+        end=8
     )
 
     set_row_height(
         table.rows[specify_row],
-        21,
+        19,
         exact=True
     )
 
@@ -1667,7 +1664,9 @@ def add_option_table(
         table.rows[specify_row]
     )
 
+    # ========================================================
     # SERVICE AREA
+    # ========================================================
 
     if include_service_area:
 
@@ -1679,6 +1678,7 @@ def add_option_table(
         )
 
         paragraph = clear_cell(cell)
+
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         add_run(
@@ -1697,13 +1697,13 @@ def add_option_table(
         add_run(
             paragraph2,
             "(county or region)",
-            size=5.6
+            size=5.5
         )
 
         paragraph3 = cell.add_paragraph()
 
         paragraph3.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        paragraph3.paragraph_format.space_before = Pt(5)
+        paragraph3.paragraph_format.space_before = Pt(4)
         paragraph3.paragraph_format.space_after = Pt(0)
 
         add_run(
@@ -1713,20 +1713,21 @@ def add_option_table(
                 if service_area_value
                 else "________________________"
             ),
-            size=6.2
+            size=6.1
         )
 
         set_cell_margins(
             cell,
-            top=5,
-            bottom=4,
+            top=4,
+            bottom=3,
             start=15,
             end=15
         )
 
+        # Test 23 was visibly too tall here.
         set_row_height(
             table.rows[index],
-            74,
+            62,
             exact=True
         )
 
@@ -1759,8 +1760,6 @@ def add_la350_services_section(
         heading
     )
 
-    # Narrower number column gives the same left relationship
-    # as Sections 1 and 2.
     set_table_column_widths(
         heading,
         [
@@ -1819,9 +1818,10 @@ def add_la350_services_section(
         size=6.2
     )
 
+    # Pull tables slightly closer to Section 3.
     set_row_height(
         heading.rows[0],
-        22,
+        19,
         exact=True
     )
 
@@ -1830,11 +1830,7 @@ def add_la350_services_section(
     )
 
     # ========================================================
-    # THREE LOWER TABLES
-    #
-    # These are intentionally kept very close to test 22,
-    # because test 22's lower-table proportions were already
-    # one of the strongest parts of the reconstruction.
+    # THREE TABLES
     # ========================================================
 
     outer = document.add_table(
@@ -1930,26 +1926,34 @@ def add_la350_services_section(
         "Other",
     ]
 
+    # ========================================================
+    # SERVICES
+    # ========================================================
+
     add_option_table(
         outer.cell(0, 0),
         "Services",
         service_labels,
         values["services"],
         specify_value=values["service_specify"],
-        header_height=31,
+        header_height=28,
         row_heights=[
+            21,
+            25,
+            25,
+            22,
+            22,
+            22,
+            22,
+            22,
             24,
-            29,
-            29,
-            24,
-            24,
-            24,
-            24,
-            24,
-            27,
-            24,
+            21,
         ]
     )
+
+    # ========================================================
+    # LANGUAGES
+    # ========================================================
 
     add_option_table(
         outer.cell(0, 2),
@@ -1957,22 +1961,26 @@ def add_la350_services_section(
         language_labels,
         values["languages"],
         specify_value=values["language_specify"],
-        header_height=31,
+        header_height=28,
         row_heights=[
+            21,
             23,
-            26,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
-            23,
+            21,
+            21,
+            21,
+            21,
+            21,
+            21,
+            21,
+            21,
+            21,
+            21,
         ]
     )
+
+    # ========================================================
+    # ASSISTANCE
+    # ========================================================
 
     add_option_table(
         outer.cell(0, 4),
@@ -1982,13 +1990,13 @@ def add_la350_services_section(
         specify_value=values["assistance_specify"],
         include_service_area=True,
         service_area_value=values["service_area"],
-        header_height=33,
+        header_height=31,
         row_heights=[
-            32,
-            26,
-            26,
-            26,
-            26,
+            27,
+            23,
+            23,
+            23,
+            22,
         ]
     )
 
@@ -2007,6 +2015,10 @@ def add_la350_signature_and_footer(
     document,
     values
 ):
+
+    # ========================================================
+    # DATE
+    # ========================================================
 
     date_table = document.add_table(
         rows=1,
@@ -2055,7 +2067,7 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         date_table.rows[0],
-        13,
+        14,
         exact=True
     )
 
@@ -2154,18 +2166,21 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         signature.rows[0],
-        10,
+        11,
         exact=True
     )
 
     set_row_height(
         signature.rows[1],
-        8,
+        9,
         exact=True
     )
 
     # ========================================================
     # FOOTER
+    #
+    # Equal side columns make the form title genuinely centered
+    # instead of appearing shifted to the right.
     # ========================================================
 
     footer = document.add_table(
@@ -2181,9 +2196,9 @@ def add_la350_signature_and_footer(
     )
 
     widths = [
-        2.30,
-        3.70,
-        1.50
+        2.15,
+        3.20,
+        2.15
     ]
 
     set_table_column_widths(
@@ -2260,7 +2275,7 @@ def add_la350_signature_and_footer(
 
     set_row_height(
         footer.rows[0],
-        29,
+        30,
         exact=True
     )
 
@@ -2307,10 +2322,6 @@ def convert_la350_to_docx(
 
     section.header_distance = Inches(0)
     section.footer_distance = Inches(0)
-
-    # ========================================================
-    # CREATE THE THREE REAL CIRCLE MARKERS
-    # ========================================================
 
     marker_dir = os.path.dirname(
         output_path
