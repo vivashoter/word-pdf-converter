@@ -865,7 +865,9 @@ def add_section_marker(
 
     paragraph = clear_cell(parent_cell)
 
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    # Keep the marker slightly left of the section text, matching the PDF.
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph.paragraph_format.left_indent = Inches(-0.035)
 
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
@@ -1702,7 +1704,7 @@ def add_option_table(
         # over-compressed 62.
         set_row_height(
             table.rows[index],
-            68,
+            74,
             exact=True
         )
 
