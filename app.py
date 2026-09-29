@@ -383,7 +383,6 @@ def set_table_column_widths(table, widths):
     for index, width in enumerate(widths):
 
         if index < len(grid_cols):
-
             grid_cols[index].set(
                 qn("w:w"),
                 str(int(width * 1440))
@@ -493,7 +492,6 @@ def set_run_font(
     rFonts = rPr.rFonts
 
     if rFonts is None:
-
         rFonts = OxmlElement("w:rFonts")
         rPr.append(rFonts)
 
@@ -636,12 +634,10 @@ def extract_la350_values(input_path):
             value = widget.field_value or ""
 
             if short in text_map:
-
                 values[text_map[short]] = str(value).strip()
                 continue
 
             if short == "CheckBox29":
-
                 values["narrative"] = checkbox_is_checked(value)
                 continue
 
@@ -672,10 +668,7 @@ def extract_la350_values(input_path):
                     index = mapping.get(number)
 
                     if index is not None:
-
-                        values["services"][index] = (
-                            checkbox_is_checked(value)
-                        )
+                        values["services"][index] = checkbox_is_checked(value)
 
                 continue
 
@@ -691,7 +684,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 11 <= number <= 22:
-
                         values["languages"][number - 11] = (
                             checkbox_is_checked(value)
                         )
@@ -710,7 +702,6 @@ def extract_la350_values(input_path):
                     number = int(match.group(1))
 
                     if 23 <= number <= 27:
-
                         values["assistance"][number - 23] = (
                             checkbox_is_checked(value)
                         )
@@ -726,7 +717,6 @@ def extract_la350_values(input_path):
 # ============================================================
 
 def checkbox_symbol(checked):
-
     return "☒" if checked else "☐"
 
 
@@ -826,7 +816,6 @@ def create_section_marker_image(number, temp_dir):
     shape.commit()
 
     number_text = str(number)
-
     font_size = 54
 
     text_width = fitz.get_text_length(
@@ -836,7 +825,6 @@ def create_section_marker_image(number, temp_dir):
     )
 
     x = (size - text_width) / 2
-
     y = 79
 
     page.insert_text(
@@ -872,12 +860,12 @@ def add_section_marker(
         top=0,
         bottom=0,
         start=0,
-        end=3
+        end=0
     )
 
     paragraph = clear_cell(parent_cell)
 
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(0)
@@ -1136,12 +1124,14 @@ def add_la350_top(
     )
 
     # ========================================================
-    # SECTION 1
+    # SECTIONS 1 / 2
     # ========================================================
 
+    # Slightly narrower marker column so the marker and text
+    # sit together more like the source PDF.
     section_widths = [
-        0.26,
-        4.49
+        0.23,
+        4.52
     ]
 
     section1 = left.add_table(
@@ -1161,13 +1151,8 @@ def add_la350_top(
     number_cell = section1.cell(0, 0)
     content_cell = section1.cell(0, 1)
 
-    number_cell.vertical_alignment = (
-        WD_CELL_VERTICAL_ALIGNMENT.TOP
-    )
-
-    content_cell.vertical_alignment = (
-        WD_CELL_VERTICAL_ALIGNMENT.TOP
-    )
+    number_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+    content_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
 
     remove_cell_borders(content_cell)
 
@@ -1175,7 +1160,7 @@ def add_la350_top(
         content_cell,
         top=0,
         bottom=0,
-        start=0,
+        start=2,
         end=2
     )
 
@@ -1221,10 +1206,11 @@ def add_la350_top(
         size=6.5
     )
 
-    # Slightly more room than test 23.
+    # Test 24 showed too much dead space before section 2.
+    # The content fits comfortably at 39 pt.
     set_row_height(
         section1.rows[0],
-        50,
+        39,
         exact=True
     )
 
@@ -1260,12 +1246,11 @@ def add_la350_top(
             section2.cell(row_index, 1),
             top=0,
             bottom=0,
-            start=0,
+            start=2,
             end=2
         )
 
         if row_index > 0:
-
             remove_cell_borders(
                 section2.cell(row_index, 0)
             )
@@ -1369,7 +1354,7 @@ def add_la350_top(
         )
 
     # ========================================================
-    # RIGHT SIDE
+    # RIGHT SIDE — FROZEN FROM TEST 24
     # ========================================================
 
     right_table = right.add_table(
@@ -1509,7 +1494,7 @@ def add_option_table(
     include_service_area=False,
     service_area_value="",
     row_heights=None,
-    header_height=29
+    header_height=30
 ):
 
     rows_needed = (
@@ -1534,9 +1519,7 @@ def add_option_table(
     set_table_fixed_layout(table)
     set_table_borders(table, size=4)
 
-    # ========================================================
     # HEADER
-    # ========================================================
 
     header = table.cell(0, 0)
 
@@ -1581,9 +1564,7 @@ def add_option_table(
         table.rows[0]
     )
 
-    # ========================================================
-    # OPTION ROWS
-    # ========================================================
+    # OPTIONS
 
     for index, label in enumerate(labels):
 
@@ -1608,12 +1589,9 @@ def add_option_table(
         )
 
         if row_heights and index < len(row_heights):
-
             height = row_heights[index]
-
         else:
-
-            height = 21
+            height = 22
 
         set_row_height(
             table.rows[index + 1],
@@ -1625,9 +1603,7 @@ def add_option_table(
             table.rows[index + 1]
         )
 
-    # ========================================================
     # SPECIFY
-    # ========================================================
 
     specify_row = 1 + len(labels)
 
@@ -1656,7 +1632,7 @@ def add_option_table(
 
     set_row_height(
         table.rows[specify_row],
-        19,
+        20,
         exact=True
     )
 
@@ -1664,9 +1640,7 @@ def add_option_table(
         table.rows[specify_row]
     )
 
-    # ========================================================
     # SERVICE AREA
-    # ========================================================
 
     if include_service_area:
 
@@ -1724,10 +1698,11 @@ def add_option_table(
             end=15
         )
 
-        # Test 23 was visibly too tall here.
+        # Between test 23's oversized 74 and test 24's
+        # over-compressed 62.
         set_row_height(
             table.rows[index],
-            62,
+            68,
             exact=True
         )
 
@@ -1763,8 +1738,8 @@ def add_la350_services_section(
     set_table_column_widths(
         heading,
         [
-            0.26,
-            2.76,
+            0.23,
+            2.79,
             4.48
         ]
     )
@@ -1818,10 +1793,9 @@ def add_la350_services_section(
         size=6.2
     )
 
-    # Pull tables slightly closer to Section 3.
     set_row_height(
         heading.rows[0],
-        19,
+        18,
         exact=True
     )
 
@@ -1830,7 +1804,7 @@ def add_la350_services_section(
     )
 
     # ========================================================
-    # THREE TABLES
+    # THREE LOWER TABLES
     # ========================================================
 
     outer = document.add_table(
@@ -1845,6 +1819,7 @@ def add_la350_services_section(
         outer
     )
 
+    # Keep test 24 widths.
     widths = [
         2.56,
         0.15,
@@ -1926,62 +1901,55 @@ def add_la350_services_section(
         "Other",
     ]
 
-    # ========================================================
-    # SERVICES
-    # ========================================================
-
+    # SERVICES:
+    # restored some vertical height from test 24
     add_option_table(
         outer.cell(0, 0),
         "Services",
         service_labels,
         values["services"],
         specify_value=values["service_specify"],
-        header_height=28,
+        header_height=30,
         row_heights=[
-            21,
-            25,
-            25,
-            22,
-            22,
-            22,
-            22,
-            22,
+            23,
+            27,
+            27,
             24,
-            21,
+            24,
+            24,
+            24,
+            24,
+            26,
+            23,
         ]
     )
 
-    # ========================================================
-    # LANGUAGES
-    # ========================================================
-
+    # LANGUAGES:
+    # remains longest, but not as exaggerated as test 23
     add_option_table(
         outer.cell(0, 2),
         "Languages Available",
         language_labels,
         values["languages"],
         specify_value=values["language_specify"],
-        header_height=28,
+        header_height=30,
         row_heights=[
-            21,
             23,
-            21,
-            21,
-            21,
-            21,
-            21,
-            21,
-            21,
-            21,
-            21,
-            21,
+            25,
+            23,
+            23,
+            23,
+            23,
+            23,
+            23,
+            23,
+            23,
+            23,
+            23,
         ]
     )
 
-    # ========================================================
     # ASSISTANCE
-    # ========================================================
-
     add_option_table(
         outer.cell(0, 4),
         "Types of Language\nAssistance",
@@ -1990,13 +1958,13 @@ def add_la350_services_section(
         specify_value=values["assistance_specify"],
         include_service_area=True,
         service_area_value=values["service_area"],
-        header_height=31,
+        header_height=32,
         row_heights=[
-            27,
-            23,
-            23,
-            23,
-            22,
+            29,
+            25,
+            25,
+            25,
+            24,
         ]
     )
 
@@ -2016,9 +1984,7 @@ def add_la350_signature_and_footer(
     values
 ):
 
-    # ========================================================
     # DATE
-    # ========================================================
 
     date_table = document.add_table(
         rows=1,
@@ -2071,9 +2037,7 @@ def add_la350_signature_and_footer(
         exact=True
     )
 
-    # ========================================================
     # SIGNATURE
-    # ========================================================
 
     signature = document.add_table(
         rows=2,
@@ -2177,10 +2141,7 @@ def add_la350_signature_and_footer(
     )
 
     # ========================================================
-    # FOOTER
-    #
-    # Equal side columns make the form title genuinely centered
-    # instead of appearing shifted to the right.
+    # FOOTER — KEEP TEST 24 CENTERING
     # ========================================================
 
     footer = document.add_table(
@@ -2493,7 +2454,6 @@ def convert_interactive_form_image_fallback(
         )
 
     finally:
-
         pdf.close()
 
     print(
