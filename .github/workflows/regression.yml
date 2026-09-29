@@ -1,0 +1,43 @@
+name: ConvertDocGoose Regression Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice poppler-utils qpdf ghostscript tesseract-ocr tesseract-ocr-eng
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install "git+https://github.com/ebt55/exactdoc.git"
+
+      - name: Run regression tests
+        run: python tests/regression.py
+
+      - name: Upload generated test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-output
+          path: test-output/
+          if-no-files-found: ignore
